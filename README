@@ -1,0 +1,11 @@
+libpurple REST plugin
+_____________________
+
+Compile (on Debian/(K)Ubuntu)
+-----------------------------
+
+$ sudo apt-get build-dep pidgin
+$ cd ~ && mkdir -p debian && cd debian
+$ apt-get source pidgin
+$ cd pidgin-X.Y
+$ debuild -b -uc -us
