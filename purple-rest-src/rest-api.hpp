@@ -1,14 +1,13 @@
 #ifndef REST_API_HPP
 #define REST_API_HPP
 
-#include <curl/curl.h>
-
-class History
+extern "C"
 {
-public:
 
-    void add_message(const char * msg);
+// :fixme: :todo:
+int perform_rest_request(char *buf, int buf_len);
 
-};
+}
+
 
 #endif
