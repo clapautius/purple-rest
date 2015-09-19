@@ -1,3 +1,11 @@
+/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+
+   This program is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free Software
+   Foundation; either version 3 of the License, or (at your option) any later
+   version.
+*/
+
 #define PURPLE_PLUGINS
 
 #include <string.h>
@@ -21,16 +29,18 @@ int answer_to_http_connection (void *cls, struct MHD_Connection *connection,
                                const char *upload_data,
                                size_t *upload_data_size, void **con_cls)
 {
-    char page[1024];
-    perform_rest_request(page, sizeof(page));
+    char *content = NULL, *content_type = NULL;
+    int content_size = 0;
+    perform_rest_request(url, method, &content, &content_size, &content_type);
     struct MHD_Response *response;
-    int ret;
-    response = MHD_create_response_from_buffer(strlen (page),
-                                               (void*) page, MHD_RESPMEM_MUST_COPY);
-    MHD_add_response_header(response, "Content-Type", "text/html");
-    ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+    response = MHD_create_response_from_buffer(content_size, content,
+                                               MHD_RESPMEM_MUST_COPY);
+    MHD_add_response_header(response, "Content-Type", content_type);
+    MHD_queue_response(connection, MHD_HTTP_OK, response);
     MHD_destroy_response(response);
-    return ret;
+    free(content);
+    free(content_type);
+    return 1;
 }
 
 

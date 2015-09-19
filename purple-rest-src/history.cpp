@@ -1,5 +1,15 @@
+/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+
+   This program is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free Software
+   Foundation; either version 3 of the License, or (at your option) any later
+   version.
+*/
+
 #include <string.h>
 #include <sstream>
+
+#include<json/writer.h>
 
 #include "history.hpp"
 #include "purple-interaction.hpp"
@@ -13,17 +23,29 @@ void History::add_im_message(std::shared_ptr<ImMessage> msg)
 }
 
 
-char* History::get_full_history_list()
+/**
+ * Returns all IM messages separated by '<br>'.
+ */
+std::string History::get_history_list_as_html()
 {
     std::ostringstream ostr;
-    ostr << "<html><body>";
-    // :fixme:
-    for (unsigned i = 0; i < m_message_list.size(); i++) {
-        ostr << m_message_list[i]->get_message() << "<br>";
+    for (auto e : m_message_list) {
+        ostr << e->get_message() << "<br>";
     }
-    ostr << "</body></html>";
-    purple_info(std::string("!! HISTORY: %s") + ostr.str());
-    return ::strdup(ostr.str().c_str());
+    purple_info(std::string("history (html): %s") + ostr.str());
+    return ostr.str();
+}
+
+
+std::string History::get_history_list_as_json()
+{
+    Json::Value msg_list(Json::arrayValue);
+    msg_list.append("Message list:");
+    for (auto e : m_message_list) {
+        msg_list.append(e->get_message());
+    }
+    purple_info(std::string("history (json): %s") + msg_list.toStyledString());
+    return msg_list.toStyledString();
 }
 
 }

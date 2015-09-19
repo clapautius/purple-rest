@@ -4,7 +4,7 @@ project (Purple-REST)
 
 find_package(PkgConfig REQUIRED)
 
-SET(CMAKE_CXX_FLAGS "-std=c++11")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall ")
 
 add_library (purple-rest SHARED
   purple-rest.c rest-api.cpp purple-interaction.cpp history.cpp immessage.cpp)
@@ -25,8 +25,10 @@ find_path(GLIB2_INTERNAL_INCLUDE_DIR glibconfig.h
   PATHS ${PKG_GLIB_INCLUDE_DIRS} ${PKG_GLIB_LIBRARIES} ${CMAKE_SYSTEM_LIBRARY_PATH})
 
 # find jsoncpp stuff
-find_path (JSONCPP_INCLUDE_DIR NAMES "json/config.h" PATH_SUFFIXES jsoncpp)
-message (STATUS "JSONCPP_INCLUDE_DIR = ${JSONCPP_INCLUDE_DIR}")
+pkg_search_module(JSONCPP REQUIRED jsoncpp)
+target_link_libraries(purple-rest ${JSONCPP_LIBRARIES})
+target_include_directories(purple-rest PUBLIC ${JSONCPP_INCLUDE_DIRS})
+target_compile_options(purple-rest PUBLIC ${JSONCPP_CFLAGS_OTHER})
 
 # find libmicrohttpd stuff
 pkg_search_module(MICROHTTPD REQUIRED libmicrohttpd)
