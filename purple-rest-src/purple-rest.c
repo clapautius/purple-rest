@@ -12,9 +12,6 @@
 
 static gboolean
 plugin_load(PurplePlugin *plugin) {
-    purple_notify_message(plugin, PURPLE_NOTIFY_MSG_INFO, "libpurple REST plugin",
-                          "libpurple REST plugin", NULL, NULL, NULL);
-
     purple_debug_info(PLUGIN_ID, "Purple REST plugin is up & running");
     return TRUE;
 }
