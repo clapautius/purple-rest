@@ -20,6 +20,7 @@ using std::string;
 using std::vector;
 
 extern purple::History g_msg_history;
+extern std::string g_url_prefix;
 
 
 /**
@@ -68,12 +69,26 @@ void perform_rest_request(const char *url, const char *method,
 {
     std::string s;
     purple_info(std::string("Got new request: ") + url);
+    std::string url_str(url);
+    if (!g_url_prefix.empty()) {
+        if (url_str.compare(0, g_url_prefix.size(), g_url_prefix) == 0) {
+            url_str = url_str.substr(g_url_prefix.size());
+            purple_info(std::string("Request after removing prefix: ") + url_str);
+        } else {
+            // something is fishy - no prefix - abort
+            *http_code = 400;
+            *buf = NULL;
+            *buf_len = 0;
+            *content_type = NULL;
+            return;
+        }
+    }
 
     // tokenize url
     std::vector<std::string> request;
 
     // strtok wants to modify the string, so we make a copy
-    char *url_to_be_tokenized = strdup(url);
+    char *url_to_be_tokenized = strdup(url_str.c_str());
     char *p = strtok(url_to_be_tokenized, "/");
     while (p) {
         request.push_back(p);

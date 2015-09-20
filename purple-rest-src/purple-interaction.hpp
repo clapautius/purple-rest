@@ -14,7 +14,7 @@ extern "C"
 
 #include "plugin.h"
 
-void init_purple_rest_module(PurplePlugin *plugin);
+void init_purple_rest_module(PurplePlugin *plugin, const char *url_prefix);
 
 };
 

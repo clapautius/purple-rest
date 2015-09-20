@@ -54,15 +54,25 @@ static gboolean plugin_load(PurplePlugin *plugin)
 {
     purple_debug_info(PLUGIN_ID, "Purple REST plugin is up & running\n");
 
+    // read preferences
+    int http_port = purple_prefs_get_int("/plugins/purple-rest/server-port");
+    const char *p = purple_prefs_get_string("/plugins/purple-rest/url-prefix");
+    purple_debug_info(PLUGIN_ID, "server-port: %d\n", http_port);
+    purple_debug_info(PLUGIN_ID, "url-prefix: %s\n", p ? p : "NULL");
+    if (http_port == 0) {
+        http_port = 8888;
+    }
+    purple_debug_info(PLUGIN_ID, "server-port (real): %d\n", http_port);
+
     // setup HTTP server
     struct MHD_Daemon *daemon;
-    daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, HTTP_PORT, NULL, NULL,
+    daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, http_port, NULL, NULL,
                                &answer_to_http_connection, NULL, MHD_OPTION_END);
     if (NULL == daemon) {
         return FALSE;
     }
 
-    init_purple_rest_module(plugin);
+    init_purple_rest_module(plugin, p);
 
     return TRUE;
 }

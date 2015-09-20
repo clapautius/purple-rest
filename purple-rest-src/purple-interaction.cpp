@@ -27,6 +27,8 @@ using purple::History;
 // :fixme: - don't use globals
 purple::History g_msg_history;
 
+std::string g_url_prefix;
+
 
 static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffer,
                                PurpleConversation *conv, int flags, void *data)
@@ -45,7 +47,7 @@ static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buf
 }
 
 
-void init_purple_rest_module(PurplePlugin *plugin)
+void init_purple_rest_module(PurplePlugin *plugin, const char *url_prefix)
 {
     // setup purple callbacks
     purple_signal_connect(purple_conversations_get_handle(), "received-im-msg", plugin,
@@ -53,6 +55,10 @@ void init_purple_rest_module(PurplePlugin *plugin)
     purple_signal_connect(purple_conversations_get_handle(), "received-chat-msg", plugin,
                           PURPLE_CALLBACK(received_chat_msg_cb), NULL);
 
+    // setup internal data
+    if (url_prefix) {
+        g_url_prefix = url_prefix;
+    }
 }
 
 
