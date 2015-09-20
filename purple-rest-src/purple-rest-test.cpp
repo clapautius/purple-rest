@@ -6,21 +6,12 @@
    version.
 */
 
-#include "immessage.hpp"
+#include <stdlib.h>
 
-namespace purple
+#include "rest-api.hpp"
+
+int main()
 {
-
-ImMessage::ImMessage(PurpleAccount *account, const char *msg, uint64_t id)
-  : m_account(account), m_message(msg), m_id(id)
-{
-    m_recv_time = time(NULL);
-}
-
-
-const std::string &ImMessage::get_message() const
-{
-    return m_message;
-}
-
+    perform_rest_request(NULL, NULL, NULL, NULL, NULL, NULL);
+    return 0;
 }

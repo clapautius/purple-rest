@@ -22,6 +22,7 @@
 
 using std::shared_ptr;
 using purple::ImMessage;
+using purple::History;
 
 // :fixme: - don't use globals
 purple::History g_msg_history;
@@ -30,8 +31,8 @@ purple::History g_msg_history;
 static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffer,
                                PurpleConversation *conv, int flags, void *data)
 {
-    purple_debug_info(PLUGIN_ID, "Got an IM msg: %s", buffer);
-    shared_ptr<ImMessage> new_msg(new ImMessage(account, buffer));
+    purple_debug_info(PLUGIN_ID, "Got an IM msg: %s\n", buffer);
+    shared_ptr<ImMessage> new_msg(new ImMessage(account, buffer, History::get_new_id()));
     g_msg_history.add_im_message(new_msg);
 }
 
@@ -39,7 +40,7 @@ static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffe
 static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buffer,
                                  PurpleConversation *conv, int flags, void *data)
 {
-    purple_debug_info(PLUGIN_ID, "Got a chat msg: %s", buffer);
+    purple_debug_info(PLUGIN_ID, "Got a chat msg: %s\n", buffer);
 }
 
 
@@ -56,5 +57,5 @@ void init_purple_rest_module(PurplePlugin *plugin)
 
 void purple_info(const std::string &msg)
 {
-    purple_debug_info(PLUGIN_ID, "%s", msg.c_str());
+    purple_debug_info(PLUGIN_ID, "%s\n", msg.c_str());
 }

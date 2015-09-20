@@ -30,13 +30,19 @@ int answer_to_http_connection (void *cls, struct MHD_Connection *connection,
                                size_t *upload_data_size, void **con_cls)
 {
     char *content = NULL, *content_type = NULL;
-    int content_size = 0;
-    perform_rest_request(url, method, &content, &content_size, &content_type);
-    struct MHD_Response *response;
+    int content_size = 0, http_code = 200;
+    perform_rest_request(url, method, &content, &content_size, &content_type, &http_code);
+    struct MHD_Response *response = NULL;
     response = MHD_create_response_from_buffer(content_size, content,
                                                MHD_RESPMEM_MUST_COPY);
-    MHD_add_response_header(response, "Content-Type", content_type);
-    MHD_queue_response(connection, MHD_HTTP_OK, response);
+    if (content_type) {
+        MHD_add_response_header(response, "Content-Type", content_type);
+    }
+    purple_debug_info(PLUGIN_ID, "Sending back HTTP response: %d\n", http_code);
+    if (response == NULL) {
+        purple_debug_warning(PLUGIN_ID, "microhttpd response is NULL\n");
+    }
+    MHD_queue_response(connection, http_code, response);
     MHD_destroy_response(response);
     free(content);
     free(content_type);
@@ -46,7 +52,7 @@ int answer_to_http_connection (void *cls, struct MHD_Connection *connection,
 
 static gboolean plugin_load(PurplePlugin *plugin)
 {
-    purple_debug_info(PLUGIN_ID, "Purple REST plugin is up & running");
+    purple_debug_info(PLUGIN_ID, "Purple REST plugin is up & running\n");
 
     // setup HTTP server
     struct MHD_Daemon *daemon;
