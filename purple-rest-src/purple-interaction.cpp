@@ -32,7 +32,8 @@ static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffe
                                PurpleConversation *conv, int flags, void *data)
 {
     purple_debug_info(PLUGIN_ID, "Got an IM msg: %s\n", buffer);
-    shared_ptr<ImMessage> new_msg(new ImMessage(account, buffer, History::get_new_id()));
+    shared_ptr<ImMessage> new_msg
+      (new ImMessage(account, buffer, History::get_new_id(), sender));
     g_msg_history.add_im_message(new_msg);
 }
 

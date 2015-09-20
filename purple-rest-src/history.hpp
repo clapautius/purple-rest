@@ -12,6 +12,8 @@
 #include <memory>
 #include <vector>
 #include <atomic>
+#include <functional>
+#include <list>
 
 #include "immessage.hpp"
 
@@ -24,15 +26,14 @@ public:
 
     void add_im_message(std::shared_ptr<ImMessage> msg);
 
-    std::string get_history_list_as_html(uint64_t start_from_id);
-
-    std::string get_history_list_as_json(uint64_t start_from_id);
+    std::list<ImMessagePtr>
+    get_messages_from_history(std::function<bool(ImMessagePtr&)> expr) const;
 
     static uint64_t get_new_id();
 
 private:
 
-    std::vector< std::shared_ptr<ImMessage> > m_message_list;
+    std::vector<ImMessagePtr> m_message_list;
 
     static std::atomic<uint64_t> m_free_id;
 };

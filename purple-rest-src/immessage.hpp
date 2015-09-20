@@ -12,6 +12,7 @@
 #include <time.h>
 #include <string>
 #include <stdint.h>
+#include <memory>
 
 #include "plugin.h"
 #include "notify.h"
@@ -22,9 +23,11 @@ namespace purple
 class ImMessage
 {
 public:
-    ImMessage(PurpleAccount *account, const char *msg, uint64_t id);
+    ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender);
 
-    const std::string &get_message() const;
+    const std::string &get_text() const;
+
+    const std::string &get_sender() const;
 
     uint64_t get_id() const
     {
@@ -40,7 +43,11 @@ private:
     time_t m_recv_time;
 
     uint64_t m_id;
+
+    std::string m_sender;
 };
+
+typedef std::shared_ptr<ImMessage> ImMessagePtr;
 
 };
 

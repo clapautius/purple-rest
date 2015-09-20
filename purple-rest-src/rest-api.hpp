@@ -18,5 +18,4 @@ void perform_rest_request(const char *url, const char *method,
 
 }
 
-
 #endif

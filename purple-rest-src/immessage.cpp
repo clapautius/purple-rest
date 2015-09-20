@@ -11,16 +11,22 @@
 namespace purple
 {
 
-ImMessage::ImMessage(PurpleAccount *account, const char *msg, uint64_t id)
-  : m_account(account), m_message(msg), m_id(id)
+ImMessage::ImMessage(PurpleAccount *account, const char *msg, uint64_t id,
+                     const char *sender)
+  : m_account(account), m_message(msg), m_id(id), m_sender(sender)
 {
     m_recv_time = time(NULL);
 }
 
 
-const std::string &ImMessage::get_message() const
+const std::string &ImMessage::get_text() const
 {
     return m_message;
+}
+
+const std::string &ImMessage::get_sender() const
+{
+    return m_sender;
 }
 
 }
