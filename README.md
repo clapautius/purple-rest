@@ -25,7 +25,3 @@ progress).
 * _/plugins/purple-rest/server-port_ : listen port
 * _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
 nginx / apache redirecting.
-
-## TODO
-
-* check json spirit library
