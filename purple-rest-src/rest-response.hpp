@@ -32,6 +32,8 @@ public:
     virtual std::string get_text() = 0;
 
     virtual void add_message(std::shared_ptr<ImMessage> &msg) = 0;
+
+    virtual void add_conversation(PurpleConversation *conv) = 0;
 };
 
 
@@ -46,6 +48,8 @@ public:
     virtual std::string get_text();
 
     virtual void add_message(std::shared_ptr<ImMessage> &msg);
+
+    virtual void add_conversation(PurpleConversation *conv);
 
 private:
 
@@ -64,6 +68,8 @@ public:
     virtual std::string get_text();
 
     virtual void add_message(std::shared_ptr<ImMessage> &msg);
+
+    virtual void add_conversation(PurpleConversation *conv);
 
 private:
 

@@ -54,6 +54,17 @@ void HtmlResponse::add_message(std::shared_ptr<ImMessage> &msg)
 }
 
 
+void HtmlResponse::add_conversation(PurpleConversation *conv)
+{
+    if (conv) {
+        const char *conv_name = purple_conversation_get_name(conv);
+        m_ostr << "<div class=\"message\"><span class=\"message-props\">"
+               << "Conversation: " << (conv_name ? conv_name : "unknown")
+               << "</span>" << "</div>\n";
+    }
+}
+
+
 JsonResponse::JsonResponse()
   : m_msg_list(Json::arrayValue)
 {
@@ -79,6 +90,18 @@ void JsonResponse::add_message(std::shared_ptr<ImMessage> &msg)
     new_msg["text"] = msg->get_text();
     new_msg["sender"] = msg->get_sender();
     m_msg_list.append(new_msg);
+}
+
+
+void JsonResponse::add_conversation(PurpleConversation *conv)
+{
+    if (conv) {
+        Json::Value new_conv(Json::objectValue);
+        const char *conv_name = purple_conversation_get_name(conv);
+        new_conv["name"] = (conv_name ? conv_name : "unknown");
+        // :fixme:
+        m_msg_list.append(new_conv);
+    }
 }
 
 }

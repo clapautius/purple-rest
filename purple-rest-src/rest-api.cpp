@@ -50,17 +50,65 @@ static int get_messages_request(const vector<std::string> &request, string &s,
     else {
         return 400;
     }
-    std::list<std::shared_ptr<purple::ImMessage>> msg_list =
-      g_msg_history.get_messages_from_history(
-        [=] (std::shared_ptr<purple::ImMessage> &elt) -> bool
-        {
-            return (elt->get_id() > start_from_id);
-        });
+    auto msg_list = g_msg_history.get_messages_from_history(
+      [=] (purple::ImMessagePtr &elt) -> bool
+      {
+          return (elt->get_id() > start_from_id);
+      });
     for (auto e : msg_list) {
         response->add_message(e);
     }
     s = response->get_text();
     return 200;
+}
+
+
+/**
+ * @return HTTP code to be sent back to user.
+ */
+static int get_conversations_request(const vector<std::string> &request, string &s,
+                                     char **content_type)
+{
+    // implemented:
+    // .../conversations/all
+    std::unique_ptr<purple::RestResponse> response;
+    if (request.size() > 3) {
+        if (request[1] == "json") {
+            response.reset(new purple::JsonResponse);
+            *content_type = strdup("application/json");
+        }
+        else if (request[1] == "html") {
+            response.reset(new purple::HtmlResponse);
+            *content_type = strdup("text/html");
+        }
+        else {
+            return 400;
+        }
+        if (request[3] == "all") {
+            GList *conversations_list = purple_get_conversations();
+            GList *ptr = g_list_first(conversations_list);
+            while (ptr) {
+                PurpleConversation *cv = reinterpret_cast<PurpleConversation*>(ptr->data);
+                std::ostringstream debug_text;
+                string name = purple_conversation_get_name(cv);
+                string title = purple_conversation_get_title(cv);
+                debug_text << "conversation: " << name << ", " << title;
+                purple_info(debug_text.str());
+                response->add_conversation(cv);
+                ptr = g_list_next(ptr);
+            }
+        } else {
+            goto error;
+        }
+
+    } else {
+        goto error;
+    }
+
+    s = response->get_text();
+    return 200;
+error:
+    return 400;
 }
 
 
@@ -103,6 +151,8 @@ void perform_rest_request(const char *url, const char *method,
 
         if (request[2] == "messages") {
             *http_code = get_messages_request(request, s, content_type);
+        } else if (request[2] == "conversations") {
+            *http_code = get_conversations_request(request, s, content_type);
         } else {
             *http_code = 400;
         }
