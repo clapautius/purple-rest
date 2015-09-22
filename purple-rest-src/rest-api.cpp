@@ -18,34 +18,52 @@
 
 using std::string;
 using std::vector;
+using purple::ImMessage;
 
 extern purple::History g_msg_history;
 extern std::string g_url_prefix;
 
 
 /**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
  * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * /v/<format>/messages/
+ * /v/<format>/messages/<all | im | chat>/start_from/<msg_id>
  */
-static int get_messages_request(const vector<std::string> &request, string &s,
-                                 char **content_type)
+static int get_messages_request(const vector<string> &request, string &response_str,
+                                 string &content_type)
 {
+    const int kStartFromIdIdx = 4;
+    const int kMsgTypeIdx = 3;
     // analyze request params
-    // req[3] = 'start_from', req[4] = id
     uint64_t start_from_id = 0;
+    ImMessage::ImMessageType filter = ImMessage::kMsgTypeUnknown; // == no filter
     std::unique_ptr<purple::RestResponse> response;
-    if (request.size() >= 5) {
-        if (request[3] == "start_from") {
+    if (request.size() > kMsgTypeIdx) {
+        if (request[kMsgTypeIdx] == "im") {
+            filter = ImMessage::kMsgTypeIm;
+        } else if (request[kMsgTypeIdx] == "chat") {
+            filter = ImMessage::kMsgTypeChat;
+        }
+    }
+    if (request.size() > kStartFromIdIdx + 1) {
+        if (request[kStartFromIdIdx] == "start_from") {
             // :fixme: - check for errors
-            start_from_id = strtol(request[4].c_str(), NULL, 10);
+            start_from_id = strtol(request[kStartFromIdIdx + 1].c_str(), NULL, 10);
         }
     }
     if (request[1] == "json") {
         response.reset(new purple::JsonResponse);
-        *content_type = strdup("application/json");
+        content_type = "application/json";
     }
     else if (request[1] == "html") {
         response.reset(new purple::HtmlResponse);
-        *content_type = strdup("text/html");
+        content_type = "text/html";
     }
     else {
         return 400;
@@ -53,33 +71,39 @@ static int get_messages_request(const vector<std::string> &request, string &s,
     auto msg_list = g_msg_history.get_messages_from_history(
       [=] (purple::ImMessagePtr &elt) -> bool
       {
-          return (elt->get_id() > start_from_id);
+          return (elt->get_id() > start_from_id &&
+                  (filter == ImMessage::kMsgTypeUnknown || filter == elt->get_type()));
       });
     for (auto e : msg_list) {
         response->add_message(e);
     }
-    s = response->get_text();
+    response_str = response->get_text();
     return 200;
 }
 
 
 /**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
  * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * .../conversations/all
  */
-static int get_conversations_request(const vector<std::string> &request, string &s,
-                                     char **content_type)
+static int get_conversations_request(const vector<string> &request, string &response_str,
+                                     string &content_type)
 {
-    // implemented:
-    // .../conversations/all
     std::unique_ptr<purple::RestResponse> response;
     if (request.size() > 3) {
         if (request[1] == "json") {
             response.reset(new purple::JsonResponse);
-            *content_type = strdup("application/json");
+            content_type = "application/json";
         }
         else if (request[1] == "html") {
             response.reset(new purple::HtmlResponse);
-            *content_type = strdup("text/html");
+            content_type = "text/html";
         }
         else {
             return 400;
@@ -105,18 +129,30 @@ static int get_conversations_request(const vector<std::string> &request, string 
         goto error;
     }
 
-    s = response->get_text();
+    response_str = response->get_text();
     return 200;
 error:
     return 400;
 }
 
 
+/**
+ * Function called when the plugin gets a new REST request.
+ *
+ * @param[in] url : the full URL of the REST request.
+ * @param[in] method : HTTP method.
+ * @param[out] buf : the response to be sent back (allocated using malloc). The caller
+ *   must free it.
+ * @param[out] buf_len : the size of BUF.
+ * @param[out] content_type : content type of the response, allocated using strdup. Caller
+ *   must free it.
+ * @param[out] http_code : the HTTP answer code.
+ */
 void perform_rest_request(const char *url, const char *method,
                           char **buf, int *buf_len, char **content_type, int *http_code)
 {
-    std::string s;
-    purple_info(std::string("Got new request: ") + url);
+    string response, content_type_str;
+    purple_info(string("Got new request: ") + url);
     std::string url_str(url);
     if (!g_url_prefix.empty()) {
         if (url_str.compare(0, g_url_prefix.size(), g_url_prefix) == 0) {
@@ -150,9 +186,9 @@ void perform_rest_request(const char *url, const char *method,
         purple_info(std::string("Output type: ") + request[1]);
 
         if (request[2] == "messages") {
-            *http_code = get_messages_request(request, s, content_type);
+            *http_code = get_messages_request(request, response, content_type_str);
         } else if (request[2] == "conversations") {
-            *http_code = get_conversations_request(request, s, content_type);
+            *http_code = get_conversations_request(request, response, content_type_str);
         } else {
             *http_code = 400;
         }
@@ -160,10 +196,11 @@ void perform_rest_request(const char *url, const char *method,
         *http_code = 400;
     }
 
-    if (s.size() > 0) {
-        *buf = (char*)malloc(s.size() + 1);
-        strncpy(*buf, s.c_str(), s.size() + 1);
-        *buf_len = s.size();
+    if (response.size() > 0) {
+        *buf = (char*)malloc(response.size() + 1);
+        strncpy(*buf, response.c_str(), response.size() + 1);
+        *buf_len = response.size();
+        *content_type = strdup(content_type_str.c_str());
     } else {
         *buf = NULL;
         *buf_len = 0;

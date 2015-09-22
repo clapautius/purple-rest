@@ -23,11 +23,10 @@
 void init_purple_rest_module();
 
 
-int answer_to_http_connection (void *cls, struct MHD_Connection *connection,
-                               const char *url,
-                               const char *method, const char *version,
-                               const char *upload_data,
-                               size_t *upload_data_size, void **con_cls)
+int answer_to_http_connection(
+  void *cls, struct MHD_Connection *connection,
+  const char *url, const char *method, const char *version,
+  const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
     char *content = NULL, *content_type = NULL;
     int content_size = 0, http_code = 200;

@@ -35,7 +35,8 @@ static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffe
 {
     purple_debug_info(PLUGIN_ID, "Got an IM msg: %s\n", buffer);
     shared_ptr<ImMessage> new_msg
-      (new ImMessage(account, buffer, History::get_new_id(), sender));
+      (new ImMessage(account, buffer, History::get_new_id(), sender,
+                     ImMessage::kMsgTypeIm));
     g_msg_history.add_im_message(new_msg);
 }
 
@@ -44,6 +45,10 @@ static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buf
                                  PurpleConversation *conv, int flags, void *data)
 {
     purple_debug_info(PLUGIN_ID, "Got a chat msg: %s\n", buffer);
+    shared_ptr<ImMessage> new_msg
+      (new ImMessage(account, buffer, History::get_new_id(), sender,
+                     ImMessage::kMsgTypeChat));
+    g_msg_history.add_im_message(new_msg);
 }
 
 

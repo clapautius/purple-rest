@@ -23,7 +23,14 @@ namespace purple
 class ImMessage
 {
 public:
-    ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender);
+
+    typedef enum {
+        kMsgTypeUnknown = 0,
+        kMsgTypeIm,
+        kMsgTypeChat
+    } ImMessageType;
+
+    ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender, ImMessageType type = kMsgTypeUnknown);
 
     const std::string &get_text() const;
 
@@ -32,6 +39,11 @@ public:
     uint64_t get_id() const
     {
         return m_id;
+    }
+
+    ImMessageType get_type() const
+    {
+        return m_type;
     }
 
 private:
@@ -45,6 +57,8 @@ private:
     uint64_t m_id;
 
     std::string m_sender;
+
+    ImMessageType m_type;
 };
 
 typedef std::shared_ptr<ImMessage> ImMessagePtr;
