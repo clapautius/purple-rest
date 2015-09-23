@@ -34,6 +34,9 @@ public:
     virtual void add_message(std::shared_ptr<ImMessage> &msg) = 0;
 
     virtual void add_conversation(PurpleConversation *conv) = 0;
+
+    // :fixme: - fix design
+    virtual void add_send_msg_form(unsigned conversation_id) = 0;
 };
 
 
@@ -50,6 +53,8 @@ public:
     virtual void add_message(std::shared_ptr<ImMessage> &msg);
 
     virtual void add_conversation(PurpleConversation *conv);
+
+    virtual void add_send_msg_form(unsigned conversation_id);
 
 private:
 
@@ -70,6 +75,10 @@ public:
     virtual void add_message(std::shared_ptr<ImMessage> &msg);
 
     virtual void add_conversation(PurpleConversation *conv);
+
+    virtual void add_send_msg_form(unsigned conversation_id)
+    {
+    }
 
 private:
 

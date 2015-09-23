@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <string>
+#include <sstream>
 
 #include "purple-interaction.hpp"
 
@@ -54,13 +55,42 @@ static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buf
 }
 
 
+#if 0
+static void sent_im_msg_cb(PurpleAccount *account, const char *recipient,
+                           const char *buffer, void *data)
+{
+    std::ostringstream dbg_msg;
+    dbg_msg << "sent-im-msg: (account, recipient, buffer, data)" << account << ", "
+            << recipient << ", " << buffer << ", " << data;
+    purple_debug_info(PLUGIN_ID, "Sent an IM msg: %s\n", dbg_msg.str().c_str());
+}
+#endif
+
+
+static void wrote_im_msg_cb(PurpleAccount *account, char *sender, char *buffer,
+                            PurpleConversation *conv, int flags, void *data)
+{
+    std::ostringstream dbg_msg;
+    dbg_msg << "wrote-im-msg: (account, sender, buffer, conv, flags, data)"
+            << account << "," << sender << "," << buffer << ","
+            << conv << "," << flags << "," << data;
+    purple_debug_info(PLUGIN_ID, "New IM msg in conversation: %s\n",
+                      dbg_msg.str().c_str());
+    received_im_msg_cb(account, sender, buffer, conv, flags, data);
+}
+
+
 void init_purple_rest_module(PurplePlugin *plugin, const char *url_prefix)
 {
     // setup purple callbacks
-    purple_signal_connect(purple_conversations_get_handle(), "received-im-msg", plugin,
-                          PURPLE_CALLBACK(received_im_msg_cb), NULL);
+    //purple_signal_connect(purple_conversations_get_handle(), "received-im-msg", plugin,
+    //                      PURPLE_CALLBACK(received_im_msg_cb), NULL);
     purple_signal_connect(purple_conversations_get_handle(), "received-chat-msg", plugin,
                           PURPLE_CALLBACK(received_chat_msg_cb), NULL);
+    //purple_signal_connect(purple_conversations_get_handle(), "sent-im-msg", plugin,
+    //                      PURPLE_CALLBACK(sent_im_msg_cb), NULL);
+    purple_signal_connect(purple_conversations_get_handle(), "wrote-im-msg", plugin,
+                          PURPLE_CALLBACK(wrote_im_msg_cb), NULL);
 
     // setup internal data
     if (url_prefix) {
@@ -68,6 +98,32 @@ void init_purple_rest_module(PurplePlugin *plugin, const char *url_prefix)
     }
 }
 
+
+gboolean timeout_cb(gpointer user_data)
+{
+    purple_debug_info(PLUGIN_ID, "Timeout callback");
+    int type = purple_conversation_get_type(g_send_msg_data.conv);
+    switch (type) {
+    case PURPLE_CONV_TYPE_IM:
+        purple_conv_im_send(PURPLE_CONV_IM(g_send_msg_data.conv),
+                            g_send_msg_data.msg);
+        break;
+
+    case PURPLE_CONV_TYPE_CHAT:
+        purple_conv_chat_send(PURPLE_CONV_CHAT(g_send_msg_data.conv),
+                              g_send_msg_data.msg);
+        break;
+    default:
+        // :fixme: do something
+        break;
+    }
+    g_send_msg_data.conv = NULL;
+    g_send_msg_data.msg = NULL;
+    return FALSE;
+}
+
+
+struct send_msg_data g_send_msg_data;
 
 void purple_info(const std::string &msg)
 {

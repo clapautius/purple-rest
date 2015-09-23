@@ -15,6 +15,7 @@
 #include "history.hpp"
 #include "purple-interaction.hpp"
 #include "rest-response.hpp"
+#include "imconversation.hpp"
 
 using std::string;
 using std::vector;
@@ -90,12 +91,14 @@ static int get_messages_request(const vector<string> &request, string &response_
  * @return HTTP code to be sent back to user.
  *
  * Requests summary:
- * .../conversations/all
+ * /v/<format>/conversations/all :fixme: - replace with 'conversations_list' or smth.
+ * /v/<format>/conversations/<id>
  */
 static int get_conversations_request(const vector<string> &request, string &response_str,
                                      string &content_type)
 {
     std::unique_ptr<purple::RestResponse> response;
+    unsigned int conv_id = 0;
     if (request.size() > 3) {
         if (request[1] == "json") {
             response.reset(new purple::JsonResponse);
@@ -122,15 +125,61 @@ static int get_conversations_request(const vector<string> &request, string &resp
                 ptr = g_list_next(ptr);
             }
         } else {
-            goto error;
+            // :fixme: - check for errors
+            conv_id = strtol(request[3].c_str(), NULL, 10);
+            auto msg_list = g_msg_history.get_messages_from_history(
+              [=] (purple::ImMessagePtr &elt) -> bool
+              {
+                  return (conv_id == elt->get_conv_id());
+              });
+            for (auto &e : msg_list) {
+                response->add_message(e);
+            }
+            response->add_send_msg_form(conv_id);
         }
-
     } else {
         goto error;
     }
 
     response_str = response->get_text();
     return 200;
+error:
+    return 400;
+}
+
+
+/**
+ * Requests summary:
+ * /v/<format>/conversations/<id>
+ */
+static int post_messages_request(const vector<string> &request,
+                                 const char *upload_data, size_t upload_data_size,
+                                 string &response_str, string &content_type)
+{
+    std::ostringstream dbg;
+    dbg << "POST request: upload_data=" << upload_data << ", upload_size="
+        << upload_data_size;
+    purple_info(dbg.str());
+    if (request.size() > 3) {
+        // :fixme:
+        char *p = strndup(upload_data, upload_data_size);
+        // :fixme: - check for errors
+        unsigned conv_id = strtol(request[3].c_str(), NULL, 10);
+        if (conv_id) {
+            // :fixme:
+            const PurpleConversation *conv =
+              purple::g_conv_list[conv_id].get_purple_conv();
+            g_send_msg_data.conv = conv;
+            g_send_msg_data.msg = p;
+            purple_timeout_add(100, timeout_cb, NULL);
+            response_str = "OK";
+            content_type = "text/html";
+        }
+    } else {
+        goto error;
+    }
+    return 200;
+
 error:
     return 400;
 }
@@ -149,6 +198,7 @@ error:
  * @param[out] http_code : the HTTP answer code.
  */
 void perform_rest_request(const char *url, const char *method,
+                          const char *upload_data, size_t upload_data_size,
                           char **buf, int *buf_len, char **content_type, int *http_code)
 {
     string response, content_type_str;
@@ -180,6 +230,14 @@ void perform_rest_request(const char *url, const char *method,
     }
     free(url_to_be_tokenized);
 
+    // :fixme: - additional checks, better design
+    if (method && strcmp(method, "POST") == 0) {
+        *http_code = post_messages_request(request, upload_data, upload_data_size,
+                                           response, content_type_str);
+        return;
+    }
+
+    // otherwise is a GET request (:fixme:)
     if (request.size() >= 3) {
         // first element is version - ignore it for now - :fixme:
 

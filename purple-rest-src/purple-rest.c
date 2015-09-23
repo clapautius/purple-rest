@@ -28,9 +28,46 @@ int answer_to_http_connection(
   const char *url, const char *method, const char *version,
   const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
+    static int post_request_in_progress;
+    static char *stored_upload_data ;
+    static size_t stored_size;
     char *content = NULL, *content_type = NULL;
     int content_size = 0, http_code = 200;
-    perform_rest_request(url, method, &content, &content_size, &content_type, &http_code);
+
+    // :fixme:
+    if (strcmp(method, "POST") == 0) {
+        purple_debug_info(PLUGIN_ID, "POST: upload_data=%p, upload_data_size=%ld\n",
+                          upload_data, *upload_data_size);
+        // :fixme: - atm we don't handle multiple pieces of data
+        if (post_request_in_progress) {
+            if (*upload_data_size == 0) {
+                purple_debug_info(PLUGIN_ID, "POST: calling the function\n");
+            } else {
+                if (upload_data) {
+                    purple_debug_info(PLUGIN_ID, "POST: storing data\n");
+                    stored_upload_data = malloc(*upload_data_size + 1);
+                    memcpy(stored_upload_data, upload_data, *upload_data_size);
+                    stored_upload_data[*upload_data_size] = 0;
+                    stored_size = *upload_data_size + 1;
+                    *upload_data_size = 0;
+                    return MHD_YES;
+                }
+            }
+        } else {
+            purple_debug_info(PLUGIN_ID, "POST: starting POST\n");
+            post_request_in_progress = 1;
+            return MHD_YES;
+        }
+    }
+
+    perform_rest_request(url, method, stored_upload_data, stored_size,
+                         &content, &content_size, &content_type, &http_code);
+    if (post_request_in_progress) {
+        post_request_in_progress = 0;
+        free(stored_upload_data);
+        stored_upload_data = NULL;
+        stored_size = 0;
+    }
     struct MHD_Response *response = NULL;
     response = MHD_create_response_from_buffer(content_size, content,
                                                MHD_RESPMEM_MUST_COPY);
@@ -45,7 +82,7 @@ int answer_to_http_connection(
     MHD_destroy_response(response);
     free(content);
     free(content_type);
-    return 1;
+    return MHD_YES;
 }
 
 

@@ -13,6 +13,7 @@ extern "C"
 {
 
 void perform_rest_request(const char *url, const char *method,
+                          const char *upload_data, size_t upload_data_size,
                           char **buf, int *buf_len, char **content_type,
                           int *http_code);
 

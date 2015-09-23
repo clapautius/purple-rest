@@ -1,0 +1,25 @@
+libpurple signals
+_________________
+
+void (*wrote_im_msg)(PurpleAccount *account, const char *who,
+                char *message, PurpleConversation *conv,
+               PurpleMessageFlags flags);
+
+void (*sent_im_msg)(PurpleAccount *account, const char *receiver,
+              const char *message);
+
+
+Q. What is the difference between wrote-im-msg and sent-im-msg?
+
+- wrote-im-msg: called when a message is displayed in a chat window (no matter if it's an
+incoming or outgoing message).
+
+
+
+
+
+
+TBD
+___
+
+write about threads!

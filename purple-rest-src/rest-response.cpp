@@ -56,6 +56,15 @@ void HtmlResponse::add_conversation(PurpleConversation *conv)
 }
 
 
+
+void HtmlResponse::add_send_msg_form(unsigned conversation_id)
+{
+    m_ostr << "<br><form method=\"POST\">"
+           << "<input type=\"text\" name=\"text\">"
+           << "</form><br>";
+}
+
+
 JsonResponse::JsonResponse()
   : m_msg_list(Json::arrayValue)
 {
