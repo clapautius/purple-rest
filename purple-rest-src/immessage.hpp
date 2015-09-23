@@ -16,6 +16,7 @@
 
 #include "plugin.h"
 #include "notify.h"
+#include "imconversation.hpp"
 
 namespace purple
 {
@@ -30,7 +31,7 @@ public:
         kMsgTypeChat
     } ImMessageType;
 
-    ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender, ImMessageType type = kMsgTypeUnknown);
+    ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender, unsigned conv_id, ImMessageType type = kMsgTypeUnknown);
 
     const std::string &get_text() const;
 
@@ -46,6 +47,11 @@ public:
         return m_type;
     }
 
+    unsigned get_conv_id() const
+    {
+        return m_conversation_id;
+    }
+
 private:
 
     PurpleAccount *m_account;
@@ -59,6 +65,8 @@ private:
     std::string m_sender;
 
     ImMessageType m_type;
+
+    unsigned m_conversation_id;
 };
 
 typedef std::shared_ptr<ImMessage> ImMessagePtr;

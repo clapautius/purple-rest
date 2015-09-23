@@ -74,7 +74,7 @@ static int get_messages_request(const vector<string> &request, string &response_
           return (elt->get_id() > start_from_id &&
                   (filter == ImMessage::kMsgTypeUnknown || filter == elt->get_type()));
       });
-    for (auto e : msg_list) {
+    for (auto &e : msg_list) {
         response->add_message(e);
     }
     response_str = response->get_text();

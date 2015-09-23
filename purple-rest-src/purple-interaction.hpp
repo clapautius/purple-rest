@@ -9,6 +9,8 @@
 #ifndef PURPLE_INTERACTION_HPP
 #define PURPLE_INTERACTION_HPP
 
+#include <string>
+
 extern "C"
 {
 

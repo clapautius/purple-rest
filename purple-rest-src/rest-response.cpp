@@ -7,6 +7,7 @@
 */
 
 #include "rest-response.hpp"
+#include "html-resources.hpp"
 
 namespace purple
 {
@@ -15,21 +16,11 @@ RestResponse::~RestResponse()
 {
 }
 
-#define HTML_STYLE "<style>\
-div.message {\
-  border-bottom: 1px solid #bbb;\
-  margin-bottom: 1ex;\
-}\
-\
-span.message-props {\
-  font-style: italic;\
-}\
-</style>"
-
 
 HtmlResponse::HtmlResponse()
 {
-    m_ostr << "<html><head>" << HTML_STYLE << "</head><body>";
+    m_ostr << HTML_HEAD << "<body>" << HTML_STYLE;
+    m_ostr << "<div align=\"center\"><div class=\"content\">";
 }
 
 
@@ -40,7 +31,7 @@ HtmlResponse::~HtmlResponse()
 
 std::string HtmlResponse::get_text()
 {
-    m_ostr << "</body></html>";
+    m_ostr << "</div></div></body></html>";
     return m_ostr.str();
 }
 
@@ -49,7 +40,7 @@ void HtmlResponse::add_message(std::shared_ptr<ImMessage> &msg)
 {
     m_ostr << "<div class=\"message\"><span class=\"message-props\">"
            << "Message from " << msg->get_sender() << "(id: "
-           << msg->get_id() << ")</span><br>\n"
+           << msg->get_id() << ", conv_id: " << msg->get_conv_id() << ")</span><br>\n"
            << "<span class=\"message-text\">" << msg->get_text() << "</span></div>\n";
 }
 
@@ -89,6 +80,7 @@ void JsonResponse::add_message(std::shared_ptr<ImMessage> &msg)
     new_msg["id"] = static_cast<unsigned int>(msg->get_id());
     new_msg["text"] = msg->get_text();
     new_msg["sender"] = msg->get_sender();
+    new_msg["conversation"] = msg->get_conv_id();
     m_msg_list.append(new_msg);
 }
 

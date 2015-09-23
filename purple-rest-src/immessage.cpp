@@ -12,8 +12,10 @@ namespace purple
 {
 
 ImMessage::ImMessage(PurpleAccount *account, const char *msg, uint64_t id,
-                     const char *sender, ImMessageType type)
-  : m_account(account), m_message(msg), m_id(id), m_sender(sender), m_type(type)
+                     const char *sender, unsigned conversation_id,
+                     ImMessageType type)
+  : m_account(account), m_message(msg), m_id(id), m_sender(sender), m_type(type),
+    m_conversation_id(conversation_id)
 {
     m_recv_time = time(NULL);
 }

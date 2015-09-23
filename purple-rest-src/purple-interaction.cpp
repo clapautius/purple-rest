@@ -18,11 +18,13 @@
 
 #include "purple-rest.h"
 #include "immessage.hpp"
+#include "imconversation.hpp"
 #include "history.hpp"
 
 using std::shared_ptr;
 using purple::ImMessage;
 using purple::History;
+using purple::g_conv_list;
 
 // :fixme: - don't use globals
 purple::History g_msg_history;
@@ -36,7 +38,7 @@ static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffe
     purple_debug_info(PLUGIN_ID, "Got an IM msg: %s\n", buffer);
     shared_ptr<ImMessage> new_msg
       (new ImMessage(account, buffer, History::get_new_id(), sender,
-                     ImMessage::kMsgTypeIm));
+                     g_conv_list.get_or_add_conversation(conv), ImMessage::kMsgTypeIm));
     g_msg_history.add_im_message(new_msg);
 }
 
@@ -47,7 +49,7 @@ static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buf
     purple_debug_info(PLUGIN_ID, "Got a chat msg: %s\n", buffer);
     shared_ptr<ImMessage> new_msg
       (new ImMessage(account, buffer, History::get_new_id(), sender,
-                     ImMessage::kMsgTypeChat));
+                     g_conv_list.get_or_add_conversation(conv), ImMessage::kMsgTypeChat));
     g_msg_history.add_im_message(new_msg);
 }
 
