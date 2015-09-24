@@ -20,6 +20,20 @@ progress).
 
 ## Usage
 
+### API
+
+*my messages* means IM messages and messages from chat conversations that contain user's
+nick.
+
+* .../v1/<format>/messages - all messages received since the plugin has started
+* .../v1/<format>/messages/all/start_from/<msg_id> - messages starting with <msg_id>
+
+* .../v1/<format>/conversations/all - conversations list
+* .../v1/<format>/conversations/<id> - messages for the specified conversation
+
+ * .../v1/<format>/my-messages/ - all *my messages*
+ * .../v1/<format>/my-messages/start_from/<msg_id> - *my messages* starting from <msg_id>
+
 ### Configuration
 
 * _/plugins/purple-rest/server-port_ : listen port
