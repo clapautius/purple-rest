@@ -31,8 +31,8 @@ nick.
 * .../v1/FORMAT/conversations/all - conversations list
 * .../v1/FORMAT/conversations/ID - messages for the specified conversation
 
- * .../v1/FORMAT/my-messages/ - all *my messages*
- * .../v1/FORMAT/my-messages/start_from/MSG_ID - *my messages* starting from <msg_id>
+* .../v1/FORMAT/my-messages/ - all *my messages*
+* .../v1/FORMAT/my-messages/start_from/MSG_ID - *my messages* starting from <msg_id>
 
 ### Configuration
 
