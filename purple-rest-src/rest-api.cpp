@@ -90,6 +90,56 @@ static int get_messages_request(const vector<string> &request, string &response_
  * @return HTTP code to be sent back to user.
  *
  * Requests summary:
+ * /v/<format>/my-messages/
+ * /v/<format>/my-messages/start_from/<msg_id>
+ */
+static int get_my_messages_request(const vector<string> &request, string &response_str,
+                                   string &content_type)
+{
+    const int kStartFromIdIdx = 3;
+    // analyze request params
+    uint64_t start_from_id = 0;
+    std::unique_ptr<purple::RestResponse> response;
+    if (request.size() > kStartFromIdIdx + 1) {
+        if (request[kStartFromIdIdx] == "start_from") {
+            // :fixme: - check for errors
+            start_from_id = strtol(request[kStartFromIdIdx + 1].c_str(), NULL, 10);
+        }
+    }
+    if (request[1] == "json") {
+        response.reset(new purple::JsonResponse);
+        content_type = "application/json";
+    }
+    else if (request[1] == "html") {
+        response.reset(new purple::HtmlResponse);
+        content_type = "text/html";
+    }
+    else {
+        return 400;
+    }
+    auto msg_list = g_msg_history.get_messages_from_history(
+      [=] (purple::ImMessagePtr &elt) -> bool
+      {
+          return (elt->get_id() > start_from_id &&
+                  (ImMessage::kMsgTypeIm == elt->get_type() ||
+                   ImMessage::kMsgTypeChatAcc == elt->get_type()));
+      });
+    for (auto &e : msg_list) {
+        response->add_message(e);
+    }
+    response_str = response->get_text();
+    return 200;
+}
+
+
+/**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
+ * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
  * /v/<format>/conversations/all :fixme: - replace with 'conversations_list' or smth.
  * /v/<format>/conversations/<id>
  */
@@ -246,6 +296,9 @@ void perform_rest_request(const char *url, HttpMethod method,
             } else if (request[2] == "conversations") {
                 *http_code = get_conversations_request(request, response,
                                                        content_type_str);
+            } else if (request[2] == "my-messages") {
+                *http_code = get_my_messages_request(request, response,
+                                                     content_type_str);
             } else {
                 *http_code = 400;
             }

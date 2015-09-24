@@ -36,7 +36,7 @@ int answer_to_http_connection(
     HttpMethod http_method = kHttpMethodGet;
 
     if (0 == strcmp(method, MHD_HTTP_METHOD_POST)) {
-        http_method = kHttpMethodGet;
+        http_method = kHttpMethodPost;
         purple_debug_info(PLUGIN_ID, "POST: upload_data=%p, upload_data_size=%ld\n",
                           upload_data, *upload_data_size);
         // :fixme: - atm we don't handle multiple pieces of data

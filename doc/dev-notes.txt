@@ -8,6 +8,11 @@ void (*wrote_im_msg)(PurpleAccount *account, const char *who,
 void (*sent_im_msg)(PurpleAccount *account, const char *receiver,
               const char *message);
 
+-----
+
+received-im-msg: doesn't fill message flags?
+
+-----
 
 Q. What is the difference between wrote-im-msg and sent-im-msg?
 
@@ -34,6 +39,12 @@ Finally, if you are eventually called  a *second* time with '0 ==
 *upload_data_size', you can be sure that the upload is complete.
 
 
+use from cmd. line
+__________________
+
+Send a message:
+
+curl --data "Some message" http://localhost:8888/bibi/v/html/conversations/2
 
 TBD
 ___

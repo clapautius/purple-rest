@@ -28,7 +28,12 @@ public:
     typedef enum {
         kMsgTypeUnknown = 0,
         kMsgTypeIm,
-        kMsgTypeChat
+        kMsgTypeChat,
+
+        /**
+         * Chat message that contains the nick.
+         */
+        kMsgTypeChatAcc,
     } ImMessageType;
 
     ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender, unsigned conv_id, ImMessageType type = kMsgTypeUnknown);
