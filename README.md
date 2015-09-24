@@ -13,10 +13,11 @@ progress).
 
 * cmake
 * gcc / g++
-* libpurple (incl. development headers / libs)
-* glib development stuff
-* jsoncpp library
-* microhttpd library
+* development stuff (headers / libs) for
+ * libpurple
+ * glib
+ * jsoncpp library
+ * microhttpd library
 
 ## Usage
 
@@ -29,7 +30,7 @@ nick.
 
 **FORMAT** : html | json
 
-#### Requests
+#### GET requests
 
 * `.../v1/FORMAT/messages` - all messages received since the plugin has started
 * `.../v1/FORMAT/messages/all/start_from/MSG_ID` - messages starting with *MSG_ID*
@@ -39,6 +40,10 @@ nick.
 
 * `.../v1/FORMAT/my-messages/` - all *my messages*
 * `.../v1/FORMAT/my-messages/start_from/MSG_ID` - *my messages* starting with *MSG_ID*
+
+#### POST requests
+
+* (work in progress)
 
 ### Configuration
 
