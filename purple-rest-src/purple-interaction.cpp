@@ -106,24 +106,24 @@ gboolean timeout_cb(gpointer user_data)
     switch (type) {
     case PURPLE_CONV_TYPE_IM:
         purple_conv_im_send(PURPLE_CONV_IM(g_send_msg_data.conv),
-                            g_send_msg_data.msg);
+                            g_send_msg_data.msg.c_str());
         break;
 
     case PURPLE_CONV_TYPE_CHAT:
         purple_conv_chat_send(PURPLE_CONV_CHAT(g_send_msg_data.conv),
-                              g_send_msg_data.msg);
+                              g_send_msg_data.msg.c_str());
         break;
     default:
         // :fixme: do something
         break;
     }
     g_send_msg_data.conv = NULL;
-    g_send_msg_data.msg = NULL;
+    g_send_msg_data.msg.clear();
     return FALSE;
 }
 
 
-struct send_msg_data g_send_msg_data;
+struct SendMsgData g_send_msg_data;
 
 void purple_info(const std::string &msg)
 {

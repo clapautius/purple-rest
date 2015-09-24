@@ -21,14 +21,15 @@ void init_purple_rest_module(PurplePlugin *plugin, const char *url_prefix);
 
 gboolean timeout_cb(gpointer user_data);
 
-struct send_msg_data
-{
-    const PurpleConversation *conv;
-    const char *msg;
 };
 
-extern struct send_msg_data g_send_msg_data;
+struct SendMsgData
+{
+    const PurpleConversation *conv;
+    std::string msg;
 };
+
+extern struct SendMsgData g_send_msg_data;
 
 void purple_info(const std::string &msg);
 

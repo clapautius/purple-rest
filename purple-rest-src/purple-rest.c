@@ -33,9 +33,10 @@ int answer_to_http_connection(
     static size_t stored_size;
     char *content = NULL, *content_type = NULL;
     int content_size = 0, http_code = 200;
+    HttpMethod http_method = kHttpMethodGet;
 
-    // :fixme:
-    if (strcmp(method, "POST") == 0) {
+    if (0 == strcmp(method, MHD_HTTP_METHOD_POST)) {
+        http_method = kHttpMethodGet;
         purple_debug_info(PLUGIN_ID, "POST: upload_data=%p, upload_data_size=%ld\n",
                           upload_data, *upload_data_size);
         // :fixme: - atm we don't handle multiple pieces of data
@@ -58,9 +59,11 @@ int answer_to_http_connection(
             post_request_in_progress = 1;
             return MHD_YES;
         }
+    } else if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
+        http_method = kHttpMethodGet;
     }
 
-    perform_rest_request(url, method, stored_upload_data, stored_size,
+    perform_rest_request(url, http_method, stored_upload_data, stored_size,
                          &content, &content_size, &content_type, &http_code);
     if (post_request_in_progress) {
         post_request_in_progress = 0;

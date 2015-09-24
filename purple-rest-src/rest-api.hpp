@@ -9,10 +9,12 @@
 #ifndef REST_API_HPP
 #define REST_API_HPP
 
+#include "purple-rest.h"
+
 extern "C"
 {
 
-void perform_rest_request(const char *url, const char *method,
+void perform_rest_request(const char *url, HttpMethod method,
                           const char *upload_data, size_t upload_data_size,
                           char **buf, int *buf_len, char **content_type,
                           int *http_code);

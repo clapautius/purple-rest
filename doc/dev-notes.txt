@@ -16,6 +16,22 @@ incoming or outgoing message).
 
 
 
+libmicrohttpd
+_____________
+
+[libmicrohttpd] How to process a post request without MHD_post_processor?
+
+The first call to the "test_send_response_helper" is made *before* the
+upload data is available (after we just got the headers) so that you can
+choose not to send 100 CONTINUE for http/1.1.  You need to change your
+function to return an 'int' and return 'MHD_YES' to get the next call
+which will contain upload data.  Furthermore, 'upload_data' is NOT a
+0-terminated string so you *must* limit your processing manually to the
+first '*upload_data_size' bytes in that buffer.  Finally, you then need
+to reduce '*upload_data_size'  (i.e. to zero) to indicate how many bytes
+of 'upload_data' you did process (so you don't get them again).
+Finally, if you are eventually called  a *second* time with '0 ==
+*upload_data_size', you can be sure that the upload is complete.
 
 
 

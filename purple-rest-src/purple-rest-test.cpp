@@ -12,6 +12,6 @@
 
 int main()
 {
-    perform_rest_request(NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL);
+    perform_rest_request(NULL, kHttpMethodGet, NULL, 0, NULL, NULL, NULL, NULL);
     return 0;
 }

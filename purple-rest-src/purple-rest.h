@@ -11,5 +11,10 @@
 
 #define PLUGIN_ID "core-purple_rest"
 
+typedef enum
+{
+    kHttpMethodPost,
+    kHttpMethodGet
+} HttpMethod;
 
 #endif

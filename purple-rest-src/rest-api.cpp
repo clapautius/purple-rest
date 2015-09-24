@@ -24,7 +24,6 @@ using purple::ImMessage;
 extern purple::History g_msg_history;
 extern std::string g_url_prefix;
 
-
 /**
  * @param[in] request : vector containing URL components (elements separated by '/').
  * @param[out] response_str : response to be sent back.
@@ -135,7 +134,6 @@ static int get_conversations_request(const vector<string> &request, string &resp
             for (auto &e : msg_list) {
                 response->add_message(e);
             }
-            response->add_send_msg_form(conv_id);
         }
     } else {
         goto error;
@@ -161,16 +159,14 @@ static int post_messages_request(const vector<string> &request,
         << upload_data_size;
     purple_info(dbg.str());
     if (request.size() > 3) {
-        // :fixme:
-        char *p = strndup(upload_data, upload_data_size);
         // :fixme: - check for errors
         unsigned conv_id = strtol(request[3].c_str(), NULL, 10);
         if (conv_id) {
-            // :fixme:
+            // :fixme: - check valid data
             const PurpleConversation *conv =
               purple::g_conv_list[conv_id].get_purple_conv();
             g_send_msg_data.conv = conv;
-            g_send_msg_data.msg = p;
+            g_send_msg_data.msg = string(upload_data, upload_data_size);
             purple_timeout_add(100, timeout_cb, NULL);
             response_str = "OK";
             content_type = "text/html";
@@ -197,12 +193,18 @@ error:
  *   must free it.
  * @param[out] http_code : the HTTP answer code.
  */
-void perform_rest_request(const char *url, const char *method,
+void perform_rest_request(const char *url, HttpMethod method,
                           const char *upload_data, size_t upload_data_size,
                           char **buf, int *buf_len, char **content_type, int *http_code)
 {
     string response, content_type_str;
     purple_info(string("Got new request: ") + url);
+
+    // basic checks
+    if (NULL == url) {
+        return;
+    }
+
     std::string url_str(url);
     if (!g_url_prefix.empty()) {
         if (url_str.compare(0, g_url_prefix.size(), g_url_prefix) == 0) {
@@ -230,38 +232,48 @@ void perform_rest_request(const char *url, const char *method,
     }
     free(url_to_be_tokenized);
 
-    // :fixme: - additional checks, better design
-    if (method && strcmp(method, "POST") == 0) {
+    if (kHttpMethodPost == method) {
         *http_code = post_messages_request(request, upload_data, upload_data_size,
                                            response, content_type_str);
         return;
-    }
+    } else if (kHttpMethodGet == method) {
+        if (request.size() >= 3) {
+            // first element is version - ignore it for now
 
-    // otherwise is a GET request (:fixme:)
-    if (request.size() >= 3) {
-        // first element is version - ignore it for now - :fixme:
-
-        purple_info(std::string("Output type: ") + request[1]);
-
-        if (request[2] == "messages") {
-            *http_code = get_messages_request(request, response, content_type_str);
-        } else if (request[2] == "conversations") {
-            *http_code = get_conversations_request(request, response, content_type_str);
+            purple_info(std::string("Output type: ") + request[1]);
+            if (request[2] == "messages") {
+                *http_code = get_messages_request(request, response, content_type_str);
+            } else if (request[2] == "conversations") {
+                *http_code = get_conversations_request(request, response,
+                                                       content_type_str);
+            } else {
+                *http_code = 400;
+            }
         } else {
             *http_code = 400;
         }
+
+        if (response.size() > 0) {
+            *buf = (char*)malloc(response.size() + 1);
+            strncpy(*buf, response.c_str(), response.size() + 1);
+            *buf_len = response.size();
+            *content_type = strdup(content_type_str.c_str());
+        } else {
+            *buf = NULL;
+            *buf_len = 0;
+            *content_type = NULL;
+        }
     } else {
-        *http_code = 400;
+        // unknown method
+        goto error;
     }
 
-    if (response.size() > 0) {
-        *buf = (char*)malloc(response.size() + 1);
-        strncpy(*buf, response.c_str(), response.size() + 1);
-        *buf_len = response.size();
-        *content_type = strdup(content_type_str.c_str());
-    } else {
-        *buf = NULL;
-        *buf_len = 0;
-        *content_type = NULL;
-    }
+    return;
+
+error:
+    *buf = NULL;
+    *buf_len = 0;
+    *http_code = 400;
+    purple_info("Error processing request");
+    return;
 }
