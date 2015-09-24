@@ -7,7 +7,7 @@ g_debug=0
 # $2 - start from
 get_max_msg_id()
 {
-    url="$1/v/json/messages/im/start_from/$2"
+    url="$1/v/json/my-messages/im/start_from/$2"
     max_id=$(curl "$url" 2>/dev/null | egrep "^ *\"id\" : .*" | sed "s/^ *\"id\" : \([0-9]*\),/\1/" | sort -nr | head -n 1)
     [ -z "$max_id" ] && max_id="0"
     echo $max_id
