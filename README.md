@@ -24,8 +24,10 @@ progress).
 
 Definitions:
 
-**my messages** means IM messages and messages from chat conversations that contain user's
+**my messages** : IM messages and messages from chat conversations that contain user's
 nick.
+
+**FORMAT** : html | json
 
 #### Requests
 
@@ -37,8 +39,6 @@ nick.
 
 * `.../v1/FORMAT/my-messages/` - all *my messages*
 * `.../v1/FORMAT/my-messages/start_from/MSG_ID` - *my messages* starting with *MSG_ID*
-
-FORMAT = html | json
 
 ### Configuration
 
