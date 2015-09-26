@@ -42,6 +42,8 @@ public:
 
     const std::string &get_sender() const;
 
+    std::string get_short_date_string() const;
+
     uint64_t get_id() const
     {
         return m_id;

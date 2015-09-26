@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>Purple REST API</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="purple-rest.css">
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">
+    </script>
+  </head>
+  <body>
+    <div align="center">
+      <div id="content" class="content">
+        <div id="menu" class="menu">
+          <span class="menu" onclick="current_conversation=0; displayStuff(current_conversation);">All</span>
+        </div>
+        <div id="conversations" class="conversations">
+        </div>
+        <div id="messages" class="messages">
+        </div>
+        <div id="send_msg" class="send_msg">
+          <input type="text" name="text">
+        </div>
+      </div>
+    </div>
+
+    <script src="purple-rest.js"></script>
+
+  </body>
+</html>

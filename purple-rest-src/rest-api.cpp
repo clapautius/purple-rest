@@ -20,6 +20,7 @@
 using std::string;
 using std::vector;
 using purple::ImMessage;
+using purple::g_conv_list;
 
 extern purple::History g_msg_history;
 extern std::string g_url_prefix;
@@ -170,7 +171,7 @@ static int get_conversations_request(const vector<string> &request, string &resp
                 string title = purple_conversation_get_title(cv);
                 debug_text << "conversation: " << name << ", " << title;
                 purple_info(debug_text.str());
-                response->add_conversation(cv);
+                response->add_conversation(cv, g_conv_list.get_or_add_conversation(cv));
                 ptr = g_list_next(ptr);
             }
         } else {
@@ -214,7 +215,7 @@ static int post_messages_request(const vector<string> &request,
         if (conv_id) {
             // :fixme: - check valid data
             const PurpleConversation *conv =
-              purple::g_conv_list[conv_id].get_purple_conv();
+              g_conv_list[conv_id].get_purple_conv();
             g_send_msg_data.conv = conv;
             g_send_msg_data.msg = string(upload_data, upload_data_size);
             purple_timeout_add(100, timeout_cb, NULL);
@@ -281,6 +282,13 @@ void perform_rest_request(const char *url, HttpMethod method,
         p = strtok(NULL, "/");
     }
     free(url_to_be_tokenized);
+    purple_info("Request elements");
+    int idx = 0;
+    // :debug:
+    for (auto &elt : request) {
+        std::ostringstream ostr;
+        ostr << idx++ << " : " << elt.c_str();
+    }
 
     if (kHttpMethodPost == method) {
         *http_code = post_messages_request(request, upload_data, upload_data_size,

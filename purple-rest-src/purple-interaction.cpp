@@ -44,9 +44,9 @@ static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffe
 }
 
 
+#if 0
 static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buffer,
-                                 PurpleConversation *conv, int flags, void *data,
-                                 bool received_from_chat_cb = false)
+                                 PurpleConversation *conv, int flags, void *data)
 {
     ImMessage::ImMessageType msg_type = ImMessage::kMsgTypeChat;
     purple_debug_info(PLUGIN_ID, "Got a chat msg (see below):\n");
@@ -55,9 +55,6 @@ static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buf
             << account << "," << sender << "," << buffer << ","
             << conv << "," << flags << "," << data;
     purple_debug_info(PLUGIN_ID, "  %s\n", dbg_msg.str().c_str());
-    if (received_from_chat_cb) {
-        purple_debug_info(PLUGIN_ID, "  ... received from chat_cb\n");
-    }
     if (flags & PURPLE_MESSAGE_NICK) {
         purple_debug_info(PLUGIN_ID, "This is a NICK msg\n");
         msg_type = ImMessage::kMsgTypeChatAcc;
@@ -69,7 +66,6 @@ static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buf
 }
 
 
-#if 0
 static void sent_im_msg_cb(PurpleAccount *account, const char *recipient,
                            const char *buffer, void *data)
 {
@@ -105,13 +101,22 @@ static void wrote_chat_msg_cb(PurpleAccount *account, char *sender, char *buffer
                               PurpleConversation *conv, int flags, void *data)
 {
     std::ostringstream dbg_msg;
+    purple_debug_info(PLUGIN_ID, "Got a chat msg (see below):\n");
     dbg_msg << "wrote-chat-msg: (account, sender, buffer, conv, flags, data)"
             << account << "," << sender << "," << buffer << ","
             << conv << "," << flags << "," << data;
     purple_debug_info(PLUGIN_ID, "New chat msg in conversation: %s\n",
                       dbg_msg.str().c_str());
-    received_chat_msg_cb(account, sender, buffer, conv, flags, data);
-//    received_chat_msg_cb(account, sender, buffer, conv, flags, data);
+
+    ImMessage::ImMessageType msg_type = ImMessage::kMsgTypeChat;
+    if (flags & PURPLE_MESSAGE_NICK) {
+        purple_debug_info(PLUGIN_ID, "This is a NICK msg\n");
+        msg_type = ImMessage::kMsgTypeChatAcc;
+    }
+    shared_ptr<ImMessage> new_msg
+      (new ImMessage(account, buffer, History::get_new_id(), sender,
+                     g_conv_list.get_or_add_conversation(conv), msg_type));
+    g_msg_history.add_im_message(new_msg);
 }
 
 
@@ -120,8 +125,8 @@ void init_purple_rest_module(PurplePlugin *plugin, const char *url_prefix)
     // setup purple callbacks
     //purple_signal_connect(purple_conversations_get_handle(), "received-im-msg", plugin,
     //                      PURPLE_CALLBACK(received_im_msg_cb), NULL);
-    purple_signal_connect(purple_conversations_get_handle(), "received-chat-msg", plugin,
-                          PURPLE_CALLBACK(received_chat_msg_cb), NULL);
+    //purple_signal_connect(purple_conversations_get_handle(), "received-chat-msg",
+    //                      plugin, PURPLE_CALLBACK(received_chat_msg_cb), NULL);
     //purple_signal_connect(purple_conversations_get_handle(), "sent-im-msg", plugin,
     //                      PURPLE_CALLBACK(sent_im_msg_cb), NULL);
     purple_signal_connect(purple_conversations_get_handle(), "wrote-im-msg", plugin,

@@ -33,7 +33,8 @@ public:
 
     virtual void add_message(std::shared_ptr<ImMessage> &msg) = 0;
 
-    virtual void add_conversation(PurpleConversation *conv) = 0;
+    virtual void add_conversation(PurpleConversation *conv,
+                                  unsigned conv_id = 0) = 0;
 
 };
 
@@ -50,7 +51,8 @@ public:
 
     virtual void add_message(std::shared_ptr<ImMessage> &msg);
 
-    virtual void add_conversation(PurpleConversation *conv);
+    virtual void add_conversation(PurpleConversation *conv,
+                                  unsigned conv_id = 0);
 
 private:
 
@@ -70,7 +72,8 @@ public:
 
     virtual void add_message(std::shared_ptr<ImMessage> &msg);
 
-    virtual void add_conversation(PurpleConversation *conv);
+    virtual void add_conversation(PurpleConversation *conv,
+                                  unsigned conv_id = 0);
 
 private:
 

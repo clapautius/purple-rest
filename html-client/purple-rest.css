@@ -1,0 +1,43 @@
+body {
+    background-color: #e0e0e0;
+}
+
+div.content {
+  border-width: 1px;
+  border-color: black;
+  border-style: solid;
+  width: 50em;
+  background-color: #ffffff;
+  text-align: left;
+}
+
+div.message {
+    border-bottom: 1px solid #bbb;
+    margin-bottom: 1ex;
+}
+
+span.message-sender {
+    font-style: italic;
+}
+
+span.message-text {
+    margin-left: 1em;
+}
+
+div.conversations {
+    border-bottom: 2px solid black;
+    margin-bottom: 5px;
+}
+
+span.conversation {
+    font-weight: bold;
+}
+
+div.menu {
+    border-bottom: 2px solid black;
+    margin-bottom: 5px;
+}
+
+span.menu {
+    font-weight: bold;
+}

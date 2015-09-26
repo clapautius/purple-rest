@@ -19,8 +19,6 @@ RestResponse::~RestResponse()
 
 HtmlResponse::HtmlResponse()
 {
-    m_ostr << HTML_HEAD << "<body>" << HTML_STYLE;
-    m_ostr << "<div align=\"center\"><div class=\"content\">";
 }
 
 
@@ -31,27 +29,27 @@ HtmlResponse::~HtmlResponse()
 
 std::string HtmlResponse::get_text()
 {
-    m_ostr << "</div></div></body></html>";
     return m_ostr.str();
 }
 
 
 void HtmlResponse::add_message(std::shared_ptr<ImMessage> &msg)
 {
-    m_ostr << "<div class=\"message\"><span class=\"message-props\">"
-           << "Message from " << msg->get_sender() << "(id: "
-           << msg->get_id() << ", conv_id: " << msg->get_conv_id() << ")</span><br>\n"
+    m_ostr << "<div class=\"message\">"
+           << "<span class=\"message-sender\">" << msg->get_sender()
+           << "(" << msg->get_short_date_string() << "):"
+           << "</span><br>\n"
            << "<span class=\"message-text\">" << msg->get_text() << "</span></div>\n";
 }
 
 
-void HtmlResponse::add_conversation(PurpleConversation *conv)
+void HtmlResponse::add_conversation(PurpleConversation *conv, unsigned conv_id)
 {
     if (conv) {
-        const char *conv_name = purple_conversation_get_name(conv);
-        m_ostr << "<div class=\"message\"><span class=\"message-props\">"
-               << "Conversation: " << (conv_name ? conv_name : "unknown")
-               << "</span>" << "</div>\n";
+        const char *conv_name = purple_conversation_get_title(conv);
+        m_ostr << "<span class=\"conversation\" id=\"conv_" << conv_id << "\">"
+               << (conv_name ? conv_name : "unknown conversation")
+               << "</span>\n";
     }
 }
 
@@ -85,12 +83,13 @@ void JsonResponse::add_message(std::shared_ptr<ImMessage> &msg)
 }
 
 
-void JsonResponse::add_conversation(PurpleConversation *conv)
+void JsonResponse::add_conversation(PurpleConversation *conv, unsigned conv_id)
 {
     if (conv) {
         Json::Value new_conv(Json::objectValue);
-        const char *conv_name = purple_conversation_get_name(conv);
+        const char *conv_name = purple_conversation_get_title(conv);
         new_conv["name"] = (conv_name ? conv_name : "unknown");
+        new_conv["id"] = conv_id;
         // :fixme:
         m_msg_list.append(new_conv);
     }

@@ -50,3 +50,15 @@ nick.
 * _/plugins/purple-rest/server-port_ : listen port
 * _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
 nginx / apache redirecting.
+
+### Use with apache web server
+
+* enable proxy module (on debian symlink files proxy.load, proxy.conf and proxy_http.load)
+* add these to *default.conf* or *default-ssl.conf*:
+
+`
+<Location "im-purple">
+    ProxyPass http://localhost:8888
+    ProxyPassReverse http://localhost:8888
+</Location>
+`

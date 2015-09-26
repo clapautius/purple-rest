@@ -31,4 +31,16 @@ const std::string &ImMessage::get_sender() const
     return m_sender;
 }
 
+
+/**
+ * Return recv. time as "HH:MM".
+ */
+std::string ImMessage::get_short_date_string() const
+{
+    struct tm *recv_time = localtime(&m_recv_time);
+    char str[6] = { 0 };
+    strftime(str, sizeof(str), "%H:%M", recv_time);
+    return std::string(str);
+}
+
 }
