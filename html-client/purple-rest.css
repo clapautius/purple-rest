@@ -24,20 +24,20 @@ span.message-text {
     margin-left: 1em;
 }
 
-div.conversations {
+div.conversations, div.menu {
     border-bottom: 2px solid black;
-    margin-bottom: 5px;
+/*    margin-bottom: 5px; */
+    text-align: center;
+    padding: 4px;
 }
 
-span.conversation {
-    font-weight: bold;
+span.conversation, span.menu {
+    border: 1px solid #aaa;
+    background: #eee;
+    padding: 1px;
 }
 
-div.menu {
-    border-bottom: 2px solid black;
-    margin-bottom: 5px;
-}
-
-span.menu {
-    font-weight: bold;
+div.send_msg {
+    padding: 2px;
+    text-align: center;
 }
