@@ -31,6 +31,11 @@ public:
 
     static uint64_t get_new_id();
 
+    static uint64_t get_max_id()
+    {
+        return m_free_id -1;
+    }
+
 private:
 
     std::vector<ImMessagePtr> m_message_list;

@@ -25,6 +25,22 @@ using purple::g_conv_list;
 extern purple::History g_msg_history;
 extern std::string g_url_prefix;
 
+
+static bool str_to_uint64_t(const char*str, uint64_t &num)
+{
+    char *p = NULL;
+    long int ret = strtol(str, &p, 10);
+    if (ret == 0 && p == str) {
+        return false;
+    } else if (ret < 0) {
+        return false;
+    } else {
+        num = ret;
+        return true;
+    }
+}
+
+
 /**
  * @param[in] request : vector containing URL components (elements separated by '/').
  * @param[out] response_str : response to be sent back.
@@ -54,32 +70,26 @@ static int get_messages_request(const vector<string> &request, string &response_
     }
     if (request.size() > kStartFromIdIdx + 1) {
         if (request[kStartFromIdIdx] == "start_from") {
-            // :fixme: - check for errors
-            start_from_id = strtol(request[kStartFromIdIdx + 1].c_str(), NULL, 10);
+            if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
+                goto error;
+            }
         }
     }
-    if (request[1] == "json") {
-        response.reset(new purple::JsonResponse);
-        content_type = "application/json";
+    if (create_response(request[1], response, content_type)) {
+        auto msg_list = g_msg_history.get_messages_from_history(
+          [=] (purple::ImMessagePtr &elt) -> bool
+          {
+              return (elt->get_id() > start_from_id &&
+                      (filter == ImMessage::kMsgTypeUnknown || filter == elt->get_type()));
+          });
+        for (auto &e : msg_list) {
+            response->add_message(e);
+        }
+        response_str = response->get_text();
+        return 200;
     }
-    else if (request[1] == "html") {
-        response.reset(new purple::HtmlResponse);
-        content_type = "text/html";
-    }
-    else {
-        return 400;
-    }
-    auto msg_list = g_msg_history.get_messages_from_history(
-      [=] (purple::ImMessagePtr &elt) -> bool
-      {
-          return (elt->get_id() > start_from_id &&
-                  (filter == ImMessage::kMsgTypeUnknown || filter == elt->get_type()));
-      });
-    for (auto &e : msg_list) {
-        response->add_message(e);
-    }
-    response_str = response->get_text();
-    return 200;
+error:
+    return 400;
 }
 
 
@@ -103,33 +113,62 @@ static int get_my_messages_request(const vector<string> &request, string &respon
     std::unique_ptr<purple::RestResponse> response;
     if (request.size() > kStartFromIdIdx + 1) {
         if (request[kStartFromIdIdx] == "start_from") {
-            // :fixme: - check for errors
-            start_from_id = strtol(request[kStartFromIdIdx + 1].c_str(), NULL, 10);
+            if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
+                goto error;
+            }
         }
     }
-    if (request[1] == "json") {
-        response.reset(new purple::JsonResponse);
-        content_type = "application/json";
+    if (purple::create_response(request[1], response, content_type)) {
+        auto msg_list = g_msg_history.get_messages_from_history(
+          [=] (purple::ImMessagePtr &elt) -> bool
+          {
+              return (elt->get_id() > start_from_id &&
+                      (ImMessage::kMsgTypeIm == elt->get_type() ||
+                       ImMessage::kMsgTypeChatAcc == elt->get_type()));
+          });
+        for (auto &e : msg_list) {
+            response->add_message(e);
+        }
+        response_str = response->get_text();
+        return 200;
     }
-    else if (request[1] == "html") {
-        response.reset(new purple::HtmlResponse);
-        content_type = "text/html";
+
+error:
+    return 400;
+}
+
+
+/**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
+ * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * /v/<format>/status/max_msg_id
+ */
+static int get_status_request(const vector<string> &request, string &response_str,
+                              string &content_type)
+{
+    std::unique_ptr<purple::RestResponse> response;
+    int param_idx = 3;
+    if (request.size() <= 3) {
+        goto error;
+    } else {
+        if (!purple::create_response(request[1], response, content_type)) {
+            goto error;
+        }
     }
-    else {
-        return 400;
-    }
-    auto msg_list = g_msg_history.get_messages_from_history(
-      [=] (purple::ImMessagePtr &elt) -> bool
-      {
-          return (elt->get_id() > start_from_id &&
-                  (ImMessage::kMsgTypeIm == elt->get_type() ||
-                   ImMessage::kMsgTypeChatAcc == elt->get_type()));
-      });
-    for (auto &e : msg_list) {
-        response->add_message(e);
+    if (request[param_idx] == "max_msg_id") {
+        response->add_generic_param("max_msg_id", g_msg_history.get_max_id());
+    } else {
+        goto error;
     }
     response_str = response->get_text();
     return 200;
+error:
+    return 400;
 }
 
 
@@ -309,6 +348,9 @@ void perform_rest_request(const char *url, HttpMethod method,
             } else if (request[2] == "my-messages") {
                 *http_code = get_my_messages_request(request, response,
                                                      content_type_str);
+            } else if (request[2] == "status") {
+                *http_code = get_status_request(request, response,
+                                                content_type_str);
             } else {
                 *http_code = 400;
             }

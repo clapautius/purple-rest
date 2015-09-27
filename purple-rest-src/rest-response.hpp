@@ -36,6 +36,9 @@ public:
     virtual void add_conversation(PurpleConversation *conv,
                                   unsigned conv_id = 0) = 0;
 
+    virtual void add_generic_param(const std::string &param_name,
+                                   unsigned value) = 0;
+
 };
 
 
@@ -53,6 +56,9 @@ public:
 
     virtual void add_conversation(PurpleConversation *conv,
                                   unsigned conv_id = 0);
+
+    virtual void add_generic_param(const std::string &param_name,
+                                   unsigned value);
 
 private:
 
@@ -75,11 +81,19 @@ public:
     virtual void add_conversation(PurpleConversation *conv,
                                   unsigned conv_id = 0);
 
+    virtual void add_generic_param(const std::string &param_name,
+                                   unsigned value);
+
 private:
 
     Json::Value m_msg_list;
 
 };
+
+
+bool create_response(const std::string &type,
+                     std::unique_ptr<RestResponse> &response,
+                     std::string &content_type);
 
 }
 

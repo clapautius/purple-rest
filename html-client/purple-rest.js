@@ -1,12 +1,31 @@
 var currentConversation = 0;
 var urlPrefix = "../msg/v1/html/";
+var urlPrefixJson = "../msg/v1/json/";
 var timerId = 0;
+var maxCurrentId = -1;
+
+function areThereNewMessagesP()
+{
+    newMsgUrl = urlPrefixJson + "status/max_msg_id";
+    console.log("Checking new messages (using url " + newMsgUrl + ")");
+    $.getJSON(newMsgUrl, function(data) {
+        var remoteMaxId = data[0]["max_msg_id"];
+        console.log("max remote id " + remoteMaxId);
+        console.log("max current id " + maxCurrentId);
+        if (remoteMaxId > maxCurrentId) {
+            maxCurrentId = remoteMaxId;
+            displayConversations();
+        }
+    });
+    timerId = window.setTimeout(areThereNewMessagesP, 10000);
+}
+
 
 function gotoConversation(conv_id)
 {
     if (timerId > 0) {
         window.clearTimeout(timerId);
-        timerId = 0;
+        timerId = window.setTimeout(areThereNewMessagesP, 10000);
     }
     currentConversation = parseInt(conv_id.substring(5));
     console.log("Going to conversation " + currentConversation);
@@ -31,8 +50,6 @@ function updateLinks()
         // disable input
         $("#send_msg").hide()
     }
-
-    timerId = window.setTimeout(displayConversations, 10000);
 }
 
 
@@ -59,7 +76,6 @@ function displayConversations()
     // conversations window
     var conversationsUrl = urlPrefix + "conversations/all";
     $("#conversations").load(conversationsUrl, displayMessages);
-
 }
 
 
@@ -75,7 +91,7 @@ function sendMessageToPurple()
 {
     if (timerId > 0) {
         window.clearTimeout(timerId);
-        timerId = 0;
+        timerId = window.setTimeout(areThereNewMessagesP, 10000);
     }
     postUrl = urlPrefix + "conversations/" + currentConversation;
     message = $("#send_msg_text").val();
@@ -86,4 +102,4 @@ function sendMessageToPurple()
     });
 }
 
-displayConversations();
+areThereNewMessagesP();

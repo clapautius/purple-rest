@@ -54,6 +54,13 @@ void HtmlResponse::add_conversation(PurpleConversation *conv, unsigned conv_id)
 }
 
 
+void HtmlResponse::add_generic_param(const std::string &param_name,
+                                     unsigned value)
+{
+    m_ostr << "<span>" << param_name << " = " << value << "</span>\n";
+}
+
+
 JsonResponse::JsonResponse()
   : m_msg_list(Json::arrayValue)
 {
@@ -90,9 +97,45 @@ void JsonResponse::add_conversation(PurpleConversation *conv, unsigned conv_id)
         const char *conv_name = purple_conversation_get_title(conv);
         new_conv["name"] = (conv_name ? conv_name : "unknown");
         new_conv["id"] = conv_id;
-        // :fixme:
+        // :fixme: - rename m_msg_list
         m_msg_list.append(new_conv);
     }
 }
+
+
+void JsonResponse::add_generic_param(const std::string &param_name,
+                                     unsigned value)
+{
+    Json::Value new_param(Json::objectValue);
+    new_param[param_name.c_str()] = value;
+    // :fixme: - rename m_msg_list
+    m_msg_list.append(new_param);
+}
+
+
+/**
+ * @param[in] type : html / json
+ * @param[out] response : the newly created response object
+ * @param[out] content_type : the HTTP content_type
+ * @return true if OK, false on error
+ */
+bool create_response(const std::string &type, std::unique_ptr<RestResponse> &response,
+                     std::string &content_type)
+{
+    bool rc = true;
+    if (type == "json") {
+        response.reset(new purple::JsonResponse);
+        content_type = "application/json";
+    }
+    else if (type == "html") {
+        response.reset(new purple::HtmlResponse);
+        content_type = "text/html";
+    }
+    else {
+        rc = false;
+    }
+    return rc;
+}
+
 
 }
