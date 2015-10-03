@@ -36,11 +36,18 @@ public:
         return m_free_id -1;
     }
 
+    static msg_id_t get_max_my_msg_id()
+    {
+        return m_max_my_msg_id;
+    }
+
 private:
 
     std::vector<ImMessagePtr> m_message_list;
 
     static std::atomic<uint64_t> m_free_id;
+
+    static msg_id_t m_max_my_msg_id;
 };
 
 };

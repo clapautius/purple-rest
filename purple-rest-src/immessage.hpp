@@ -78,6 +78,8 @@ private:
 
 typedef std::shared_ptr<ImMessage> ImMessagePtr;
 
+typedef uint64_t msg_id_t;
+
 };
 
 #endif

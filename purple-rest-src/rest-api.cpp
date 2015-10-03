@@ -147,6 +147,7 @@ error:
  *
  * Requests summary:
  * /v/<format>/status/max_msg_id
+ * /v/<format>/status/max_my_msg_id
  */
 static int get_status_request(const vector<string> &request, string &response_str,
                               string &content_type)
@@ -162,6 +163,8 @@ static int get_status_request(const vector<string> &request, string &response_st
     }
     if (request[param_idx] == "max_msg_id") {
         response->add_generic_param("max_msg_id", g_msg_history.get_max_id());
+    } else if (request[param_idx] == "max_my_msg_id") {
+        response->add_generic_param("max_my_msg_id", g_msg_history.get_max_my_msg_id());
     } else {
         goto error;
     }
