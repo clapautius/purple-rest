@@ -41,6 +41,9 @@ nick.
 * `.../v1/FORMAT/my-messages/` - all *my messages*
 * `.../v1/FORMAT/my-messages/start_from/MSG_ID` - *my messages* starting with *MSG_ID*
 
+* `.../v1/json/status/max_msg_id` - latest message id (json only)
+* `.../v1/json/status/max_my_msg_id` - latest *my message* id received (json only)
+
 #### POST requests
 
 * (work in progress)
