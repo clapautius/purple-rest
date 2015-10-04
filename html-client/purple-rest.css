@@ -12,12 +12,13 @@ div.content {
 }
 
 div.message {
-    border-bottom: 1px solid #bbb;
+    border-bottom: 1px solid #ddd;
     margin-bottom: 1ex;
 }
 
 span.message-sender {
     font-style: italic;
+    font-size: small;
 }
 
 span.message-text {
@@ -25,19 +26,32 @@ span.message-text {
 }
 
 div.conversations, div.menu {
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid black;
 /*    margin-bottom: 5px; */
-    text-align: center;
+    text-align: left;
     padding: 4px;
+    padding-bottom: 8px;
+    padding-top: 8px;
 }
 
 span.conversation, span.menu {
     border: 1px solid #aaa;
-    background: #eee;
-    padding: 1px;
+    background: #faf8e8;
+    color: blue;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 1ex;
+    padding-right: 1ex;
+    cursor: pointer;
+    margin-right: 1em;
+    font-weight: bold;
 }
 
 div.send_msg {
     padding: 2px;
     text-align: center;
+}
+
+input#send_msg_text {
+    margin-bottom: 4px;
 }

@@ -37,7 +37,7 @@ void HtmlResponse::add_message(std::shared_ptr<ImMessage> &msg)
 {
     m_ostr << "<div class=\"message\">"
            << "<span class=\"message-sender\">" << msg->get_sender()
-           << "(" << msg->get_short_date_string() << "):"
+           << "&nbsp;(" << msg->get_short_date_string() << "):"
            << "</span><br>\n"
            << "<span class=\"message-text\">" << msg->get_text() << "</span></div>\n";
 }
