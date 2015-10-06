@@ -3,15 +3,42 @@ var urlPrefix = "../msg/v1/html/";
 var urlPrefixJson = "../msg/v1/json/";
 var timerId = 0;
 var maxCurrentId = -1;
+var jsonSuccess = false;
+
+
+function displayError(errorMsg)
+{
+    console.log("Some error happened");
+    $("#status-bar").html("<span style=\"color: red;\">Error: " + errorMsg + "</span>");
+}
+
+
+function displayRefresh()
+{
+    if (jsonSuccess) {
+        var now = new Date(Date.now());
+        var formatted = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+        $("#status-bar").html("Refresh OK (" + formatted + ")");
+    }
+}
+
 
 function areThereNewMessagesP()
 {
     newMsgUrl = urlPrefixJson + "status/max_msg_id";
     console.log("Checking new messages (using url " + newMsgUrl + ")");
+
+    var errorTimeout = setTimeout(function() {
+        jsonSuccess = true;
+        displayError("JSON error");
+    }, 5000);
+
     $.getJSON(newMsgUrl, function(data) {
+        jsonSuccess = true;
+        clearTimeout(errorTimeout);
+        displayRefresh();
         var remoteMaxId = data[0]["max_msg_id"];
-        console.log("max remote id " + remoteMaxId);
-        console.log("max current id " + maxCurrentId);
+        console.log("max remote id "+remoteMaxId + ", max current id "+maxCurrentId);
         if (remoteMaxId > maxCurrentId) {
             maxCurrentId = remoteMaxId;
             displayConversations();
@@ -33,37 +60,44 @@ function gotoConversation(conv_id)
 }
 
 
-function updateLinks()
+function updateLinks(responseText, textStatus)
 {
     console.log("Updating links");
-    // update onclicks
-    $("span.conversation").each(function(index) {
-        console.log("Setting onclick for conv id " + $(this).attr("id"));
-        $(this).click(function() {
-            gotoConversation($(this).attr("id"));})
-    });
+    if (textStatus == "success") {
+        // update onclicks
+        $("span.conversation").each(function(index) {
+            console.log("Setting onclick for conv id " + $(this).attr("id"));
+            $(this).click(function() {
+                gotoConversation($(this).attr("id"));})
+        });
 
-    if (currentConversation > 0) {
-        // enable input
-        $("#send_msg").show()
+        if (currentConversation > 0) {
+            // enable input
+            $("#send_msg").show()
+        } else {
+            // disable input
+            $("#send_msg").hide()
+        }
     } else {
-        // disable input
-        $("#send_msg").hide()
+        displayError(textStatus);
     }
 }
 
 
-function displayMessages()
+function displayMessages(responseText, textStatus)
 {
     var imUrl;
-    if (currentConversation == 0) {
-        imUrl = urlPrefix + "messages/all";
+    if (textStatus == "success") {
+        if (currentConversation == 0) {
+            imUrl = urlPrefix + "messages/all";
+        } else {
+            imUrl = urlPrefix + "conversations/" + currentConversation;
+        }
+        console.log(imUrl);
+        $("#messages").load(imUrl, updateLinks);
     } else {
-        imUrl = urlPrefix + "conversations/" + currentConversation;
+        displayError(textStatus);
     }
-    console.log(imUrl);
-    $("#messages").load(imUrl, updateLinks);
-
 }
 
 

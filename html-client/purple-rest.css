@@ -55,3 +55,10 @@ div.send_msg {
 input#send_msg_text {
     margin-bottom: 4px;
 }
+
+div.status-bar {
+    font-style: italic;
+    font-size: small;
+    background: #eee;
+    border-top: 1px solid black;
+}
