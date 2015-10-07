@@ -62,3 +62,13 @@ div.status-bar {
     background: #eee;
     border-top: 1px solid black;
 }
+
+div#status-bar-1 {
+    width: 50%;
+    float: left;
+    border-right: 1px solid #aaa;
+    margin-right: 1ex;
+}
+
+div#status-bar-2 {
+}

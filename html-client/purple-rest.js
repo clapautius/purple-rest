@@ -1,6 +1,6 @@
 var currentConversation = 0;
-var urlPrefix = "../msg/v1/html/";
-var urlPrefixJson = "../msg/v1/json/";
+var urlPrefix = "rest/v1/html/";
+var urlPrefixJson = "rest/v1/json/";
 var timerId = 0;
 var maxCurrentId = -1;
 var jsonSuccess = false;
@@ -9,7 +9,7 @@ var jsonSuccess = false;
 function displayError(errorMsg)
 {
     console.log("Some error happened");
-    $("#status-bar").html("<span style=\"color: red;\">Error: " + errorMsg + "</span>");
+    $("#status-bar-2").html("<span style=\"color: red;\">" + errorMsg + "</span>");
 }
 
 
@@ -18,7 +18,7 @@ function displayRefresh()
     if (jsonSuccess) {
         var now = new Date(Date.now());
         var formatted = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
-        $("#status-bar").html("Refresh OK (" + formatted + ")");
+        $("#status-bar-2").html("Last update: " + formatted);
     }
 }
 
@@ -28,20 +28,22 @@ function areThereNewMessagesP()
     newMsgUrl = urlPrefixJson + "status/max_msg_id";
     console.log("Checking new messages (using url " + newMsgUrl + ")");
 
-    var errorTimeout = setTimeout(function() {
-        jsonSuccess = true;
-        displayError("JSON error");
-    }, 5000);
-
-    $.getJSON(newMsgUrl, function(data) {
-        jsonSuccess = true;
-        clearTimeout(errorTimeout);
-        displayRefresh();
-        var remoteMaxId = data[0]["max_msg_id"];
-        console.log("max remote id "+remoteMaxId + ", max current id "+maxCurrentId);
-        if (remoteMaxId > maxCurrentId) {
-            maxCurrentId = remoteMaxId;
-            displayConversations();
+    $.ajax({
+        url: newMsgUrl,
+        dataType: 'json',
+        success: function(data) {
+            jsonSuccess = true;
+            displayRefresh();
+            var remoteMaxId = data[0]["max_msg_id"];
+            console.log("max remote id "+remoteMaxId + ", max current id "+maxCurrentId);
+            if (remoteMaxId != maxCurrentId) {
+                maxCurrentId = remoteMaxId;
+                displayConversations();
+            }
+        },
+        error: function(data) {
+            jsonSuccess = false;
+            displayError("Error getting messages");
         }
     });
     timerId = window.setTimeout(areThereNewMessagesP, 10000);
@@ -62,7 +64,7 @@ function gotoConversation(conv_id)
 
 function updateLinks(responseText, textStatus)
 {
-    console.log("Updating links");
+    console.log("Updating links (conversation=" + currentConversation + ")");
     if (textStatus == "success") {
         // update onclicks
         $("span.conversation").each(function(index) {
