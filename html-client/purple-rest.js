@@ -23,6 +23,12 @@ function displayRefresh()
 }
 
 
+function mobileLayout()
+{
+    $("#content").css("width", "100%");
+}
+
+
 function areThereNewMessagesP()
 {
     newMsgUrl = urlPrefixJson + "status/max_msg_id";

@@ -1,5 +1,6 @@
 body {
     background-color: #e0e0e0;
+    margin: 2px;
 }
 
 div.content {
@@ -12,17 +13,19 @@ div.content {
 }
 
 div.message {
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 1ex;
+    /* border-bottom: 1px solid #ddd; */
+    /* margin-bottom: 1ex; */
+    margin-bottom: 0.4ex;
 }
 
 span.message-sender {
     font-style: italic;
     font-size: small;
+    color: green;
 }
 
 span.message-text {
-    margin-left: 1em;
+    margin-left: 1ex;
 }
 
 div.conversations, div.menu {
@@ -68,6 +71,7 @@ div#status-bar-1 {
     float: left;
     border-right: 1px solid #aaa;
     margin-right: 1ex;
+    padding-left: 1ex;
 }
 
 div#status-bar-2 {
