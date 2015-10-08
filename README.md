@@ -44,6 +44,8 @@ nick.
 * `.../v1/json/status/max_msg_id` - latest message id (json only)
 * `.../v1/json/status/max_my_msg_id` - latest *my message* id received (json only)
 
+* `.../v1/FORMAT/cmd/clear_history` - clear history
+
 #### POST requests
 
 * (work in progress)

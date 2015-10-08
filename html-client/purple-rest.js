@@ -29,6 +29,30 @@ function mobileLayout()
 }
 
 
+function clearHistory()
+{
+    if (timerId > 0) {
+        window.clearTimeout(timerId);
+        timerId = window.setTimeout(areThereNewMessagesP, 10000);
+    }
+    maxCurrentId = -1;
+    var clearMsgCmd = urlPrefixJson + "cmd/clear_history";
+    $.ajax({
+        url: clearMsgCmd,
+        dataType: 'json',
+        success: function(data) {
+            jsonSuccess = true;
+            displayRefresh();
+        },
+        error: function(data) {
+            jsonSuccess = false;
+            displayError("Error getting messages");
+        }
+    });
+    areThereNewMessagesP();
+}
+
+
 function areThereNewMessagesP()
 {
     newMsgUrl = urlPrefixJson + "status/max_msg_id";

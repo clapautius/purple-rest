@@ -175,6 +175,42 @@ error:
 }
 
 
+
+/**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
+ * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * /v/<format>/status/max_msg_id
+ * /v/<format>/status/max_my_msg_id
+ */
+static int get_cmd_request(const vector<string> &request, string &response_str,
+                           string &content_type)
+{
+    std::unique_ptr<purple::RestResponse> response;
+    int cmd_idx = 3;
+    if (request.size() <= 3) {
+        goto error;
+    } else {
+        if (!purple::create_response(request[1], response, content_type)) {
+            goto error;
+        }
+    }
+    if (request[cmd_idx] == "clear_history") {
+        g_msg_history.clear_history();
+    } else {
+        goto error;
+    }
+    response_str = response->get_text();
+    return 200;
+error:
+    return 400;
+}
+
+
 /**
  * @param[in] request : vector containing URL components (elements separated by '/').
  * @param[out] response_str : response to be sent back.
@@ -354,6 +390,9 @@ void perform_rest_request(const char *url, HttpMethod method,
             } else if (request[2] == "status") {
                 *http_code = get_status_request(request, response,
                                                 content_type_str);
+            } else if (request[2] == "cmd") {
+                *http_code = get_cmd_request(request, response,
+                                             content_type_str);
             } else {
                 *http_code = 400;
             }

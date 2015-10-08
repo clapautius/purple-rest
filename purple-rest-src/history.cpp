@@ -48,4 +48,13 @@ std::atomic<uint64_t> History::m_free_id(1);
 
 msg_id_t History::m_max_my_msg_id(0);
 
+
+void History::clear_history()
+{
+    // :fixme: not thread-safe
+    m_message_list.clear();
+    m_max_my_msg_id = 0;
+    m_free_id = 1;
+}
+
 }

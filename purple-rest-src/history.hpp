@@ -41,6 +41,8 @@ public:
         return m_max_my_msg_id;
     }
 
+    void clear_history();
+
 private:
 
     std::vector<ImMessagePtr> m_message_list;
