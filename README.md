@@ -56,6 +56,24 @@ nick.
 * _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
 nginx / apache redirecting.
 
+## Installing and using the web client
+
+Assuming the HTTP URL is http://WEBSERVER/purple-rest/ :
+
+### pidgin / finch configuration
+
+```xml
+<pref version='1' name='/'>
+    <pref name='plugins'>
+        <pref name='core'>
+            ...
+            <pref name='purple-rest'>
+                <pref name='server-port' type='int' value='8888'/>
+                <pref name='url-prefix' type='string' value='purple-rest/'/>
+            </pref>
+            ...
+```
+
 ### Use with apache web server
 
 * enable proxy module (on debian symlink files proxy.load, proxy.conf and proxy_http.load)
