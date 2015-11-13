@@ -58,30 +58,32 @@ nginx / apache redirecting.
 
 ## Installing and using the web client
 
-Assuming the HTTP URL is http://WEBSERVER/purple-rest/ :
+Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
 
 ### pidgin / finch configuration
 
+Things to be added to ```~/.purple/pref.xml```
+
 ```xml
 <pref version='1' name='/'>
-    <pref name='plugins'>
-        <pref name='core'>
-            ...
-            <pref name='purple-rest'>
-                <pref name='server-port' type='int' value='8888'/>
-                <pref name='url-prefix' type='string' value='purple-rest/'/>
-            </pref>
-            ...
+  <pref name='plugins'>
+    <pref name='core'>
+      ...
+      <pref name='purple-rest'>
+        <pref name='server-port' type='int' value='8888'/>
+        <pref name='url-prefix' type='string' value='purple-rest/'/>
+      </pref>
+      ...
 ```
 
-### Use with apache web server
+### Configuring apache web server
 
-* enable proxy module (on debian symlink files proxy.load, proxy.conf and proxy_http.load)
+* enable proxy module (on debian symlink the files *proxy.load*, *proxy.conf* and *proxy_http.load*)
 * add these to *default.conf* or *default-ssl.conf*:
 
-`
-<Location "im-purple">
-    ProxyPass http://localhost:8888
-    ProxyPassReverse http://localhost:8888
+```
+<Location "/purple-rest/rest">
+  ProxyPass http://localhost:8888
+  ProxyPassReverse http://localhost:8888
 </Location>
-`
+```
