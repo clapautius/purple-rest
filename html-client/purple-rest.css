@@ -12,6 +12,13 @@ div.content {
   text-align: left;
 }
 
+div.messages {
+    margin: 3px;
+    max-height: 60ex;
+    border: 1px solid #888;
+    overflow-y: scroll;
+}
+
 div.message {
     /* border-bottom: 1px solid #ddd; */
     /* margin-bottom: 1ex; */

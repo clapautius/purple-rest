@@ -127,6 +127,7 @@ function displayMessages(responseText, textStatus)
         }
         console.log(imUrl);
         $("#messages").load(imUrl, updateLinks);
+        $("#messages").trigger("custom-update");
     } else {
         displayError(textStatus);
     }
@@ -167,5 +168,7 @@ function sendMessageToPurple()
         sendMessageResult(data);
     });
 }
+
+$("#messages").on("custom-update", function () { $("#messages").scrollTop($("#messages")[0].scrollHeight);alert('scroll'); });
 
 areThereNewMessagesP();
