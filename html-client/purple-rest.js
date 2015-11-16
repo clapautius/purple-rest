@@ -67,8 +67,9 @@ function areThereNewMessagesP()
             var remoteMaxId = data[0]["max_msg_id"];
             console.log("max remote id "+remoteMaxId + ", max current id "+maxCurrentId);
             if (remoteMaxId != maxCurrentId) {
+                var oldMaxId = maxCurrentId;
                 maxCurrentId = remoteMaxId;
-                displayConversations();
+                displayConversations(oldMaxId);
             }
         },
         error: function(data) {
@@ -92,57 +93,81 @@ function gotoConversation(conv_id)
 }
 
 
-function updateLinks(responseText, textStatus)
+function updateMessagesError()
 {
-    console.log("Updating links (conversation=" + currentConversation + ")");
-    if (textStatus == "success") {
-        // update onclicks
-        $("span.conversation").each(function(index) {
-            console.log("Setting onclick for conv id " + $(this).attr("id"));
-            $(this).click(function() {
-                gotoConversation($(this).attr("id"));})
-        });
-
-        if (currentConversation > 0) {
-            // enable input
-            $("#send_msg").show()
-        } else {
-            // disable input
-            $("#send_msg").hide()
-        }
-    } else {
-        displayError(textStatus);
-    }
+    displayError(textStatus);
 }
 
 
-function displayMessages(responseText, textStatus)
+function updateMessages(data)
+{
+    $("#messages").append(data);
+    console.log("Updating links (conversation=" + currentConversation + ")");
+    // update onclicks
+    $("span.conversation").each(function(index) {
+        console.log("Setting onclick for conv id " + $(this).attr("id"));
+        $(this).click(function() {
+            gotoConversation($(this).attr("id"));})
+    });
+
+    if (currentConversation > 0) {
+        // enable input
+        $("#send_msg").show()
+    } else {
+        // disable input
+        $("#send_msg").hide()
+    }
+    window.setTimeout(postUpdateMessages, 100);
+}
+
+
+/*
+ * Perform various tasks after new messages have been received (e.g. scrolling).
+ */
+function postUpdateMessages()
+{
+    $("#messages").scrollTop($("#messages").prop("scrollHeight") - $("#messages").height());
+}
+
+
+function displayMessages(responseText, textStatus, oldMaxId)
 {
     var imUrl;
     if (textStatus == "success") {
         if (currentConversation == 0) {
             imUrl = urlPrefix + "messages/all";
+            if (oldMaxId >= 0) {
+                imUrl = imUrl + "/start_from/" + oldMaxId;
+            }
         } else {
             imUrl = urlPrefix + "conversations/" + currentConversation;
         }
         console.log(imUrl);
-        $("#messages").load(imUrl, updateLinks);
-        $("#messages").trigger("custom-update");
+        $.get(imUrl, function (data) { updateMessages(data); }).fail(updateMessagesError);
     } else {
         displayError(textStatus);
     }
 }
 
 
-function displayConversations()
+function displayConversations(oldMaxId)
 {
-    // clear old data
+    // clear old message - :fixme:
+    // this should be removed after implementing 'start_from' in conversations
+    if (currentConversation != 0) {
+        $("#messages").text("");
+    }
+
+    // clear old conversations
     $("#conversations").text("");
-    $("#messages").text("");
 
     // conversations window
     var conversationsUrl = urlPrefix + "conversations/all";
-    $("#conversations").load(conversationsUrl, displayMessages);
+    $("#conversations").load(conversationsUrl,
+                             function (responseText, textStatus)
+                             {
+                                 displayMessages(responseText, textStatus, oldMaxId);
+                             });
 }
 
 
@@ -169,6 +194,5 @@ function sendMessageToPurple()
     });
 }
 
-$("#messages").on("custom-update", function () { $("#messages").scrollTop($("#messages")[0].scrollHeight);alert('scroll'); });
 
 areThereNewMessagesP();
