@@ -219,14 +219,70 @@ error:
  * @return HTTP code to be sent back to user.
  *
  * Requests summary:
- * /v/<format>/conversations/all :fixme: - replace with 'conversations_list' or smth.
- * /v/<format>/conversations/<id>/start_from/<msg_id>
+ * /v/<format>/conv-messages/<id>/start_from/<msg_id>
+ */
+static int get_conv_messages_request(const vector<string> &request, string &response_str,
+                                     string &content_type)
+{
+    std::unique_ptr<purple::RestResponse> response;
+    const int kConvIdIdx = 3;
+    uint64_t conv_id = 0;
+    if (request.size() > kConvIdIdx) {
+        if (request[1] == "json") {
+            response.reset(new purple::JsonResponse);
+            content_type = "application/json";
+        }
+        else if (request[1] == "html") {
+            response.reset(new purple::HtmlResponse);
+            content_type = "text/html";
+        }
+        else {
+            return 400;
+        }
+        if (!str_to_uint64_t(request[kConvIdIdx].c_str(), conv_id)) {
+            goto error;
+        }
+        const int kStartFromIdIdx = 4;
+        uint64_t start_from_id = 0;
+        if (request.size() > kStartFromIdIdx + 1) { // we might have 'start_from'
+            if (request[kStartFromIdIdx] == "start_from") {
+                if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
+                    goto error;
+                }
+            }
+        }
+        auto msg_list = g_msg_history.get_messages_from_history(
+          [=] (purple::ImMessagePtr &elt) -> bool
+          {
+              return (conv_id == elt->get_conv_id() &&
+                      elt->get_id() > start_from_id);
+          });
+        for (auto &e : msg_list) {
+            response->add_message(e);
+        }
+    }
+
+    response_str = response->get_text();
+    return 200;
+error:
+    return 400;
+}
+
+
+/**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
+ * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * /v/<format>/conversations/all
  */
 static int get_conversations_request(const vector<string> &request, string &response_str,
                                      string &content_type)
 {
     std::unique_ptr<purple::RestResponse> response;
-    uint64_t conv_id = 0;
     if (request.size() > 3) {
         if (request[1] == "json") {
             response.reset(new purple::JsonResponse);
@@ -253,32 +309,11 @@ static int get_conversations_request(const vector<string> &request, string &resp
                 ptr = g_list_next(ptr);
             }
         } else {
-            if (!str_to_uint64_t(request[3].c_str(), conv_id)) {
-                goto error;
-            }
-            const int kStartFromIdIdx = 4;
-            uint64_t start_from_id = 0;
-            if (request.size() > kStartFromIdIdx) { // we might have 'start_from'
-                if (request[kStartFromIdIdx] == "start_from") {
-                    if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
-                        goto error;
-                    }
-                }
-            }
-            auto msg_list = g_msg_history.get_messages_from_history(
-              [=] (purple::ImMessagePtr &elt) -> bool
-              {
-                  return (conv_id == elt->get_conv_id() &&
-                          elt->get_id() > start_from_id);
-              });
-            for (auto &e : msg_list) {
-                response->add_message(e);
-            }
+            goto error;
         }
     } else {
         goto error;
     }
-
     response_str = response->get_text();
     return 200;
 error:
@@ -288,7 +323,7 @@ error:
 
 /**
  * Requests summary:
- * /v/<format>/conversations/<id>
+ * /v/<format>/conv-messages/<id>
  */
 static int post_messages_request(const vector<string> &request,
                                  const char *upload_data, size_t upload_data_size,
@@ -401,6 +436,9 @@ void perform_rest_request(const char *url, HttpMethod method,
             } else if (request[2] == "status") {
                 *http_code = get_status_request(request, response,
                                                 content_type_str);
+            } else if (request[2] == "conv-messages") {
+                *http_code = get_conv_messages_request(request, response,
+                                                       content_type_str);
             } else if (request[2] == "cmd") {
                 *http_code = get_cmd_request(request, response,
                                              content_type_str);

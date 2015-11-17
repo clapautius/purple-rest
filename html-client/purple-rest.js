@@ -142,7 +142,7 @@ function displayMessages(responseText, textStatus, oldMaxId)
                 imUrl = imUrl + "/start_from/" + oldMaxId;
             }
         } else {
-            imUrl = urlPrefix + "conversations/" + currentConversation;
+            imUrl = urlPrefix + "conv-messages/" + currentConversation;
             if (oldMaxId >= 0) {
                 imUrl = imUrl + "/start_from/" + oldMaxId;
             }
@@ -192,7 +192,7 @@ function sendMessageToPurple()
         window.clearTimeout(timerId);
         timerId = window.setTimeout(areThereNewMessagesP, 10000);
     }
-    postUrl = urlPrefix + "conversations/" + currentConversation;
+    postUrl = urlPrefix + "conv-messages/" + currentConversation;
     message = $("#send_msg_text").val();
     console.log("Sending message " + message + " to address " + postUrl);
     $.post(postUrl, message, function(data, textStatus) {

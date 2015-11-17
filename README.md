@@ -35,8 +35,11 @@ nick.
 * `.../v1/FORMAT/messages` - all messages received since the plugin has started
 * `.../v1/FORMAT/messages/all/start_from/MSG_ID` - messages starting with *MSG_ID*
 
+* `.../v1/FORMAT/conv-messages/ID` - messages for the specified conversation
+* `.../v1/FORMAT/conv-messages/ID/start_from/MSG_ID` - messages for the
+specified conversation starting with *MSG_ID*
+
 * `.../v1/FORMAT/conversations/all` - conversations list
-* `.../v1/FORMAT/conversations/ID` - messages for the specified conversation
 
 * `.../v1/FORMAT/my-messages/` - all *my messages*
 * `.../v1/FORMAT/my-messages/start_from/MSG_ID` - *my messages* starting with *MSG_ID*
@@ -48,7 +51,7 @@ nick.
 
 #### POST requests
 
-* (work in progress)
+* `.../v1/FORMAT/conv-messages/ID` - send a message for conversation *ID*
 
 ### Configuration
 
