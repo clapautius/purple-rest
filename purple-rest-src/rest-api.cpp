@@ -220,13 +220,13 @@ error:
  *
  * Requests summary:
  * /v/<format>/conversations/all :fixme: - replace with 'conversations_list' or smth.
- * /v/<format>/conversations/<id>
+ * /v/<format>/conversations/<id>/start_from/<msg_id>
  */
 static int get_conversations_request(const vector<string> &request, string &response_str,
                                      string &content_type)
 {
     std::unique_ptr<purple::RestResponse> response;
-    unsigned int conv_id = 0;
+    uint64_t conv_id = 0;
     if (request.size() > 3) {
         if (request[1] == "json") {
             response.reset(new purple::JsonResponse);
@@ -253,12 +253,23 @@ static int get_conversations_request(const vector<string> &request, string &resp
                 ptr = g_list_next(ptr);
             }
         } else {
-            // :fixme: - check for errors
-            conv_id = strtol(request[3].c_str(), NULL, 10);
+            if (!str_to_uint64_t(request[3].c_str(), conv_id)) {
+                goto error;
+            }
+            const int kStartFromIdIdx = 4;
+            uint64_t start_from_id = 0;
+            if (request.size() > kStartFromIdIdx) { // we might have 'start_from'
+                if (request[kStartFromIdIdx] == "start_from") {
+                    if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
+                        goto error;
+                    }
+                }
+            }
             auto msg_list = g_msg_history.get_messages_from_history(
               [=] (purple::ImMessagePtr &elt) -> bool
               {
-                  return (conv_id == elt->get_conv_id());
+                  return (conv_id == elt->get_conv_id() &&
+                          elt->get_id() > start_from_id);
               });
             for (auto &e : msg_list) {
                 response->add_message(e);

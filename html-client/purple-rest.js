@@ -31,6 +31,7 @@ function mobileLayout()
 
 function clearHistory()
 {
+    $("#messages").text("");
     if (timerId > 0) {
         window.clearTimeout(timerId);
         timerId = window.setTimeout(areThereNewMessagesP, 10000);
@@ -89,7 +90,7 @@ function gotoConversation(conv_id)
     }
     currentConversation = parseInt(conv_id.substring(5));
     console.log("Going to conversation " + currentConversation);
-    displayConversations();
+    clearAndDisplayConversations();
 }
 
 
@@ -132,6 +133,7 @@ function postUpdateMessages()
 
 function displayMessages(responseText, textStatus, oldMaxId)
 {
+    console.log("displayMessages(" + oldMaxId + ")");
     var imUrl;
     if (textStatus == "success") {
         if (currentConversation == 0) {
@@ -141,6 +143,9 @@ function displayMessages(responseText, textStatus, oldMaxId)
             }
         } else {
             imUrl = urlPrefix + "conversations/" + currentConversation;
+            if (oldMaxId >= 0) {
+                imUrl = imUrl + "/start_from/" + oldMaxId;
+            }
         }
         console.log(imUrl);
         $.get(imUrl, function (data) { updateMessages(data); }).fail(updateMessagesError);
@@ -150,15 +155,17 @@ function displayMessages(responseText, textStatus, oldMaxId)
 }
 
 
+function clearAndDisplayConversations()
+{
+    $("#messages").text("");
+    displayConversations(0);
+}
+
+
 function displayConversations(oldMaxId)
 {
-    // clear old message - :fixme:
-    // this should be removed after implementing 'start_from' in conversations
-    if (currentConversation != 0) {
-        $("#messages").text("");
-    }
-
-    // clear old conversations
+    console.log("displayConversations(" + oldMaxId + ")");
+    // clear old conversation list
     $("#conversations").text("");
 
     // conversations window
@@ -175,7 +182,7 @@ function sendMessageResult(data)
 {
     $("#send_msg_text").val("");
     // wait 1 sec. for the message to be processed
-    window.setTimeout(displayConversations, 1000);
+    window.setTimeout(areThereNewMessagesP, 1000);
 }
 
 
