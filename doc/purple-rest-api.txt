@@ -1,0 +1,17 @@
+Results for JSON format:
+________________________
+
+Message list:
+
+... TDB ...
+
+Buddy list:
+
+[
+   {
+      "name" : "user1@host"
+   },
+   {
+      "name" : "user2@host2"
+   }
+]

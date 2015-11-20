@@ -12,7 +12,8 @@ set (PURPLE_REST_SRC
   history.cpp
   immessage.cpp
   rest-response.cpp
-  imconversation.cpp)
+  imconversation.cpp
+  imbuddy.cpp)
 
 add_library (purple-rest SHARED ${PURPLE_REST_SRC} purple-rest.c)
 

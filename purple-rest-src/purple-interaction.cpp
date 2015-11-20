@@ -26,6 +26,7 @@ using std::shared_ptr;
 using purple::ImMessage;
 using purple::History;
 using purple::g_conv_list;
+using libpurple::g_send_msg_data;
 
 // :fixme: - don't use globals
 purple::History g_msg_history;
@@ -164,10 +165,47 @@ gboolean timeout_cb(gpointer user_data)
     return FALSE;
 }
 
+namespace libpurple
+{
 
 struct SendMsgData g_send_msg_data;
 
 void purple_info(const std::string &msg)
 {
     purple_debug_info(PLUGIN_ID, "%s\n", msg.c_str());
+}
+
+
+std::string buddy_get_group_name(PurpleBlistNode *p)
+{
+    if (PURPLE_BLIST_NODE_IS_GROUP(p)) {
+        return std::string(PURPLE_GROUP(p)->name ? PURPLE_GROUP(p)->name : "");
+    } else {
+        if (p->parent) {
+            return buddy_get_group_name(p->parent);
+        } else {
+            return "";
+        }
+    }
+}
+
+
+void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list)
+{
+    if (PURPLE_BLIST_NODE_IS_BUDDY(p)) {
+        purple::Buddy new_buddy(PURPLE_BUDDY(p)->name);
+        new_buddy.set_group(buddy_get_group_name(p).c_str());
+        if (PURPLE_BUDDY_IS_ONLINE(PURPLE_BUDDY(p))) {
+            new_buddy.set_online_status(true);
+        }
+        list.push_back(new_buddy);
+    }
+    if (p->child) {
+        collect_buddies(p->child, list);
+    }
+    if (p->next) {
+        collect_buddies(p->next, list);
+    }
+}
+
 }

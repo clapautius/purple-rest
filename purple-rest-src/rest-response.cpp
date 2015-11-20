@@ -9,6 +9,8 @@
 #include "rest-response.hpp"
 #include "html-resources.hpp"
 
+using std::string;
+
 namespace purple
 {
 
@@ -61,6 +63,15 @@ void HtmlResponse::add_generic_param(const std::string &param_name,
 }
 
 
+void HtmlResponse::add_buddy(const Buddy &buddy)
+{
+    string status_class = (buddy.is_online() ? "buddy-online" : "buddy-offline");
+    m_ostr << "<div class=\"buddy," << status_class << "\">"
+           << "<span class=\"buddy-name," << status_class << "\">" << buddy.get_name()
+           << "</span></div><br>\n";
+}
+
+
 JsonResponse::JsonResponse()
   : m_msg_list(Json::arrayValue)
 {
@@ -110,6 +121,19 @@ void JsonResponse::add_generic_param(const std::string &param_name,
     new_param[param_name.c_str()] = value;
     // :fixme: - rename m_msg_list
     m_msg_list.append(new_param);
+}
+
+
+void JsonResponse::add_buddy(const Buddy &buddy)
+{
+    Json::Value new_buddy(Json::objectValue);
+    new_buddy["name"] = buddy.get_name();
+    new_buddy["group"] = buddy.get_group();
+    new_buddy["status"] = buddy.is_online() ? "online" : "offline";
+    // :fixme: - add the rest of the elements
+    // :fixme: - rename m_msg_list
+    // :fixme: - group them by group
+    m_msg_list.append(new_buddy);
 }
 
 

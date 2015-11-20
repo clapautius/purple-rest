@@ -8,6 +8,7 @@
 
 #include <string.h>
 #include <string>
+#include <algorithm>
 
 #include <json/json.h>
 
@@ -21,10 +22,13 @@ using std::string;
 using std::vector;
 using purple::ImMessage;
 using purple::g_conv_list;
+using purple::Buddy;
+using libpurple::purple_info;
 
 extern purple::History g_msg_history;
 extern std::string g_url_prefix;
 
+const int kFormatIdx = 1;
 
 static bool str_to_uint64_t(const char*str, uint64_t &num)
 {
@@ -321,6 +325,61 @@ error:
 }
 
 
+
+
+/**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
+ * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * /v/<format>/buddies/<all | online>
+ */
+static int get_buddies_request(const vector<string> &request, string &response_str,
+                               string &content_type)
+{
+    std::unique_ptr<purple::RestResponse> response;
+    const int kFilterIdx = 3;
+    if (request.size() > 3) {
+        if (request[kFormatIdx] == "json") {
+            response.reset(new purple::JsonResponse);
+            content_type = "application/json";
+        }
+        else if (request[kFormatIdx] == "html") {
+            response.reset(new purple::HtmlResponse);
+            content_type = "text/html";
+        }
+        else {
+            return 400;
+        }
+        if (request[kFilterIdx] == "all") {
+            std::vector<Buddy> buddy_list;
+            libpurple::collect_buddies(purple_get_blist()->root, buddy_list);
+            // sort by group and name
+            std::sort(buddy_list.begin(), buddy_list.end(),
+                      [] (const Buddy &b1, const Buddy &b2) -> bool {
+                          return (b1.get_group() < b2.get_group()) ||
+                            (b1.get_group() == b2.get_group() &&
+                             b1.get_name() < b2.get_name());
+                      });
+            for (auto &b : buddy_list) {
+                response->add_buddy(b);
+            }
+        } else {
+            goto error;
+        }
+    } else {
+        goto error;
+    }
+    response_str = response->get_text();
+    return 200;
+error:
+    return 400;
+}
+
+
 /**
  * Requests summary:
  * /v/<format>/conv-messages/<id>
@@ -340,8 +399,8 @@ static int post_messages_request(const vector<string> &request,
             // :fixme: - check valid data
             const PurpleConversation *conv =
               g_conv_list[conv_id].get_purple_conv();
-            g_send_msg_data.conv = conv;
-            g_send_msg_data.msg = string(upload_data, upload_data_size);
+            libpurple::g_send_msg_data.conv = conv;
+            libpurple::g_send_msg_data.msg = string(upload_data, upload_data_size);
             purple_timeout_add(100, timeout_cb, NULL);
             response_str = "OK";
             content_type = "text/html";
@@ -374,6 +433,7 @@ void perform_rest_request(const char *url, HttpMethod method,
 {
     string response, content_type_str;
     purple_info(string("Got new request: ") + url);
+    purple_info(std::string("Prefix is: ") + g_url_prefix);
 
     // basic checks
     if (NULL == url) {
@@ -387,6 +447,7 @@ void perform_rest_request(const char *url, HttpMethod method,
             purple_info(std::string("Request after removing prefix: ") + url_str);
         } else {
             // something is fishy - no prefix - abort
+            purple_info("Unable to find prefix in request, aborting.");
             *http_code = 400;
             *buf = NULL;
             *buf_len = 0;
@@ -440,8 +501,9 @@ void perform_rest_request(const char *url, HttpMethod method,
                 *http_code = get_conv_messages_request(request, response,
                                                        content_type_str);
             } else if (request[2] == "cmd") {
-                *http_code = get_cmd_request(request, response,
-                                             content_type_str);
+                *http_code = get_cmd_request(request, response, content_type_str);
+            } else if (request[2] == "buddies") {
+                *http_code = get_buddies_request(request, response, content_type_str);
             } else {
                 *http_code = 400;
             }

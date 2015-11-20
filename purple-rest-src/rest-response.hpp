@@ -15,6 +15,7 @@
 #include<json/writer.h>
 
 #include "immessage.hpp"
+#include "imbuddy.hpp"
 
 namespace purple
 {
@@ -39,6 +40,8 @@ public:
     virtual void add_generic_param(const std::string &param_name,
                                    unsigned value) = 0;
 
+    virtual void add_buddy(const Buddy &buddy) =0;
+
 };
 
 
@@ -59,6 +62,8 @@ public:
 
     virtual void add_generic_param(const std::string &param_name,
                                    unsigned value);
+
+    virtual void add_buddy(const Buddy &buddy);
 
 private:
 
@@ -83,6 +88,8 @@ public:
 
     virtual void add_generic_param(const std::string &param_name,
                                    unsigned value);
+
+    virtual void add_buddy(const Buddy &buddy);
 
 private:
 

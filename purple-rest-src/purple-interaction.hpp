@@ -10,6 +10,9 @@
 #define PURPLE_INTERACTION_HPP
 
 #include <string>
+#include <vector>
+
+#include "imbuddy.hpp"
 
 extern "C"
 {
@@ -23,6 +26,9 @@ gboolean timeout_cb(gpointer user_data);
 
 };
 
+namespace libpurple
+{
+
 struct SendMsgData
 {
     const PurpleConversation *conv;
@@ -32,5 +38,20 @@ struct SendMsgData
 extern struct SendMsgData g_send_msg_data;
 
 void purple_info(const std::string &msg);
+
+/**
+ * Helper function to collect all buddies from the purple buddy tree.
+ */
+void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list);
+
+/**
+ * Helper function to get the group of a buddy.
+ * Climbs up into the tree until it finds a group node.
+ *
+ * @return the name of the group or empty string if no group is found.
+ */
+std::string buddy_get_group_name(PurpleBlistNode *p);
+
+}
 
 #endif

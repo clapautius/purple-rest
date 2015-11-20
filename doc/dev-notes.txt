@@ -1,3 +1,7 @@
+*************
+* libpurple *
+*************
+
 libpurple signals
 _________________
 
@@ -19,6 +23,15 @@ Q. What is the difference between wrote-im-msg and sent-im-msg?
 - wrote-im-msg: called when a message is displayed in a chat window (no matter if it's an
 incoming or outgoing message).
 
+
+buddies hierarchy
+_________________
+
+(to be confirmed)
+
+* group
+  ** contact (?)
+     *** buddy
 
 
 libmicrohttpd
