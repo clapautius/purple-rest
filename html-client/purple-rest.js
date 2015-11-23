@@ -4,6 +4,8 @@ var urlPrefixJson = "rest/v1/json/";
 var timerId = 0;
 var maxCurrentId = -1;
 var jsonSuccess = false;
+var mainMenuActive = false;
+var innerContentText = "";
 
 
 function displayError(errorMsg)
@@ -23,14 +25,36 @@ function displayRefresh()
 }
 
 
+// function called before any command (with the name of the command as parameter
+// can return false, in this case the command is not executed
+function preMenuCommand(cmd)
+{
+    if (mainMenuActive) {
+        if (cmd == 'Mobile layout' || cmd == 'All msgs.' ||
+            cmd == 'Clear history') {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 function mobileLayout()
 {
+    if (!preMenuCommand('Mobile layout')) {
+        return;
+    }
+
     $("#content").css("width", "100%");
 }
 
 
 function clearHistory()
 {
+    if (!preMenuCommand('Clear history')) {
+        return false;
+    }
+
     $("#messages").text("");
     if (timerId > 0) {
         window.clearTimeout(timerId);
@@ -157,6 +181,10 @@ function displayMessages(responseText, textStatus, oldMaxId)
 
 function clearAndDisplayConversations()
 {
+    if (!preMenuCommand('All msgs.')) {
+        return false;
+    }
+
     $("#messages").text("");
     displayConversations(0);
 }
@@ -199,6 +227,57 @@ function sendMessageToPurple()
         console.log(textStatus);
         sendMessageResult(data);
     });
+}
+
+
+function mainMenuBackButton()
+{
+    buttonText = '<span class="menu" onclick="mainMenuExit();" style="margin-top: 2em;">Back to chat</span><br/><br/>';
+    $("#inner-content").append(buttonText);
+}
+
+
+function mainMenu()
+{
+    // don't do anything if the menu is already active
+    if (mainMenuActive) {
+        return;
+    }
+    // display a menu inside 'inner-content' div
+    // put original 'inner-content' text in global var inner-content-text
+    // :fixme: is there a better option?
+    innerContentText = $("#inner-content").html();
+    mainMenuActive = true;
+    // add menu options
+    menuText = '<br/><span class="menu" onclick="mainMenuBuddies();">Buddies</span><br/><br/>';
+    $("#inner-content").html(menuText);
+    mainMenuBackButton();
+}
+
+
+function mainMenuExit()
+{
+    // enable other ocmmand
+    $("#inner-content").html(innerContentText);
+    mainMenuActive = false;
+    clearAndDisplayConversations();
+}
+
+
+function mainMenuBuddies()
+{
+    // get buddies
+    var buddiesUrl = urlPrefix + "buddies/all";
+    $("#inner-content").load(buddiesUrl,
+                             function (responseText, textStatus) {
+                                 mainMenuBuddiesDisplay(responseText, textStatus);
+                             });
+}
+
+
+function mainMenuBuddiesDisplay()
+{
+    mainMenuBackButton();
 }
 
 

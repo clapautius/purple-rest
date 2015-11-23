@@ -1,3 +1,3 @@
+* grey out button when menu is activated
 * check json spirit library
-* embed the html client into the rest api
 * fix '-' vs. '_' in api

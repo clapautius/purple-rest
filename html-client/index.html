@@ -11,18 +11,21 @@
     <div align="center">
       <div id="content" class="content">
         <div id="menu" class="menu">
+          <span class="menu" onclick="mainMenu();" style="margit-right: 2em;">&#9776;</span>
           <span class="menu" onclick="currentConversation=0; clearAndDisplayConversations();">All msgs.</span>
           <span class="menu" onclick="mobileLayout();">Mobile layout</span>
           <span class="menu" onclick="clearHistory();">Clear history</span>
         </div>
-        <div id="conversations" class="conversations">
-        </div>
-        <div id="messages" class="messages">
-        </div>
-        <div id="send_msg" class="send_msg">
-          <input type="text" name="message" id="send_msg_text" size="55">
-          <input type="submit" value="Send" onclick="sendMessageToPurple();">
-        </div>
+        <div id="inner-content" class="inner-content">
+          <div id="conversations" class="conversations">
+          </div>
+          <div id="messages" class="messages">
+          </div>
+          <div id="send_msg" class="send_msg">
+            <input type="text" name="message" id="send_msg_text" size="55">
+            <input type="submit" value="Send" onclick="sendMessageToPurple();">
+          </div>
+        </div> <!-- inner content -->
         <div id="status-bar" class="status-bar">
           <div id="status-bar-1">Auto-refresh: ON</div>
           <div id="status-bar-2"></div>
