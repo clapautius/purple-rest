@@ -7,6 +7,9 @@ var jsonSuccess = false;
 var mainMenuActive = false;
 var innerContentText = "";
 
+// :fixme: put runtime values in a data structure
+var autoRefresh = true;
+
 
 function displayError(errorMsg)
 {
@@ -49,6 +52,14 @@ function mobileLayout()
 }
 
 
+function enableTimerId()
+{
+    if (autoRefresh) {
+        timerId = window.setTimeout(areThereNewMessagesP, 10000);
+    }
+}
+
+
 function clearHistory()
 {
     if (!preMenuCommand('Clear history')) {
@@ -58,7 +69,7 @@ function clearHistory()
     $("#messages").text("");
     if (timerId > 0) {
         window.clearTimeout(timerId);
-        timerId = window.setTimeout(areThereNewMessagesP, 10000);
+        enableTimerId();
     }
     maxCurrentId = -1;
     var clearMsgCmd = urlPrefixJson + "cmd/clear_history";
@@ -102,7 +113,7 @@ function areThereNewMessagesP()
             displayError("Error getting messages");
         }
     });
-    timerId = window.setTimeout(areThereNewMessagesP, 10000);
+    enableTimerId();
 }
 
 
@@ -110,7 +121,7 @@ function gotoConversation(conv_id)
 {
     if (timerId > 0) {
         window.clearTimeout(timerId);
-        timerId = window.setTimeout(areThereNewMessagesP, 10000);
+        enableTimerId();
     }
     currentConversation = parseInt(conv_id.substring(5));
     console.log("Going to conversation " + currentConversation);
@@ -186,7 +197,8 @@ function clearAndDisplayConversations()
     }
 
     $("#messages").text("");
-    displayConversations(0);
+    maxCurrentId = 0;
+    areThereNewMessagesP();
 }
 
 
@@ -218,7 +230,7 @@ function sendMessageToPurple()
 {
     if (timerId > 0) {
         window.clearTimeout(timerId);
-        timerId = window.setTimeout(areThereNewMessagesP, 10000);
+        enableTimerId();
     }
     postUrl = urlPrefix + "conv-messages/" + currentConversation;
     message = $("#send_msg_text").val();
@@ -249,7 +261,16 @@ function mainMenu()
     innerContentText = $("#inner-content").html();
     mainMenuActive = true;
     // add menu options
-    menuText = '<br/><span class="menu" onclick="mainMenuBuddies();">Buddies</span><br/><br/>';
+    menuText = '<br/><span class="menu" onclick="mainMenuBuddies();">Buddies</span><br/>';
+    menuText = menuText + '<br/><span class="menu" onclick="mainMenuAutoRefresh();">';
+    if (autoRefresh) {
+        menuText = menuText + 'Disable auto refresh';
+    } else {
+        menuText = menuText + 'Enable auto refresh';
+    }
+    menuText = menuText + '</span><br/>';
+
+    menuText = menuText + '<br/>';
     $("#inner-content").html(menuText);
     mainMenuBackButton();
 }
@@ -277,6 +298,28 @@ function mainMenuBuddies()
 
 function mainMenuBuddiesDisplay()
 {
+    mainMenuBackButton();
+}
+
+
+function mainMenuAutoRefresh()
+{
+    preMenuCommand("auto-refresh");
+    if (autoRefresh) {
+        if (timerId > 0) {
+            window.clearTimeout(timerId);
+        }
+        autoRefresh = false;
+        $("#status-bar-1").text("Auto-refresh: OFF");
+    } else {
+        autoRefresh = true;
+        $("#status-bar-1").text("Auto-refresh: ON");
+        if (timerId > 0) {
+            window.clearTimeout(timerId);
+        }
+        enableTimerId();
+    }
+    $("#inner-content").html('<div class="info-msg"><span class="info-msg">Done</span></div>');
     mainMenuBackButton();
 }
 

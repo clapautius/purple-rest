@@ -58,7 +58,8 @@ span.conversation, span.menu {
     padding-left: 1ex;
     padding-right: 1ex;
     cursor: pointer;
-    margin-right: 1em;
+    margin-left: 1ex;
+    margin-right: 1ex;
     font-weight: bold;
 }
 
@@ -95,4 +96,10 @@ div#status-bar-2 {
 
 .buddy-offline {
     color: #333;
+}
+
+span.info-msg {
+    border: 1px solid black;
+    display: inline-block;
+    margin: 1em;
 }
