@@ -1,5 +1,8 @@
-var currentConversation = 0;
-var urlPrefix = "rest/v1/html/";
+var currentConversation = {};
+currentConversation.id = 0;
+currentConversation.name = "";
+
+var urlPrefixHtml = "rest/v1/html/";
 var urlPrefixJson = "rest/v1/json/";
 var timerId = 0;
 var maxCurrentId = -1;
@@ -52,10 +55,20 @@ function mobileLayout()
 }
 
 
-function enableTimerId()
+function enableRefreshTimer()
 {
     if (autoRefresh) {
+        disableRefreshTimer(); // disable old timer if it exists
         timerId = window.setTimeout(areThereNewMessagesP, 10000);
+    }
+}
+
+
+function disableRefreshTimer()
+{
+    if (timerId > 0) {
+        window.clearTimeout(timerId);
+        timerId = 0;
     }
 }
 
@@ -65,12 +78,8 @@ function clearHistory()
     if (!preMenuCommand('Clear history')) {
         return false;
     }
-
+    disableRefreshTimer();
     $("#messages").text("");
-    if (timerId > 0) {
-        window.clearTimeout(timerId);
-        enableTimerId();
-    }
     maxCurrentId = -1;
     var clearMsgCmd = urlPrefixJson + "cmd/clear_history";
     $.ajax({
@@ -113,19 +122,7 @@ function areThereNewMessagesP()
             displayError("Error getting messages");
         }
     });
-    enableTimerId();
-}
-
-
-function gotoConversation(conv_id)
-{
-    if (timerId > 0) {
-        window.clearTimeout(timerId);
-        enableTimerId();
-    }
-    currentConversation = parseInt(conv_id.substring(5));
-    console.log("Going to conversation " + currentConversation);
-    clearAndDisplayConversations();
+    enableRefreshTimer();
 }
 
 
@@ -138,15 +135,8 @@ function updateMessagesError()
 function updateMessages(data)
 {
     $("#messages").append(data);
-    console.log("Updating links (conversation=" + currentConversation + ")");
-    // update onclicks
-    $("span.conversation").each(function(index) {
-        console.log("Setting onclick for conv id " + $(this).attr("id"));
-        $(this).click(function() {
-            gotoConversation($(this).attr("id"));})
-    });
 
-    if (currentConversation > 0) {
+    if (currentConversation.id > 0) {
         // enable input
         $("#send_msg").show()
     } else {
@@ -171,13 +161,13 @@ function displayMessages(responseText, textStatus, oldMaxId)
     console.log("displayMessages(" + oldMaxId + ")");
     var imUrl;
     if (textStatus == "success") {
-        if (currentConversation == 0) {
-            imUrl = urlPrefix + "messages/all";
+        if (currentConversation.id == 0) {
+            imUrl = urlPrefixHtml + "messages/all";
             if (oldMaxId >= 0) {
                 imUrl = imUrl + "/start_from/" + oldMaxId;
             }
         } else {
-            imUrl = urlPrefix + "conv-messages/" + currentConversation;
+            imUrl = urlPrefixHtml + "conv-messages/" + currentConversation.id;
             if (oldMaxId >= 0) {
                 imUrl = imUrl + "/start_from/" + oldMaxId;
             }
@@ -192,12 +182,12 @@ function displayMessages(responseText, textStatus, oldMaxId)
 
 function clearAndDisplayConversations()
 {
-    if (!preMenuCommand('All msgs.')) {
+    if (!preMenuCommand()) {
         return false;
     }
 
     $("#messages").text("");
-    maxCurrentId = 0;
+    maxCurrentId = -1;
     areThereNewMessagesP();
 }
 
@@ -205,16 +195,24 @@ function clearAndDisplayConversations()
 function displayConversations(oldMaxId)
 {
     console.log("displayConversations(" + oldMaxId + ")");
-    // clear old conversation list
-    $("#conversations").text("");
 
     // conversations window
-    var conversationsUrl = urlPrefix + "conversations/all";
-    $("#conversations").load(conversationsUrl,
-                             function (responseText, textStatus)
-                             {
-                                 displayMessages(responseText, textStatus, oldMaxId);
-                             });
+    // first button is always 'all msgs.'
+    // :fixme: get rid of this table
+    var conversationsLine = '<table style="text-align: center;"><tr><td style="width: 20%;"><span style="width: 20%;" class="menu" onclick="currentConversation.id=0; clearAndDisplayConversations();">All msgs.</span></td>';
+
+    conversationsLine = conversationsLine +
+        '<td><span style="text-decoration: underline; font-weight: bold;">' +
+        (currentConversation.id > 0 ? currentConversation.name : 'All msgs.') +
+        '</span></td>';
+
+    conversationsLine = conversationsLine +
+        '<td style="width: 20%;"><span style="width: 20%;" class="menu" \
+onclick="mainMenuSwitchToConversations();">Switch to conv.\
+</span></td>';
+
+    $("#conversations").html(conversationsLine);
+    displayMessages(null, "success", oldMaxId);
 }
 
 
@@ -228,11 +226,8 @@ function sendMessageResult(data)
 
 function sendMessageToPurple()
 {
-    if (timerId > 0) {
-        window.clearTimeout(timerId);
-        enableTimerId();
-    }
-    postUrl = urlPrefix + "conv-messages/" + currentConversation;
+    disableRefreshTimer();
+    var postUrl = urlPrefixHtml + "conv-messages/" + currentConversation.id;
     message = $("#send_msg_text").val();
     console.log("Sending message " + message + " to address " + postUrl);
     $.post(postUrl, message, function(data, textStatus) {
@@ -244,8 +239,18 @@ function sendMessageToPurple()
 
 function mainMenuBackButton()
 {
-    buttonText = '<span class="menu" onclick="mainMenuExit();" style="margin-top: 2em;">Back to chat</span><br/><br/>';
+    var buttonText = '<br/><span class="menu" onclick="mainMenuExit();" style="margin-top: 2em;">Back to chat</span><br/><br/>';
     $("#inner-content").append(buttonText);
+}
+
+
+function prepareForMainMenu()
+{
+    // display a menu inside 'inner-content' div
+    // put original 'inner-content' text in global var inner-content-text
+    // :fixme: is there a better option?
+    innerContentText = $("#inner-content").html();
+    mainMenuActive = true;
 }
 
 
@@ -255,11 +260,7 @@ function mainMenu()
     if (mainMenuActive) {
         return;
     }
-    // display a menu inside 'inner-content' div
-    // put original 'inner-content' text in global var inner-content-text
-    // :fixme: is there a better option?
-    innerContentText = $("#inner-content").html();
-    mainMenuActive = true;
+    prepareForMainMenu();
     // add menu options
     menuText = '<br/><span class="menu" onclick="mainMenuBuddies();">Buddies</span><br/>';
     menuText = menuText + '<br/><span class="menu" onclick="mainMenuAutoRefresh();">';
@@ -270,7 +271,6 @@ function mainMenu()
     }
     menuText = menuText + '</span><br/>';
 
-    menuText = menuText + '<br/>';
     $("#inner-content").html(menuText);
     mainMenuBackButton();
 }
@@ -288,7 +288,7 @@ function mainMenuExit()
 function mainMenuBuddies()
 {
     // get buddies
-    var buddiesUrl = urlPrefix + "buddies/all";
+    var buddiesUrl = urlPrefixHtml + "buddies/all";
     $("#inner-content").load(buddiesUrl,
                              function (responseText, textStatus) {
                                  mainMenuBuddiesDisplay(responseText, textStatus);
@@ -306,20 +306,63 @@ function mainMenuAutoRefresh()
 {
     preMenuCommand("auto-refresh");
     if (autoRefresh) {
-        if (timerId > 0) {
-            window.clearTimeout(timerId);
-        }
+        disableRefreshTimer();
         autoRefresh = false;
         $("#status-bar-1").text("Auto-refresh: OFF");
     } else {
         autoRefresh = true;
         $("#status-bar-1").text("Auto-refresh: ON");
-        if (timerId > 0) {
-            window.clearTimeout(timerId);
-        }
-        enableTimerId();
+        enableRefreshTimer();
     }
     $("#inner-content").html('<div class="info-msg"><span class="info-msg">Done</span></div>');
+    mainMenuBackButton();
+}
+
+
+/**
+ * Performs first step for switching the conversations - gets the conversation list.
+ * On success, goes to 'showConversationsList()'.
+ */
+function mainMenuSwitchToConversations()
+{
+    preMenuCommand("switch-to-conv");
+    var conversationsUrl = urlPrefixJson + "conversations/all";
+    // :fixme: add another error function
+    $.get(conversationsUrl, function (data) { showConversationsList(data); }).fail(updateMessagesError);
+}
+
+
+/**
+ * Clear the main dialog window and displays the specified conversation.
+ */
+function mainMenuGotoConversation(conv_id, conv_name)
+{
+    currentConversation.id = conv_id;
+    currentConversation.name = conv_name;
+    console.log("Going to conversation " + currentConversation.id);
+    mainMenuExit();
+}
+
+
+function displayConversationButton(conv)
+{
+    var buttonText = '<br/><span class="menu" onclick="mainMenuGotoConversation(' +
+        conv.id + ', \'' + conv.name + '\');">' + conv.name + '</span><br/>';
+    $("#inner-content").append(buttonText);
+}
+
+
+/**
+ * Display the list of conversations (and the 'back' button) into the main dialog window.
+ */
+function showConversationsList(data)
+{
+    prepareForMainMenu();
+    $("#inner-content").text("");
+    var conversations = data;
+    for (var i = 0; i < conversations.length; i++) {
+        displayConversationButton(conversations[i]);
+    }
     mainMenuBackButton();
 }
 
