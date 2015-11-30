@@ -7,7 +7,7 @@ var urlPrefixJson = "rest/v1/json/";
 var timerId = 0;
 var maxCurrentId = -1;
 var jsonSuccess = false;
-var mainMenuActive = false;
+var dialogBoxMenuActive = false;
 var innerContentText = "";
 
 // :fixme: put runtime values in a data structure
@@ -31,11 +31,25 @@ function displayRefresh()
 }
 
 
+/**
+ * Returns a string containing the HTML representation of a button.
+ */
+function buttonStr(text, jsText, extraStyle)
+{
+    var str = '<span class="purple-button" onclick="' + jsText + '"';
+    if (extraStyle) {
+        str = str + ' style="' + extraStyle + '"';
+    }
+    str = str + '>' + text + '</span>';
+    return str;
+}
+
+
 // function called before any command (with the name of the command as parameter
 // can return false, in this case the command is not executed
 function preMenuCommand(cmd)
 {
-    if (mainMenuActive) {
+    if (dialogBoxMenuActive) {
         if (cmd == 'Mobile layout' || cmd == 'All msgs.' ||
             cmd == 'Clear history') {
             return false;
@@ -199,17 +213,15 @@ function displayConversations(oldMaxId)
     // conversations window
     // first button is always 'all msgs.'
     // :fixme: get rid of this table
-    var conversationsLine = '<table style="text-align: center;"><tr><td style="width: 20%;"><span style="width: 20%;" class="menu" onclick="currentConversation.id=0; clearAndDisplayConversations();">All msgs.</span></td>';
-
-    conversationsLine = conversationsLine +
-        '<td><span style="text-decoration: underline; font-weight: bold;">' +
+    var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;"><tr>' +
+        '<td style="width: 50%; text-align: left;">' +
+        '<span class="conv-title">➤&nbsp;' +
         (currentConversation.id > 0 ? currentConversation.name : 'All msgs.') +
         '</span></td>';
 
-    conversationsLine = conversationsLine +
-        '<td style="width: 20%;"><span style="width: 20%;" class="menu" \
-onclick="mainMenuSwitchToConversations();">Switch to conv.\
-</span></td>';
+    conversationsLine = conversationsLine + '<td style="width: 50%; text-align: right;">' + 
+        buttonStr("All msgs.", "currentConversation.id=0; clearAndDisplayConversations();") +
+        buttonStr("Switch to conv.", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
 
     $("#conversations").html(conversationsLine);
     displayMessages(null, "success", oldMaxId);
@@ -237,9 +249,9 @@ function sendMessageToPurple()
 }
 
 
-function mainMenuBackButton()
+function dialogBoxMenuBackButton()
 {
-    var buttonText = '<br/><span class="menu" onclick="mainMenuExit();" style="margin-top: 2em;">Back to chat</span><br/><br/>';
+    var buttonText = buttonStr("Back to chat", "dialogBoxMenuExit();", "margin-top: 2em;") + '<br/><br/>';
     $("#inner-content").append(buttonText);
 }
 
@@ -250,59 +262,53 @@ function prepareForMainMenu()
     // put original 'inner-content' text in global var inner-content-text
     // :fixme: is there a better option?
     innerContentText = $("#inner-content").html();
-    mainMenuActive = true;
+    dialogBoxMenuActive = true;
 }
 
 
-function mainMenu()
+function dialogBoxMenu()
 {
     // don't do anything if the menu is already active
-    if (mainMenuActive) {
+    if (dialogBoxMenuActive) {
         return;
     }
     prepareForMainMenu();
     // add menu options
-    menuText = '<br/><span class="menu" onclick="mainMenuBuddies();">Buddies</span><br/>';
-    menuText = menuText + '<br/><span class="menu" onclick="mainMenuAutoRefresh();">';
-    if (autoRefresh) {
-        menuText = menuText + 'Disable auto refresh';
-    } else {
-        menuText = menuText + 'Enable auto refresh';
-    }
-    menuText = menuText + '</span><br/>';
-
+    var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
+    menuText = '<br/>' + buttonStr("Buddies", "dialogBoxMenuBuddies();") + '<br/>' +
+        '<br/>' + buttonStr(autoRefreshText, "dialogBoxMenuAutoRefresh();") + '<br/>';
     $("#inner-content").html(menuText);
-    mainMenuBackButton();
+    dialogBoxMenuBackButton();
 }
 
 
-function mainMenuExit()
+function dialogBoxMenuExit()
 {
     // enable other ocmmand
     $("#inner-content").html(innerContentText);
-    mainMenuActive = false;
+    dialogBoxMenuActive = false;
     clearAndDisplayConversations();
 }
 
 
-function mainMenuBuddies()
+function dialogBoxMenuBuddies()
 {
     // get buddies
     var buddiesUrl = urlPrefixHtml + "buddies/all";
     $("#inner-content").load(buddiesUrl,
                              function (responseText, textStatus) {
-                                 mainMenuBuddiesDisplay(responseText, textStatus);
+                                 dialogBoxMenuBuddiesDisplay(responseText, textStatus);
                              });
 }
 
 
-function mainMenuBuddiesDisplay()
+function dialogBoxMenuBuddiesDisplay()
 {
-    mainMenuBackButton();
+    dialogBoxMenuBackButton();
 }
 
 
-function mainMenuAutoRefresh()
+function dialogBoxMenuAutoRefresh()
 {
     preMenuCommand("auto-refresh");
     if (autoRefresh) {
@@ -315,7 +321,7 @@ function mainMenuAutoRefresh()
         enableRefreshTimer();
     }
     $("#inner-content").html('<div class="info-msg"><span class="info-msg">Done</span></div>');
-    mainMenuBackButton();
+    dialogBoxMenuBackButton();
 }
 
 
@@ -323,7 +329,7 @@ function mainMenuAutoRefresh()
  * Performs first step for switching the conversations - gets the conversation list.
  * On success, goes to 'showConversationsList()'.
  */
-function mainMenuSwitchToConversations()
+function dialogBoxMenuSwitchToConversations()
 {
     preMenuCommand("switch-to-conv");
     var conversationsUrl = urlPrefixJson + "conversations/all";
@@ -335,19 +341,19 @@ function mainMenuSwitchToConversations()
 /**
  * Clear the main dialog window and displays the specified conversation.
  */
-function mainMenuGotoConversation(conv_id, conv_name)
+function dialogBoxMenuGotoConversation(conv_id, conv_name)
 {
     currentConversation.id = conv_id;
     currentConversation.name = conv_name;
     console.log("Going to conversation " + currentConversation.id);
-    mainMenuExit();
+    dialogBoxMenuExit();
 }
 
 
 function displayConversationButton(conv)
 {
-    var buttonText = '<br/><span class="menu" onclick="mainMenuGotoConversation(' +
-        conv.id + ', \'' + conv.name + '\');">' + conv.name + '</span><br/>';
+    var jsFuncText = 'dialogBoxMenuGotoConversation(' + conv.id + ', \'' + conv.name + '\');'
+    var buttonText = '<br/>' + buttonStr(conv.name, jsFuncText) + '<br/>';
     $("#inner-content").append(buttonText);
 }
 
@@ -363,8 +369,21 @@ function showConversationsList(data)
     for (var i = 0; i < conversations.length; i++) {
         displayConversationButton(conversations[i]);
     }
-    mainMenuBackButton();
+    dialogBoxMenuBackButton();
 }
 
 
+/**
+ * Add main menu items.
+ */
+function showMainMenu()
+{
+    mainMenuText = buttonStr("&#9776;", "dialogBoxMenu();", "margin-right: 2em;") +
+        buttonStr("Mobile layout", "mobileLayout();", "margin-right: 2em;") +
+        buttonStr("Clear history", "clearHistory();", "margin-right: 2em;");
+    $("#menu").html(mainMenuText);
+}
+
+
+showMainMenu();
 areThereNewMessagesP();

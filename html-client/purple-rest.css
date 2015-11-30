@@ -44,11 +44,40 @@ div.conversations, div.menu {
     border-bottom: 1px solid black;
 /*    margin-bottom: 5px; */
     text-align: left;
-    padding: 4px;
-    padding-bottom: 8px;
-    padding-top: 8px;
+    padding: 5px;
 }
 
+span.purple-button {
+	-moz-box-shadow: 0px 5px 7px -3px #276873;
+	-webkit-box-shadow: 0px 5px 7px -3px #276873;
+	box-shadow: 0px 5px 7px -3px #276873;
+	background-color:#599bb3;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	/*font-size:20px;*/
+	font-weight:bold;
+	padding:6px 12px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #3d768a;
+    margin-left: 1ex;
+    margin-right: 1ex;
+}
+
+.purple-button:hover {
+	background-color:#408c99;
+}
+
+.purple-button:active {
+	position:relative;
+	top:1px;
+}
+
+/* :fixme: probably not used anymore */
 span.conversation, span.menu {
     border: 1px solid #aaa;
     background: #faf8e8;
@@ -61,6 +90,14 @@ span.conversation, span.menu {
     margin-left: 1ex;
     margin-right: 1ex;
     font-weight: bold;
+}
+
+.conv-title {
+    font-weight: bold;
+	font-family:Arial;
+    font-size: 110%;
+	color: #105269;
+    border-bottom: 2px solid #105269;
 }
 
 div.send_msg {
@@ -99,7 +136,12 @@ div#status-bar-2 {
 }
 
 span.info-msg {
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     display: inline-block;
-    margin: 1em;
+    padding: 4px 2em;
+    margin: 2em;
+    color: #105269;
+    background-color: #e0e0e0;
+	font-family:Arial;
+    font-size: 110%;
 }
