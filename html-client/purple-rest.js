@@ -26,7 +26,7 @@ function displayRefresh()
     if (jsonSuccess) {
         var now = new Date(Date.now());
         var formatted = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
-        $("#status-bar-2").html("Last update: " + formatted);
+        $("#status-bar-2").html("Updated: " + formatted);
     }
 }
 
@@ -50,8 +50,7 @@ function buttonStr(text, jsText, extraStyle)
 function preMenuCommand(cmd)
 {
     if (dialogBoxMenuActive) {
-        if (cmd == 'Mobile layout' || cmd == 'All msgs.' ||
-            cmd == 'Clear history') {
+        if (cmd == 'All msgs.' || cmd == 'Clear history') {
             return false;
         }
     }
@@ -59,13 +58,16 @@ function preMenuCommand(cmd)
 }
 
 
-function mobileLayout()
+/*
+  :fixme: - deprecated?
+*/
+function desktopLayout()
 {
-    if (!preMenuCommand('Mobile layout')) {
+    if (!preMenuCommand('Desktop layout')) {
         return;
     }
 
-    $("#content").css("width", "100%");
+    $("#content").css("width", "50em");
 }
 
 
@@ -194,6 +196,16 @@ function displayMessages(responseText, textStatus, oldMaxId)
 }
 
 
+function allMsgs()
+{
+    if (!preMenuCommand('All msgs.')) {
+        return false;
+    }
+    currentConversation.id=0;
+    clearAndDisplayConversations();
+}
+
+
 function clearAndDisplayConversations()
 {
     if (!preMenuCommand()) {
@@ -211,7 +223,6 @@ function displayConversations(oldMaxId)
     console.log("displayConversations(" + oldMaxId + ")");
 
     // conversations window
-    // first button is always 'all msgs.'
     // :fixme: get rid of this table
     var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;"><tr>' +
         '<td style="width: 50%; text-align: left;">' +
@@ -219,9 +230,9 @@ function displayConversations(oldMaxId)
         (currentConversation.id > 0 ? currentConversation.name : 'All msgs.') +
         '</span></td>';
 
-    conversationsLine = conversationsLine + '<td style="width: 50%; text-align: right;">' + 
-        buttonStr("All msgs.", "currentConversation.id=0; clearAndDisplayConversations();") +
-        buttonStr("Switch to conv.", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
+    conversationsLine = conversationsLine + '<td style="width: 50%; text-align: right;">' +
+        buttonStr("Conv. menu", "dialogBoxMenuConvMenu();") +
+        buttonStr("Switch ...", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
 
     $("#conversations").html(conversationsLine);
     displayMessages(null, "success", oldMaxId);
@@ -248,11 +259,18 @@ function sendMessageToPurple()
     });
 }
 
-
+/* DEPRECATED
 function dialogBoxMenuBackButton()
 {
-    var buttonText = buttonStr("Back to chat", "dialogBoxMenuExit();", "margin-top: 2em;") + '<br/><br/>';
+    var buttonText = buttonStr("Back to chat", "dialogBoxMenuExit();", "margin-bottom: 2em;") + '<br/>';
     $("#inner-content").append(buttonText);
+}
+*/
+
+function dialogBoxMenuBackButtonStr()
+{
+    return buttonStr("Back to chat", "dialogBoxMenuExit();",
+                     "margin-bottom: 2em; margin-top: 1em;");
 }
 
 
@@ -275,10 +293,11 @@ function dialogBoxMenu()
     prepareForMainMenu();
     // add menu options
     var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
-    menuText = '<br/>' + buttonStr("Buddies", "dialogBoxMenuBuddies();") + '<br/>' +
-        '<br/>' + buttonStr(autoRefreshText, "dialogBoxMenuAutoRefresh();") + '<br/>';
-    $("#inner-content").html(menuText);
-    dialogBoxMenuBackButton();
+    menuText = '<br/>' + buttonStr("Buddies", "dialogBoxMenuBuddies();") + '<br/><br/>' +
+        buttonStr(autoRefreshText, "dialogBoxMenuAutoRefresh();") + '<br/><br/>' +
+        buttonStr("Desktop layout", "desktopLayout();") + '<br/><br/>';
+
+    $("#inner-content").html(dialogBoxMenuBackButtonStr() + menuText);
 }
 
 
@@ -304,7 +323,7 @@ function dialogBoxMenuBuddies()
 
 function dialogBoxMenuBuddiesDisplay()
 {
-    dialogBoxMenuBackButton();
+    $("#inner-content").prepend(dialogBoxMenuBackButtonStr());
 }
 
 
@@ -320,14 +339,16 @@ function dialogBoxMenuAutoRefresh()
         $("#status-bar-1").text("Auto-refresh: ON");
         enableRefreshTimer();
     }
-    $("#inner-content").html('<div class="info-msg"><span class="info-msg">Done</span></div>');
-    dialogBoxMenuBackButton();
+    $("#inner-content").html(dialogBoxMenuBackButtonStr() +
+                             '<div class="info-msg"><span class="info-msg">Done</span></div>');
 }
 
 
 /**
  * Performs first step for switching the conversations - gets the conversation list.
  * On success, goes to 'showConversationsList()'.
+ *
+ * :fixme: this is not from dialogBoxMenu - to be renamed
  */
 function dialogBoxMenuSwitchToConversations()
 {
@@ -365,11 +386,12 @@ function showConversationsList(data)
 {
     prepareForMainMenu();
     $("#inner-content").text("");
+    $("#inner-content").append(dialogBoxMenuBackButtonStr());
     var conversations = data;
     for (var i = 0; i < conversations.length; i++) {
         displayConversationButton(conversations[i]);
     }
-    dialogBoxMenuBackButton();
+    $("#inner-content").append("<br/>");
 }
 
 
@@ -378,10 +400,19 @@ function showConversationsList(data)
  */
 function showMainMenu()
 {
-    mainMenuText = buttonStr("&#9776;", "dialogBoxMenu();", "margin-right: 2em;") +
-        buttonStr("Mobile layout", "mobileLayout();", "margin-right: 2em;") +
-        buttonStr("Clear history", "clearHistory();", "margin-right: 2em;");
+    mainMenuText = buttonStr("&#9776;", "dialogBoxMenu();") +
+        buttonStr("All msgs.", "allMsgs();") +
+        buttonStr("Clear history", "clearHistory();");
     $("#menu").html(mainMenuText);
+}
+
+
+/**
+ * :fixme: this is not from dialogBoxMenu - to be renamed
+ */
+function dialogBoxMenuConvMenu()
+{
+    alert("TDB");
 }
 
 

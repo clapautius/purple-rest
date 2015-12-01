@@ -7,7 +7,8 @@ div.content {
   border-width: 1px;
   border-color: black;
   border-style: solid;
-  width: 50em;
+  width: 100%;
+  max-width: 50em;
   background-color: #ffffff;
   text-align: left;
 }
@@ -61,7 +62,8 @@ span.purple-button {
 	font-family:Arial;
 	/*font-size:20px;*/
 	font-weight:bold;
-	padding:6px 12px;
+	/*padding:6px 12px;*/
+	padding:4px 8px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #3d768a;
     margin-left: 1ex;
@@ -95,7 +97,7 @@ span.conversation, span.menu {
 .conv-title {
     font-weight: bold;
 	font-family:Arial;
-    font-size: 110%;
+    font-size: 105%;
 	color: #105269;
     border-bottom: 2px solid #105269;
 }
@@ -143,5 +145,5 @@ span.info-msg {
     color: #105269;
     background-color: #e0e0e0;
 	font-family:Arial;
-    font-size: 110%;
+    font-size: 105%;
 }
