@@ -40,7 +40,10 @@ public:
     virtual void add_generic_param(const std::string &param_name,
                                    unsigned value) = 0;
 
-    virtual void add_buddy(const Buddy &buddy) =0;
+    virtual void add_generic_param(const std::string &param_name,
+                                   const char* p_str) = 0;
+
+    virtual void add_buddy(const Buddy &buddy) = 0;
 
 };
 
@@ -57,11 +60,10 @@ public:
 
     virtual void add_message(std::shared_ptr<ImMessage> &msg);
 
-    virtual void add_conversation(PurpleConversation *conv,
-                                  unsigned conv_id = 0);
+    virtual void add_conversation(PurpleConversation *conv, unsigned conv_id = 0);
 
-    virtual void add_generic_param(const std::string &param_name,
-                                   unsigned value);
+    virtual void add_generic_param(const std::string &param_name, unsigned value);
+    virtual void add_generic_param(const std::string &param_name, const char* p_str);
 
     virtual void add_buddy(const Buddy &buddy);
 
@@ -86,14 +88,24 @@ public:
     virtual void add_conversation(PurpleConversation *conv,
                                   unsigned conv_id = 0);
 
-    virtual void add_generic_param(const std::string &param_name,
-                                   unsigned value);
+    virtual void add_generic_param(const std::string &param_name, unsigned value);
+    virtual void add_generic_param(const std::string &param_name, const char* p_str);
 
     virtual void add_buddy(const Buddy &buddy);
 
+protected:
+
+    template<typename T>
+    void add_generic_param_generic_value(const std::string &param_name, const T &value)
+    {
+        Json::Value new_param(Json::objectValue);
+        new_param[param_name.c_str()] = value;
+        m_response.append(new_param);
+    }
+
 private:
 
-    Json::Value m_msg_list;
+    Json::Value m_response;
 
 };
 

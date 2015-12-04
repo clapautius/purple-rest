@@ -52,6 +52,10 @@ void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list);
  */
 std::string buddy_get_group_name(PurpleBlistNode *p);
 
+std::string get_account_status();
+
+void reset_idle();
+
 }
 
 #endif

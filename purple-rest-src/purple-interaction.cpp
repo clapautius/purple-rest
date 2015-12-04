@@ -16,6 +16,7 @@
 #include "plugin.h"
 #include "version.h"
 #include "debug.h"
+#include "idle.h"
 
 #include "purple-rest.h"
 #include "immessage.hpp"
@@ -207,5 +208,37 @@ void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list)
         collect_buddies(p->next, list);
     }
 }
+
+
+std::string get_account_status()
+{
+    std::string result;
+    // :fixme:
+    // atm we get the status only for the first account (assuming the status is
+    // identical forall active accounts - which may not be true)
+    GList *p_accounts = purple_accounts_get_all_active();
+    if (p_accounts) {
+        PurpleStatus *p_status = purple_account_get_active_status(
+          reinterpret_cast<PurpleAccount*>(g_list_first(p_accounts)->data));
+        const char *p_status_text = purple_primitive_get_name_from_type(
+          purple_status_type_get_primitive(purple_status_get_type(p_status)));
+        if (p_status_text) {
+            result = p_status_text;
+        } else {
+            result = "Unknown";
+            }
+    } else {
+        // no active accounts -> offline
+        result = "Offline";
+    }
+    return result;
+}
+
+
+void reset_idle()
+{
+    purple_idle_touch();
+}
+
 
 }

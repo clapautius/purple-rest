@@ -149,9 +149,13 @@ error:
  *
  * @return HTTP code to be sent back to user.
  *
+ * :fixme: maybe rename this to 'state', to avoid confusion with buddy / account
+ * status?
+ *
  * Requests summary:
  * /v/<format>/status/max_msg_id
  * /v/<format>/status/max_my_msg_id
+ * /v/<format>/status/account-status
  */
 static int get_status_request(const vector<string> &request, string &response_str,
                               string &content_type)
@@ -169,6 +173,8 @@ static int get_status_request(const vector<string> &request, string &response_st
         response->add_generic_param("max_msg_id", g_msg_history.get_max_id());
     } else if (request[param_idx] == "max_my_msg_id") {
         response->add_generic_param("max_my_msg_id", g_msg_history.get_max_my_msg_id());
+    } else if (request[param_idx] == "account-status") {
+        response->add_generic_param("status", libpurple::get_account_status().c_str());
     } else {
         goto error;
     }
@@ -399,6 +405,9 @@ static int post_messages_request(const vector<string> &request,
             // :fixme: - check valid data
             const PurpleConversation *conv =
               g_conv_list[conv_id].get_purple_conv();
+            // set account as 'available'
+            libpurple::reset_idle();
+            // set callback data
             libpurple::g_send_msg_data.conv = conv;
             libpurple::g_send_msg_data.msg = string(upload_data, upload_data_size);
             purple_timeout_add(100, timeout_cb, NULL);

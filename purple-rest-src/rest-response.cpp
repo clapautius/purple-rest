@@ -63,6 +63,13 @@ void HtmlResponse::add_generic_param(const std::string &param_name,
 }
 
 
+void HtmlResponse::add_generic_param(const std::string &param_name, const char* p_str)
+{
+    m_ostr << "<span>" << param_name << " = " <<
+      (p_str ? p_str : "NULL") << "</span>\n";
+}
+
+
 void HtmlResponse::add_buddy(const Buddy &buddy)
 {
     string status_class = (buddy.is_online() ? "buddy-online" : "buddy-offline");
@@ -73,7 +80,7 @@ void HtmlResponse::add_buddy(const Buddy &buddy)
 
 
 JsonResponse::JsonResponse()
-  : m_msg_list(Json::arrayValue)
+  : m_response(Json::arrayValue)
 {
 
 }
@@ -86,7 +93,7 @@ JsonResponse::~JsonResponse()
 
 std::string JsonResponse::get_text()
 {
-    return m_msg_list.toStyledString();
+    return m_response.toStyledString();
 }
 
 
@@ -97,7 +104,7 @@ void JsonResponse::add_message(std::shared_ptr<ImMessage> &msg)
     new_msg["text"] = msg->get_text();
     new_msg["sender"] = msg->get_sender();
     new_msg["conversation"] = msg->get_conv_id();
-    m_msg_list.append(new_msg);
+    m_response.append(new_msg);
 }
 
 
@@ -108,19 +115,20 @@ void JsonResponse::add_conversation(PurpleConversation *conv, unsigned conv_id)
         const char *conv_name = purple_conversation_get_title(conv);
         new_conv["name"] = (conv_name ? conv_name : "unknown");
         new_conv["id"] = conv_id;
-        // :fixme: - rename m_msg_list
-        m_msg_list.append(new_conv);
+        m_response.append(new_conv);
     }
 }
 
 
-void JsonResponse::add_generic_param(const std::string &param_name,
-                                     unsigned value)
+void JsonResponse::add_generic_param(const std::string &param_name, unsigned value)
 {
-    Json::Value new_param(Json::objectValue);
-    new_param[param_name.c_str()] = value;
-    // :fixme: - rename m_msg_list
-    m_msg_list.append(new_param);
+    add_generic_param_generic_value(param_name, value);
+}
+
+
+void JsonResponse::add_generic_param(const std::string &param_name, const char* p_str)
+{
+    add_generic_param_generic_value(param_name, (p_str ? p_str : "NULL"));
 }
 
 
@@ -131,9 +139,8 @@ void JsonResponse::add_buddy(const Buddy &buddy)
     new_buddy["group"] = buddy.get_group();
     new_buddy["status"] = buddy.is_online() ? "online" : "offline";
     // :fixme: - add the rest of the elements
-    // :fixme: - rename m_msg_list
     // :fixme: - group them by group
-    m_msg_list.append(new_buddy);
+    m_response.append(new_buddy);
 }
 
 

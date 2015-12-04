@@ -63,3 +63,10 @@ TBD
 ___
 
 write about threads!
+
+************
+* glib QRH *
+************
+
+GList* g_list_first(GList*)
+GList* g_list_next(GList*)

@@ -295,6 +295,7 @@ function dialogBoxMenu()
     var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
     menuText = '<br/>' + buttonStr("Buddies", "dialogBoxMenuBuddies();") + '<br/><br/>' +
         buttonStr(autoRefreshText, "dialogBoxMenuAutoRefresh();") + '<br/><br/>' +
+        buttonStr("Show status", "dialogBoxMenuGetStatus();") + '<br/><br/>' +
         buttonStr("Desktop layout", "desktopLayout();") + '<br/><br/>';
 
     $("#inner-content").html(dialogBoxMenuBackButtonStr() + menuText);
@@ -318,6 +319,24 @@ function dialogBoxMenuBuddies()
                              function (responseText, textStatus) {
                                  dialogBoxMenuBuddiesDisplay(responseText, textStatus);
                              });
+}
+
+
+function dialogBoxMenuGetStatus()
+{
+    var statusUrl = urlPrefixJson + "status/account-status";
+    // :fixme: add another error function
+    $.get(statusUrl, function (data) { showStatus(data); }).fail(updateMessagesError);
+}
+
+
+function showStatus(data)
+{
+    // :fixme: check if data is an array and has that property
+    $("#inner-content").html(dialogBoxMenuBackButtonStr() +
+                             '<div class="info-msg"><span class="info-msg">Status: ' +
+                             data[0].status +
+                             '</span></div>');
 }
 
 
