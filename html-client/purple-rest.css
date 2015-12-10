@@ -79,6 +79,27 @@ span.purple-button {
 	top:1px;
 }
 
+span.purple-button-disabled {
+	-moz-box-shadow: 0px 5px 7px -3px #ccc;
+	-webkit-box-shadow: 0px 5px 7px -3px #ccc;
+	box-shadow: 0px 5px 7px -3px #ccc;
+	background-color:#ccc;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	display:inline-block;
+	color:#eeeeee;
+	font-family:Arial;
+	/*font-size:20px;*/
+	font-weight:bold;
+	/*padding:6px 12px;*/
+	padding:4px 8px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #ccc;
+    margin-left: 1ex;
+    margin-right: 1ex;
+}
+
 /* :fixme: probably not used anymore */
 span.conversation, span.menu {
     border: 1px solid #aaa;

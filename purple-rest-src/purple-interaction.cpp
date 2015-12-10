@@ -191,21 +191,24 @@ std::string buddy_get_group_name(PurpleBlistNode *p)
 }
 
 
-void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list)
+void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list,
+                     bool online_only)
 {
     if (PURPLE_BLIST_NODE_IS_BUDDY(p)) {
-        purple::Buddy new_buddy(PURPLE_BUDDY(p)->name);
-        new_buddy.set_group(buddy_get_group_name(p).c_str());
-        if (PURPLE_BUDDY_IS_ONLINE(PURPLE_BUDDY(p))) {
-            new_buddy.set_online_status(true);
+        if (!online_only || (online_only && PURPLE_BUDDY_IS_ONLINE(PURPLE_BUDDY(p)))) {
+            purple::Buddy new_buddy(PURPLE_BUDDY(p)->name);
+            new_buddy.set_group(buddy_get_group_name(p).c_str());
+            if (PURPLE_BUDDY_IS_ONLINE(PURPLE_BUDDY(p))) {
+                new_buddy.set_online_status(true);
+            }
+            list.push_back(new_buddy);
         }
-        list.push_back(new_buddy);
     }
     if (p->child) {
-        collect_buddies(p->child, list);
+        collect_buddies(p->child, list, online_only);
     }
     if (p->next) {
-        collect_buddies(p->next, list);
+        collect_buddies(p->next, list, online_only);
     }
 }
 

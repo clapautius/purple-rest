@@ -41,8 +41,11 @@ void purple_info(const std::string &msg);
 
 /**
  * Helper function to collect all buddies from the purple buddy tree.
+ *
+ * @param[in] online_only : collect only online buddies
  */
-void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list);
+void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list,
+                     bool online_only = false);
 
 /**
  * Helper function to get the group of a buddy.

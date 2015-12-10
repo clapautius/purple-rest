@@ -280,6 +280,8 @@ function prepareForMainMenu()
     // put original 'inner-content' text in global var inner-content-text
     // :fixme: is there a better option?
     innerContentText = $("#inner-content").html();
+
+    disableMainMenu();
     dialogBoxMenuActive = true;
 }
 
@@ -293,9 +295,11 @@ function dialogBoxMenu()
     prepareForMainMenu();
     // add menu options
     var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
-    menuText = '<br/>' + buttonStr("Buddies", "dialogBoxMenuBuddies();") + '<br/><br/>' +
+    menuText = '<br/>' +
         buttonStr(autoRefreshText, "dialogBoxMenuAutoRefresh();") + '<br/><br/>' +
         buttonStr("Show status", "dialogBoxMenuGetStatus();") + '<br/><br/>' +
+        buttonStr("Online buddies", "dialogBoxMenuBuddies(true);") + '<br/><br/>' +
+        buttonStr("All buddies", "dialogBoxMenuBuddies();") + '<br/><br/>' +
         buttonStr("Desktop layout", "desktopLayout();") + '<br/><br/>';
 
     $("#inner-content").html(dialogBoxMenuBackButtonStr() + menuText);
@@ -307,14 +311,21 @@ function dialogBoxMenuExit()
     // enable other ocmmand
     $("#inner-content").html(innerContentText);
     dialogBoxMenuActive = false;
+
+    enableMainMenu();
     clearAndDisplayConversations();
 }
 
 
-function dialogBoxMenuBuddies()
+function dialogBoxMenuBuddies(onlineOnly = false)
 {
     // get buddies
-    var buddiesUrl = urlPrefixHtml + "buddies/all";
+    var buddiesUrl = '';
+    if (onlineOnly) {
+        buddiesUrl = urlPrefixHtml + "buddies/online";
+    } else {
+        buddiesUrl = urlPrefixHtml + "buddies/all";
+    }
     $("#inner-content").load(buddiesUrl,
                              function (responseText, textStatus) {
                                  dialogBoxMenuBuddiesDisplay(responseText, textStatus);
@@ -424,6 +435,26 @@ function showMainMenu()
         buttonStr("Clear history", "clearHistory();");
     $("#menu").html(mainMenuText);
 }
+
+
+/**
+ * Greys out the main menu buttons.
+ */
+function disableMainMenu()
+{
+    $("#menu > span").prop("onclick", null).off("click");
+    $("#menu > span").attr("class", "purple-button-disabled");
+}
+
+
+/**
+ * Enable the main menu buttons.
+ */
+function enableMainMenu()
+{
+    showMainMenu();
+}
+
 
 
 /**

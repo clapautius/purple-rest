@@ -360,9 +360,10 @@ static int get_buddies_request(const vector<string> &request, string &response_s
         else {
             return 400;
         }
-        if (request[kFilterIdx] == "all") {
+        if (request[kFilterIdx] == "all" || request[kFilterIdx] == "online") {
             std::vector<Buddy> buddy_list;
-            libpurple::collect_buddies(purple_get_blist()->root, buddy_list);
+            libpurple::collect_buddies(purple_get_blist()->root, buddy_list,
+                                       (request[kFilterIdx] == "online"));
             // sort by group and name
             std::sort(buddy_list.begin(), buddy_list.end(),
                       [] (const Buddy &b1, const Buddy &b2) -> bool {
