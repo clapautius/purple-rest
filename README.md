@@ -7,6 +7,13 @@ This plugin provides a RESTful API for pidgin / finch.
 It should (also) be able to provide various ways to remote control pidgin / finch (work in
 progress).
 
+### HTML client
+
+Screenshots:
+
+![purple rest html 1](doc/img/purple-rest-screenshot1.png?raw=true "HTML client - screenshot1")
+![purple rest html 2](doc/img/purple-rest-screenshot2.png?raw=true "HTML client - screenshot2")
+
 ## Build
 
 ### Prerequisites
