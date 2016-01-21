@@ -226,13 +226,12 @@ function displayConversations(oldMaxId)
     // :fixme: get rid of this table
     var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;"><tr>' +
         '<td style="width: 50%; text-align: left;">' +
-        '<span class="conv-title">➤&nbsp;' +
-        (currentConversation.id > 0 ? currentConversation.name : 'All msgs.') +
-        '</span></td>';
+        convCurrentTitleAsHtml() +
+        '</td>';
 
     conversationsLine = conversationsLine + '<td style="width: 50%; text-align: right;">' +
         buttonStr("Conv. menu", "dialogBoxMenuConvMenu();") +
-        buttonStr("Switch ...", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
+        buttonStr("Switch conv.", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
 
     $("#conversations").html(conversationsLine);
     displayMessages(null, "success", oldMaxId);
@@ -286,7 +285,7 @@ function prepareForMainMenu()
 }
 
 
-function dialogBoxMenu()
+function displayCenterMenu(options, prefix = "")
 {
     // don't do anything if the menu is already active
     if (dialogBoxMenuActive) {
@@ -294,15 +293,24 @@ function dialogBoxMenu()
     }
     prepareForMainMenu();
     // add menu options
-    var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
-    menuText = '<br/>' +
-        buttonStr(autoRefreshText, "dialogBoxMenuAutoRefresh();") + '<br/><br/>' +
-        buttonStr("Show status", "dialogBoxMenuGetStatus();") + '<br/><br/>' +
-        buttonStr("Online buddies", "dialogBoxMenuBuddies(true);") + '<br/><br/>' +
-        buttonStr("All buddies", "dialogBoxMenuBuddies();") + '<br/><br/>' +
-        buttonStr("Desktop layout", "desktopLayout();") + '<br/><br/>';
+    var menuText = '<br/>';
+    for (var i = 0; i < options.length; i++) {
+        menuText += buttonStr(options[i][0], options[i][1]);
+        menuText += '<br/><br/>';
+    }
+    $("#inner-content").html(prefix + dialogBoxMenuBackButtonStr() + menuText);
+}
 
-    $("#inner-content").html(dialogBoxMenuBackButtonStr() + menuText);
+
+function dialogBoxMenu()
+{
+    var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
+    menuOptions = [ [ autoRefreshText, "dialogBoxMenuAutoRefresh();" ],
+                    [ "Show status", "dialogBoxMenuGetStatus();" ],
+                    [ "Online buddies", "dialogBoxMenuBuddies(true);" ],
+                    [ "All buddies", "dialogBoxMenuBuddies();" ],
+                    [ "Desktop layout", "desktopLayout();" ] ];
+    displayCenterMenu(menuOptions);
 }
 
 
@@ -462,7 +470,31 @@ function enableMainMenu()
  */
 function dialogBoxMenuConvMenu()
 {
-    alert("TDB");
+    menuOptions = [ ];
+    if (currentConversation.id != 0)  {
+        menuOptions.push([ "Close conversation", "convClose();" ]);
+    }
+    displayCenterMenu(menuOptions,
+                      "<br/><div>" + convCurrentTitleAsHtml() + "</div><br/>");
+}
+
+
+/**
+ * Closes the current conversation (it does nothing if the current conv. is 'All msgs.').
+ */
+function convClose()
+{
+    if (currentConversation.id != 0) {
+        alert("TDB");
+    }
+}
+
+
+function convCurrentTitleAsHtml()
+{
+    return '<span class="conv-title">➤&nbsp;' +
+        (currentConversation.id > 0 ? currentConversation.name : 'All msgs.') +
+        '</span>';
 }
 
 
