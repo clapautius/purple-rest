@@ -352,9 +352,15 @@ function dialogBoxMenuGetStatus()
 function showStatus(data)
 {
     // :fixme: check if data is an array and has that property
+    var statusText = "";
+    if (data) {
+        statusText = data[0].status;
+    } else {
+        statusText = "OK";
+    }
     $("#inner-content").html(dialogBoxMenuBackButtonStr() +
                              '<div class="info-msg"><span class="info-msg">Status: ' +
-                             data[0].status +
+                              statusText +
                              '</span></div>');
 }
 
@@ -485,7 +491,18 @@ function dialogBoxMenuConvMenu()
 function convClose()
 {
     if (currentConversation.id != 0) {
-        alert("TDB");
+        var delConvMsgCmd = urlPrefixJson + "conversations/" + currentConversation.id;
+        $.ajax({
+            url: delConvMsgCmd,
+            type: 'delete',
+            success: function(data) {
+                currentConversation.id = 0;
+                showStatus(data);
+            },
+            error: function(data) {
+                displayError("Error closing conversation");
+            }
+        });
     }
 }
 
