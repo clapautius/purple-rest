@@ -60,6 +60,10 @@ specified conversation starting with *MSG_ID*
 
 * `.../v1/FORMAT/conv-messages/ID` - send a message for conversation *ID*
 
+#### DELETE requests
+
+* `.../v1/FORMAT/conversations/ID` - send a message for conversation *ID*
+
 ### Configuration
 
 * _/plugins/purple-rest/server-port_ : listen port
