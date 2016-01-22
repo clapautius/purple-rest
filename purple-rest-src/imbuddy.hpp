@@ -11,7 +11,7 @@
 
 #include <string>
 
-namespace purple
+namespace p_rest
 {
 
 class Buddy

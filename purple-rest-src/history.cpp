@@ -12,7 +12,7 @@
 #include "history.hpp"
 #include "purple-interaction.hpp"
 
-namespace purple
+namespace p_rest
 {
 
 void History::add_im_message(std::shared_ptr<ImMessage> msg)
@@ -44,7 +44,7 @@ uint64_t History::get_new_id()
 }
 
 
-std::atomic<uint64_t> History::m_free_id(1);
+std::atomic<msg_id_t> History::m_free_id(1);
 
 msg_id_t History::m_max_my_msg_id(0);
 

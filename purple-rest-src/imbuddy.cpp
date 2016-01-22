@@ -8,7 +8,7 @@
 
 #include "imbuddy.hpp"
 
-namespace purple
+namespace p_rest
 {
 
 Buddy::Buddy(const char* p_name, const char *p_group)

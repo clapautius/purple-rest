@@ -14,7 +14,8 @@
 typedef enum
 {
     kHttpMethodPost,
-    kHttpMethodGet
+    kHttpMethodGet,
+    kHttpMethodDelete
 } HttpMethod;
 
 #endif

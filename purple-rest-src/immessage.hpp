@@ -18,7 +18,7 @@
 #include "notify.h"
 #include "imconversation.hpp"
 
-namespace purple
+namespace p_rest
 {
 
 class ImMessage

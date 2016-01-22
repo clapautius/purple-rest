@@ -17,7 +17,7 @@
 
 #include "immessage.hpp"
 
-namespace purple
+namespace p_rest
 {
 
 class History
@@ -47,7 +47,7 @@ private:
 
     std::vector<ImMessagePtr> m_message_list;
 
-    static std::atomic<uint64_t> m_free_id;
+    static std::atomic<msg_id_t> m_free_id;
 
     static msg_id_t m_max_my_msg_id;
 };

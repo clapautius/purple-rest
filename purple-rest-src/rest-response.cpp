@@ -11,7 +11,7 @@
 
 using std::string;
 
-namespace purple
+namespace p_rest
 {
 
 RestResponse::~RestResponse()
@@ -155,11 +155,11 @@ bool create_response(const std::string &type, std::unique_ptr<RestResponse> &res
 {
     bool rc = true;
     if (type == "json") {
-        response.reset(new purple::JsonResponse);
+        response.reset(new p_rest::JsonResponse);
         content_type = "application/json";
     }
     else if (type == "html") {
-        response.reset(new purple::HtmlResponse);
+        response.reset(new p_rest::HtmlResponse);
         content_type = "text/html";
     }
     else {

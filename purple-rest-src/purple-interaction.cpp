@@ -24,13 +24,13 @@
 #include "history.hpp"
 
 using std::shared_ptr;
-using purple::ImMessage;
-using purple::History;
-using purple::g_conv_list;
+using p_rest::ImMessage;
+using p_rest::History;
+using p_rest::g_conv_list;
 using libpurple::g_send_msg_data;
 
 // :fixme: - don't use globals
-purple::History g_msg_history;
+p_rest::History g_msg_history;
 
 std::string g_url_prefix;
 
@@ -191,12 +191,12 @@ std::string buddy_get_group_name(PurpleBlistNode *p)
 }
 
 
-void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list,
+void collect_buddies(PurpleBlistNode *p, std::vector<p_rest::Buddy> &list,
                      bool online_only)
 {
     if (PURPLE_BLIST_NODE_IS_BUDDY(p)) {
         if (!online_only || (online_only && PURPLE_BUDDY_IS_ONLINE(PURPLE_BUDDY(p)))) {
-            purple::Buddy new_buddy(PURPLE_BUDDY(p)->name);
+            p_rest::Buddy new_buddy(PURPLE_BUDDY(p)->name);
             new_buddy.set_group(buddy_get_group_name(p).c_str());
             if (PURPLE_BUDDY_IS_ONLINE(PURPLE_BUDDY(p))) {
                 new_buddy.set_online_status(true);

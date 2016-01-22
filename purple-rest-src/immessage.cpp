@@ -8,7 +8,7 @@
 
 #include "immessage.hpp"
 
-namespace purple
+namespace p_rest
 {
 
 ImMessage::ImMessage(PurpleAccount *account, const char *msg, uint64_t id,

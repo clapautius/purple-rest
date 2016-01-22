@@ -61,6 +61,8 @@ int answer_to_http_connection(
         }
     } else if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
         http_method = kHttpMethodGet;
+    } else if (0 == strcmp(method, MHD_HTTP_METHOD_DELETE)) {
+        http_method = kHttpMethodDelete;
     }
 
     perform_rest_request(url, http_method, stored_upload_data, stored_size,

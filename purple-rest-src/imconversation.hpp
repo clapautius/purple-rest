@@ -11,12 +11,15 @@
 
 #include <string>
 #include <vector>
+#include <atomic>
 
 #include "plugin.h"
 #include "notify.h"
 
-namespace purple
+namespace p_rest
 {
+
+typedef uint64_t conv_id_t;
 
 class ImConversation
 {
@@ -26,15 +29,29 @@ public:
 
     std::string get_name() const;
 
-    const PurpleConversation* get_purple_conv() const
+    PurpleConversation* get_purple_conv() const
     {
         return m_purple_conv;
+    }
+
+    conv_id_t id() const
+    {
+        return m_id;
+    }
+
+    bool operator==(const ImConversation &rhs) const
+    {
+        return (m_id == rhs.id() &&
+                m_purple_conv == rhs.m_purple_conv);
     }
 
 private:
 
     PurpleConversation* m_purple_conv;
 
+    conv_id_t m_id;
+
+    static std::atomic<conv_id_t> m_free_id;
 };
 
 
@@ -44,9 +61,12 @@ public:
 
     ImConversationsList();
 
-    unsigned add_conversation(ImConversation conv);
+    conv_id_t add_conversation(ImConversation conv);
 
-    unsigned get_or_add_conversation(PurpleConversation *conv);
+    /**
+     * @return the conversation id (which is not the same as the index)
+     */
+    conv_id_t get_or_add_conversation(PurpleConversation *conv);
 
     unsigned size() const;
 
@@ -54,9 +74,20 @@ public:
 
     ImConversation& operator[](const std::string&);
 
+    /**
+     * @return the conversation that matches the ID, or
+     * m_null_conv if no such conversation exists.
+     */
+    ImConversation& get_conversation_by_id(conv_id_t id);
+
     static ImConversation m_null_conv;
 
-    unsigned get_conversation_id(PurpleConversation *conv) const;
+    conv_id_t get_conversation_id(PurpleConversation *conv) const;
+
+    /**
+     * Remove the conversation with the id ID from the converation list.
+     */
+    void remove_conversation(conv_id_t id);
 
 private:
 

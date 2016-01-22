@@ -11,14 +11,13 @@
 using std::string;
 using std::vector;
 
-namespace purple
+namespace p_rest
 {
 
 ImConversation::ImConversation(PurpleConversation *conv)
   : m_purple_conv(conv)
 {
-
-
+    m_id = m_free_id.fetch_add(1);
 }
 
 
@@ -33,17 +32,20 @@ string ImConversation::get_name() const
 }
 
 
-unsigned ImConversationsList::add_conversation(ImConversation conv)
+std::atomic<conv_id_t> ImConversation::m_free_id(1);
+
+
+conv_id_t ImConversationsList::add_conversation(ImConversation conv)
 {
     m_conversations.push_back(conv);
-    return m_conversations.size() - 1;
+    return conv.id();
 }
 
 
 
-unsigned ImConversationsList::get_or_add_conversation(PurpleConversation *conv)
+conv_id_t ImConversationsList::get_or_add_conversation(PurpleConversation *conv)
 {
-    unsigned id = get_conversation_id(conv);
+    conv_id_t id = get_conversation_id(conv);
     if (!id) {
         id = add_conversation(ImConversation(conv));
     }
@@ -83,15 +85,36 @@ ImConversation& ImConversationsList::operator[](const std::string &conv_name)
 }
 
 
-
-unsigned ImConversationsList::get_conversation_id(PurpleConversation *conv) const
+conv_id_t ImConversationsList::get_conversation_id(PurpleConversation *conv) const
 {
     for (unsigned int i = 0; i < m_conversations.size(); i++) {
         if (m_conversations[i].get_purple_conv() == conv) {
-            return i;
+            return m_conversations[i].id();
         }
     }
     return 0;
+}
+
+
+ImConversation& ImConversationsList::get_conversation_by_id(conv_id_t id)
+{
+    for (auto &conv : m_conversations) {
+        if (conv.id() == id) {
+            return conv;
+        }
+    }
+    return m_null_conv;
+}
+
+
+void ImConversationsList::remove_conversation(conv_id_t id)
+{
+    for (unsigned i = 0; i < m_conversations.size(); i++) {
+        if (m_conversations[i].id() == id) {
+            m_conversations.erase(m_conversations.begin() + i);
+            break;
+        }
+    }
 }
 
 

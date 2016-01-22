@@ -20,12 +20,13 @@
 
 using std::string;
 using std::vector;
-using purple::ImMessage;
-using purple::g_conv_list;
-using purple::Buddy;
+using p_rest::ImMessage;
+using p_rest::ImConversation;
+using p_rest::g_conv_list;
+using p_rest::Buddy;
 using libpurple::purple_info;
 
-extern purple::History g_msg_history;
+extern p_rest::History g_msg_history;
 extern std::string g_url_prefix;
 
 const int kFormatIdx = 1;
@@ -64,7 +65,7 @@ static int get_messages_request(const vector<string> &request, string &response_
     // analyze request params
     uint64_t start_from_id = 0;
     ImMessage::ImMessageType filter = ImMessage::kMsgTypeUnknown; // == no filter
-    std::unique_ptr<purple::RestResponse> response;
+    std::unique_ptr<p_rest::RestResponse> response;
     if (request.size() > kMsgTypeIdx) {
         if (request[kMsgTypeIdx] == "im") {
             filter = ImMessage::kMsgTypeIm;
@@ -81,7 +82,7 @@ static int get_messages_request(const vector<string> &request, string &response_
     }
     if (create_response(request[1], response, content_type)) {
         auto msg_list = g_msg_history.get_messages_from_history(
-          [=] (purple::ImMessagePtr &elt) -> bool
+          [=] (p_rest::ImMessagePtr &elt) -> bool
           {
               return (elt->get_id() > start_from_id &&
                       (filter == ImMessage::kMsgTypeUnknown || filter == elt->get_type()));
@@ -114,7 +115,7 @@ static int get_my_messages_request(const vector<string> &request, string &respon
     const int kStartFromIdIdx = 3;
     // analyze request params
     uint64_t start_from_id = 0;
-    std::unique_ptr<purple::RestResponse> response;
+    std::unique_ptr<p_rest::RestResponse> response;
     if (request.size() > kStartFromIdIdx + 1) {
         if (request[kStartFromIdIdx] == "start_from") {
             if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
@@ -122,9 +123,9 @@ static int get_my_messages_request(const vector<string> &request, string &respon
             }
         }
     }
-    if (purple::create_response(request[1], response, content_type)) {
+    if (p_rest::create_response(request[1], response, content_type)) {
         auto msg_list = g_msg_history.get_messages_from_history(
-          [=] (purple::ImMessagePtr &elt) -> bool
+          [=] (p_rest::ImMessagePtr &elt) -> bool
           {
               return (elt->get_id() > start_from_id &&
                       (ImMessage::kMsgTypeIm == elt->get_type() ||
@@ -160,12 +161,12 @@ error:
 static int get_status_request(const vector<string> &request, string &response_str,
                               string &content_type)
 {
-    std::unique_ptr<purple::RestResponse> response;
+    std::unique_ptr<p_rest::RestResponse> response;
     int param_idx = 3;
     if (request.size() <= 3) {
         goto error;
     } else {
-        if (!purple::create_response(request[1], response, content_type)) {
+        if (!p_rest::create_response(request[1], response, content_type)) {
             goto error;
         }
     }
@@ -200,12 +201,12 @@ error:
 static int get_cmd_request(const vector<string> &request, string &response_str,
                            string &content_type)
 {
-    std::unique_ptr<purple::RestResponse> response;
+    std::unique_ptr<p_rest::RestResponse> response;
     int cmd_idx = 3;
     if (request.size() <= 3) {
         goto error;
     } else {
-        if (!purple::create_response(request[1], response, content_type)) {
+        if (!p_rest::create_response(request[1], response, content_type)) {
             goto error;
         }
     }
@@ -234,16 +235,16 @@ error:
 static int get_conv_messages_request(const vector<string> &request, string &response_str,
                                      string &content_type)
 {
-    std::unique_ptr<purple::RestResponse> response;
+    std::unique_ptr<p_rest::RestResponse> response;
     const int kConvIdIdx = 3;
     uint64_t conv_id = 0;
     if (request.size() > kConvIdIdx) {
         if (request[1] == "json") {
-            response.reset(new purple::JsonResponse);
+            response.reset(new p_rest::JsonResponse);
             content_type = "application/json";
         }
         else if (request[1] == "html") {
-            response.reset(new purple::HtmlResponse);
+            response.reset(new p_rest::HtmlResponse);
             content_type = "text/html";
         }
         else {
@@ -262,7 +263,7 @@ static int get_conv_messages_request(const vector<string> &request, string &resp
             }
         }
         auto msg_list = g_msg_history.get_messages_from_history(
-          [=] (purple::ImMessagePtr &elt) -> bool
+          [=] (p_rest::ImMessagePtr &elt) -> bool
           {
               return (conv_id == elt->get_conv_id() &&
                       elt->get_id() > start_from_id);
@@ -292,14 +293,14 @@ error:
 static int get_conversations_request(const vector<string> &request, string &response_str,
                                      string &content_type)
 {
-    std::unique_ptr<purple::RestResponse> response;
+    std::unique_ptr<p_rest::RestResponse> response;
     if (request.size() > 3) {
         if (request[1] == "json") {
-            response.reset(new purple::JsonResponse);
+            response.reset(new p_rest::JsonResponse);
             content_type = "application/json";
         }
         else if (request[1] == "html") {
-            response.reset(new purple::HtmlResponse);
+            response.reset(new p_rest::HtmlResponse);
             content_type = "text/html";
         }
         else {
@@ -331,6 +332,48 @@ error:
 }
 
 
+/**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
+ * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * /v/<format>/conversations/<id>
+ */
+static int delete_conversations_request(const vector<string> &request,
+                                        string &response_str, string &content_type)
+{
+    int err_code = 500;
+    if (request.size() > 3) {
+        // we don't care about format atm, we don't send anything back
+        // :fixme: we should send a human readable error message
+        p_rest::conv_id_t conv_id = 0;
+        if (str_to_uint64_t(request[3].c_str(), conv_id)) {
+            ImConversation &conv = g_conv_list.get_conversation_by_id(conv_id);
+            if (conv == g_conv_list.m_null_conv) {
+                purple_info("No such conversation");
+                err_code = 404;
+                goto error;
+            } else {
+                PurpleConversation *p_conv = conv.get_purple_conv();
+                g_conv_list.remove_conversation(conv_id);
+                if (p_conv) {
+                    purple_conversation_destroy(p_conv);
+                }
+            }
+        } else {
+            err_code = 400;
+            goto error;
+        }
+    } else {
+        goto error;
+    }
+    return 200;
+error:
+    return err_code;
+}
 
 
 /**
@@ -346,15 +389,15 @@ error:
 static int get_buddies_request(const vector<string> &request, string &response_str,
                                string &content_type)
 {
-    std::unique_ptr<purple::RestResponse> response;
+    std::unique_ptr<p_rest::RestResponse> response;
     const int kFilterIdx = 3;
     if (request.size() > 3) {
         if (request[kFormatIdx] == "json") {
-            response.reset(new purple::JsonResponse);
+            response.reset(new p_rest::JsonResponse);
             content_type = "application/json";
         }
         else if (request[kFormatIdx] == "html") {
-            response.reset(new purple::HtmlResponse);
+            response.reset(new p_rest::HtmlResponse);
             content_type = "text/html";
         }
         else {
@@ -521,6 +564,32 @@ void perform_rest_request(const char *url, HttpMethod method,
             *http_code = 400;
         }
 
+        if (response.size() > 0) {
+            *buf = (char*)malloc(response.size() + 1);
+            strncpy(*buf, response.c_str(), response.size() + 1);
+            *buf_len = response.size();
+            *content_type = strdup(content_type_str.c_str());
+        } else {
+            *buf = NULL;
+            *buf_len = 0;
+            *content_type = NULL;
+        }
+    } else if (kHttpMethodDelete == method) {
+        if (request.size() >= 3) {
+            // first element is version - ignore it for now
+
+            purple_info(std::string("Output type: ") + request[1]);
+            if (request[2] == "conversations") {
+                *http_code = delete_conversations_request(request, response,
+                                                          content_type_str);
+            } else {
+                *http_code = 400;
+            }
+        } else {
+            *http_code = 400;
+        }
+
+        // :fixme: duplicated code
         if (response.size() > 0) {
             *buf = (char*)malloc(response.size() + 1);
             strncpy(*buf, response.c_str(), response.size() + 1);

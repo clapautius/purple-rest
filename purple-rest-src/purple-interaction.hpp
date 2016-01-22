@@ -44,7 +44,7 @@ void purple_info(const std::string &msg);
  *
  * @param[in] online_only : collect only online buddies
  */
-void collect_buddies(PurpleBlistNode *p, std::vector<purple::Buddy> &list,
+void collect_buddies(PurpleBlistNode *p, std::vector<p_rest::Buddy> &list,
                      bool online_only = false);
 
 /**

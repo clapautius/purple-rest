@@ -17,7 +17,7 @@
 #include "immessage.hpp"
 #include "imbuddy.hpp"
 
-namespace purple
+namespace p_rest
 {
 
 /**
