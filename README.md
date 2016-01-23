@@ -62,7 +62,7 @@ specified conversation starting with *MSG_ID*
 
 #### DELETE requests
 
-* `.../v1/FORMAT/conversations/ID` - send a message for conversation *ID*
+* `.../v1/FORMAT/conversations/ID` - delete the conversation *ID*
 
 ### Configuration
 

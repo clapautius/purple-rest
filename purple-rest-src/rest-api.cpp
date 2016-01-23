@@ -18,14 +18,9 @@
 #include "history.hpp"
 #include "purple-interaction.hpp"
 #include "rest-response.hpp"
-#include "imconversation.hpp"
 
 using std::string;
 using std::vector;
-using p_rest::ImMessage;
-using p_rest::ImConversation;
-using p_rest::g_conv_list;
-using p_rest::Buddy;
 using libpurple::purple_info;
 
 extern p_rest::History g_msg_history;
@@ -33,6 +28,12 @@ extern std::string g_url_prefix;
 
 const int kFormatIdx = 1;
 
+
+/**
+ * Helper function to convert a string to a uint64.
+ *
+ * @return true if OK, false on error.
+ */
 static bool str_to_uint64_t(const char*str, uint64_t &num)
 {
     char *p = NULL;
@@ -62,6 +63,7 @@ static bool str_to_uint64_t(const char*str, uint64_t &num)
 static int get_messages_request(const vector<string> &request, string &response_str,
                                  string &content_type)
 {
+    using p_rest::ImMessage;
     const int kStartFromIdIdx = 4;
     const int kMsgTypeIdx = 3;
     // analyze request params
@@ -114,6 +116,7 @@ error:
 static int get_my_messages_request(const vector<string> &request, string &response_str,
                                    string &content_type)
 {
+    using p_rest::ImMessage;
     const int kStartFromIdIdx = 3;
     // analyze request params
     uint64_t start_from_id = 0;
@@ -295,6 +298,7 @@ error:
 static int get_conversations_request(const vector<string> &request, string &response_str,
                                      string &content_type)
 {
+    using p_rest::g_conv_list;
     std::unique_ptr<p_rest::RestResponse> response;
     if (request.size() > 3) {
         if (request[1] == "json") {
@@ -347,6 +351,8 @@ error:
 static int delete_conversations_request(const vector<string> &request,
                                         string &response_str, string &content_type)
 {
+    using p_rest::ImConversation;
+    using p_rest::g_conv_list;
     int err_code = 500;
     if (request.size() > 3) {
         // we don't care about format atm, we don't send anything back
@@ -391,6 +397,7 @@ error:
 static int get_buddies_request(const vector<string> &request, string &response_str,
                                string &content_type)
 {
+    using p_rest::Buddy;
     std::unique_ptr<p_rest::RestResponse> response;
     const int kFilterIdx = 3;
     if (request.size() > 3) {
@@ -450,7 +457,7 @@ static int post_messages_request(const vector<string> &request,
         if (conv_id) {
             // :fixme: - check valid data
             const PurpleConversation *conv =
-              g_conv_list[conv_id].get_purple_conv();
+              p_rest::g_conv_list[conv_id].get_purple_conv();
             // set account as 'available'
             libpurple::reset_idle();
             // set callback data
