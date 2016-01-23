@@ -9,6 +9,8 @@
 #include <string.h>
 #include <string>
 #include <algorithm>
+#include <map>
+#include <functional>
 
 #include <json/json.h>
 
@@ -530,33 +532,43 @@ void perform_rest_request(const char *url, HttpMethod method,
     }
     purple_info(ostr.str());
 
+    using RequestMap = std::map<string, std::function<int(const vector<string>&,
+                                                          string&, string &)>>;
+
+    RequestMap get_actions = { { "messages", get_messages_request },
+                               { "conversations", get_conversations_request },
+                               { "my-messages", get_my_messages_request },
+                               { "status", get_status_request },
+                               { "conv-messages", get_conv_messages_request },
+                               { "cmd", get_cmd_request },
+                               { "buddies", get_buddies_request }
+    };
+
+    RequestMap delete_actions = { { "conversations", delete_conversations_request } };
+
     if (kHttpMethodPost == method) {
         *http_code = post_messages_request(request, upload_data, upload_data_size,
                                            response, content_type_str);
         return;
-    } else if (kHttpMethodGet == method) {
+    } else if (kHttpMethodGet == method || kHttpMethodDelete == method) {
         if (request.size() >= 3) {
             // first element is version - ignore it for now
 
             purple_info(std::string("Output type: ") + request[1]);
-            if (request[2] == "messages") {
-                *http_code = get_messages_request(request, response, content_type_str);
-            } else if (request[2] == "conversations") {
-                *http_code = get_conversations_request(request, response,
-                                                       content_type_str);
-            } else if (request[2] == "my-messages") {
-                *http_code = get_my_messages_request(request, response,
-                                                     content_type_str);
-            } else if (request[2] == "status") {
-                *http_code = get_status_request(request, response,
-                                                content_type_str);
-            } else if (request[2] == "conv-messages") {
-                *http_code = get_conv_messages_request(request, response,
-                                                       content_type_str);
-            } else if (request[2] == "cmd") {
-                *http_code = get_cmd_request(request, response, content_type_str);
-            } else if (request[2] == "buddies") {
-                *http_code = get_buddies_request(request, response, content_type_str);
+            if (kHttpMethodGet == method) {
+                if (get_actions.find(request[2]) != get_actions.end()) {
+                    *http_code = get_actions[request[2]](request, response,
+                                                         content_type_str);
+                } else {
+                    *http_code = 400;
+                }
+            } else if (kHttpMethodDelete == method) {
+                if (delete_actions.find(request[2]) != delete_actions.end()) {
+                    *http_code = delete_actions[request[2]](request, response,
+                                                            content_type_str);
+                } else {
+                    *http_code = 400;
+                }
             } else {
                 *http_code = 400;
             }
@@ -564,32 +576,6 @@ void perform_rest_request(const char *url, HttpMethod method,
             *http_code = 400;
         }
 
-        if (response.size() > 0) {
-            *buf = (char*)malloc(response.size() + 1);
-            strncpy(*buf, response.c_str(), response.size() + 1);
-            *buf_len = response.size();
-            *content_type = strdup(content_type_str.c_str());
-        } else {
-            *buf = NULL;
-            *buf_len = 0;
-            *content_type = NULL;
-        }
-    } else if (kHttpMethodDelete == method) {
-        if (request.size() >= 3) {
-            // first element is version - ignore it for now
-
-            purple_info(std::string("Output type: ") + request[1]);
-            if (request[2] == "conversations") {
-                *http_code = delete_conversations_request(request, response,
-                                                          content_type_str);
-            } else {
-                *http_code = 400;
-            }
-        } else {
-            *http_code = 400;
-        }
-
-        // :fixme: duplicated code
         if (response.size() > 0) {
             *buf = (char*)malloc(response.size() + 1);
             strncpy(*buf, response.c_str(), response.size() + 1);
