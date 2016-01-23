@@ -4,8 +4,7 @@
 
 This plugin provides a RESTful API for pidgin / finch.
 
-It should (also) be able to provide various ways to remote control pidgin / finch (work in
-progress).
+It should also be able to provide various ways to remote control pidgin / finch. ATM there's an HTML/JS client that uses most of the API's features.
 
 ### HTML client
 
@@ -19,7 +18,7 @@ Screenshots:
 ### Prerequisites
 
 * cmake
-* gcc / g++
+* c++ compiler (g++ / clang)
 * development stuff (headers / libs) for
  * libpurple
  * glib
@@ -30,12 +29,12 @@ Screenshots:
 
 ### API
 
-Definitions:
+#### Definitions:
 
-**my messages** : IM messages and messages from chat conversations that contain user's
+*my messages* : IM messages and messages from chat conversations that contain user's
 nick.
 
-**FORMAT** : html | json
+*FORMAT* : html | json
 
 #### GET requests
 
