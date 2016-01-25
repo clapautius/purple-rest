@@ -213,6 +213,26 @@ void collect_buddies(PurpleBlistNode *p, std::vector<p_rest::Buddy> &list,
 }
 
 
+void visit_buddies(std::function<bool(PurpleBuddy*)> func, PurpleBlistNode *p = nullptr)
+{
+    if (p == nullptr) {
+        p = purple_get_blist()->root;
+    }
+    if (PURPLE_BLIST_NODE_IS_BUDDY(p)) {
+        if (func(PURPLE_BUDDY(p))) {
+            // found something, stop searching
+            return;
+        }
+    }
+    if (p->child) {
+        visit_buddies(func, p->child);
+    }
+    if (p->next) {
+        visit_buddies(func, p->next);
+    }
+}
+
+
 std::string get_account_status()
 {
     std::string result;
@@ -243,5 +263,18 @@ void reset_idle()
     purple_idle_touch();
 }
 
+
+PurpleBuddy* get_buddy_by_name(const std::string &buddy_name)
+{
+    PurpleBuddy *ret = nullptr;
+    visit_buddies([&] (PurpleBuddy *p) -> bool {
+            if (buddy_name == p->name) {
+                ret = p;
+                return true;
+            } else {
+                return false;
+            }});
+    return ret;
+}
 
 }

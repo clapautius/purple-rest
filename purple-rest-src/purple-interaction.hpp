@@ -59,6 +59,8 @@ std::string get_account_status();
 
 void reset_idle();
 
+PurpleBuddy* get_buddy_by_name(const std::string &buddy_name);
+
 }
 
 #endif

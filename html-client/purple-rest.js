@@ -515,5 +515,24 @@ function convCurrentTitleAsHtml()
 }
 
 
+function onBuddyClick(name)
+{
+    console.log("Creating new conversation for " + name);
+    var putUrl = urlPrefixHtml + "conversations/" + name;
+    $.ajax({
+        url: putUrl,
+        type: 'put',
+        success: function(data) {
+            // :fixme: switch to the newly created conversation
+            currentConversation.id = 0;
+            showStatus(data);
+        },
+        error: function(data) {
+            displayError("Error creating conversation");
+        }
+    });
+}
+
+
 showMainMenu();
 areThereNewMessagesP();

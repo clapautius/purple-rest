@@ -50,6 +50,18 @@ static bool str_to_uint64_t(const char*str, uint64_t &num)
 
 
 /**
+ * Put a descriptive text in the HTTP response (as plain/text).
+ */
+static void http_response_info(const string &info,
+                               string &response_str, string &content_type)
+{
+    purple_info("HTTP response details: " + info);
+    content_type = "text/plain";
+    response_str = info;
+}
+
+
+/**
  * @param[in] request : vector containing URL components (elements separated by '/').
  * @param[out] response_str : response to be sent back.
  * @param[out] content_type : string describing the MIME type of the response.
@@ -310,6 +322,7 @@ static int get_conversations_request(const vector<string> &request, string &resp
             content_type = "text/html";
         }
         else {
+            http_response_info("Invalid format in request", response_str, content_type);
             return 400;
         }
         if (request[3] == "all") {
@@ -326,9 +339,12 @@ static int get_conversations_request(const vector<string> &request, string &resp
                 ptr = g_list_next(ptr);
             }
         } else {
+            http_response_info("The only accepted 4th param: all",
+                               response_str, content_type);
             goto error;
         }
     } else {
+        http_response_info("Not enough params", response_str, content_type);
         goto error;
     }
     response_str = response->get_text();
@@ -361,7 +377,8 @@ static int delete_conversations_request(const vector<string> &request,
         if (str_to_uint64_t(request[3].c_str(), conv_id)) {
             ImConversation &conv = g_conv_list.get_conversation_by_id(conv_id);
             if (conv == g_conv_list.m_null_conv) {
-                purple_info("No such conversation");
+                http_response_info("Cannot find conversation with the specified id",
+                                   response_str, content_type);
                 err_code = 404;
                 goto error;
             } else {
@@ -372,10 +389,12 @@ static int delete_conversations_request(const vector<string> &request,
                 }
             }
         } else {
+            http_response_info("Invalid id", response_str, content_type);
             err_code = 400;
             goto error;
         }
     } else {
+        http_response_info("Not enough params", response_str, content_type);
         goto error;
     }
     return 200;
@@ -448,32 +467,103 @@ static int post_messages_request(const vector<string> &request,
                                  string &response_str, string &content_type)
 {
     std::ostringstream dbg;
+    int err_code = 400;
     dbg << "POST request: upload_data=" << upload_data << ", upload_size="
         << upload_data_size;
     purple_info(dbg.str());
     if (request.size() > 3) {
-        // :fixme: - check for errors
-        unsigned conv_id = strtol(request[3].c_str(), NULL, 10);
-        if (conv_id) {
-            // :fixme: - check valid data
-            const PurpleConversation *conv =
-              p_rest::g_conv_list[conv_id].get_purple_conv();
-            // set account as 'available'
-            libpurple::reset_idle();
-            // set callback data
-            libpurple::g_send_msg_data.conv = conv;
-            libpurple::g_send_msg_data.msg = string(upload_data, upload_data_size);
-            purple_timeout_add(100, timeout_cb, NULL);
-            response_str = "OK";
-            content_type = "text/html";
+        p_rest::conv_id_t conv_id = 0;
+        if (str_to_uint64_t(request[3].c_str(), conv_id)) {
+            using p_rest::ImConversation;
+            using p_rest::g_conv_list;
+            const PurpleConversation *p_purple_conv = nullptr;
+            ImConversation &conv = g_conv_list.get_conversation_by_id(conv_id);
+            if (!(conv == g_conv_list.m_null_conv)) {
+                p_purple_conv = conv.get_purple_conv();
+            }
+#if defined(PURPLE_REST_DEBUG)
+            dbg.str("");
+            dbg << "Conv with id " << conv_id << " has purple address " << p_purple_conv;
+            purple_info(dbg.str());
+#endif
+            if (p_purple_conv) {
+                // set account as 'available'
+                libpurple::reset_idle();
+                // set callback data
+                libpurple::g_send_msg_data.conv = p_purple_conv;
+                libpurple::g_send_msg_data.msg = string(upload_data, upload_data_size);
+                purple_timeout_add(100, timeout_cb, NULL);
+                response_str = "OK";
+                content_type = "text/html";
+            } else {
+                http_response_info("Cannot find conversation with the specified id",
+                                   response_str, content_type);
+                err_code = 500;
+                goto error;
+            }
+        } else {
+            http_response_info("Invalid conv. id", response_str, content_type);
+            goto error;
         }
     } else {
+        http_response_info("Not enough params", response_str, content_type);
         goto error;
     }
     return 200;
 
 error:
-    return 400;
+    return err_code;
+}
+
+
+/**
+ * Requests summary:
+ * /v/<format>/conversations/buddy
+ */
+static int put_conv_request(const vector<string> &request,
+                            const char *upload_data, size_t upload_data_size,
+                            string &response_str, string &content_type)
+{
+    std::ostringstream dbg;
+    int err = 400;
+    dbg << "PUT request: new conversation request";
+    purple_info(dbg.str());
+    if (request.size() > 3) {
+        // set account as 'available'
+        libpurple::reset_idle();
+
+        const string &buddy_name = request[3];
+        // :fixme: try to find an existing conversation first
+
+        PurpleBuddy *buddy = libpurple::get_buddy_by_name(buddy_name);
+        if (buddy) {
+            PurpleConversation *conv = purple_conversation_new(
+              PURPLE_CONV_TYPE_IM, buddy->account, buddy->name);
+            if (conv) {
+                // :fixme: - send back the proper response type
+                // maybe send the conv id directly or a redirect header
+                response_str = "OK";
+                content_type = "text/html";
+                goto ok;
+            } else {
+                http_response_info("Error creating new conversation" ,
+                                   response_str, content_type);
+            }
+        } else {
+            http_response_info("No such buddy: " + buddy_name,
+                               response_str, content_type);
+        }
+        err = 500;
+        goto error;
+    } else {
+        goto error;
+    }
+
+ok:
+    return 200;
+
+error:
+    return err;
 }
 
 
@@ -511,9 +601,9 @@ void perform_rest_request(const char *url, HttpMethod method,
             // something is fishy - no prefix - abort
             purple_info("Unable to find prefix in request, aborting.");
             *http_code = 400;
-            *buf = NULL;
-            *buf_len = 0;
-            *content_type = NULL;
+            *buf = (char*)strdup("Could not find the expected prefix");
+            *buf_len = strlen(*buf);
+            *content_type = strdup("text/plain");
             return;
         }
     }
@@ -553,10 +643,21 @@ void perform_rest_request(const char *url, HttpMethod method,
 
     RequestMap delete_actions = { { "conversations", delete_conversations_request } };
 
-    if (kHttpMethodPost == method) {
-        *http_code = post_messages_request(request, upload_data, upload_data_size,
-                                           response, content_type_str);
-        return;
+    if (kHttpMethodPost == method || kHttpMethodPut == method) {
+        if (request.size() >= 3) {
+            if (request[2] == "conv-messages" && method == kHttpMethodPost) {
+                *http_code = post_messages_request(request, upload_data, upload_data_size,
+                                                   response, content_type_str);
+            } else if (request[2] == "conversations" && method == kHttpMethodPut) {
+                *http_code = put_conv_request(request, upload_data, upload_data_size,
+                                              response, content_type_str);
+            } else {
+                goto error;
+            }
+            return;
+        } else {
+            goto error;
+        }
     } else if (kHttpMethodGet == method || kHttpMethodDelete == method) {
         if (request.size() >= 3) {
             // first element is version - ignore it for now
@@ -567,6 +668,8 @@ void perform_rest_request(const char *url, HttpMethod method,
                     *http_code = get_actions[request[2]](request, response,
                                                          content_type_str);
                 } else {
+                    http_response_info("Unknown GET method: " + request[2],
+                                       response, content_type_str);
                     *http_code = 400;
                 }
             } else if (kHttpMethodDelete == method) {
@@ -574,12 +677,15 @@ void perform_rest_request(const char *url, HttpMethod method,
                     *http_code = delete_actions[request[2]](request, response,
                                                             content_type_str);
                 } else {
+                    http_response_info("Unknown DELETE method: " + request[2],
+                                       response, content_type_str);
                     *http_code = 400;
                 }
             } else {
                 *http_code = 400;
             }
         } else {
+            http_response_info("Not enough params", response, content_type_str);
             *http_code = 400;
         }
 

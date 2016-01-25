@@ -73,8 +73,10 @@ void HtmlResponse::add_generic_param(const std::string &param_name, const char* 
 void HtmlResponse::add_buddy(const Buddy &buddy)
 {
     string status_class = (buddy.is_online() ? "buddy-online" : "buddy-offline");
+    // :fixme: - escape name?
     m_ostr << "<div class=\"buddy " << status_class << "\">"
-           << "<span class=\"buddy-name " << status_class << "\">" << buddy.get_name()
+           << "<span onclick=\"onBuddyClick('" << buddy.get_name() << "');\""
+           << " class=\"buddy-name " << status_class << "\">" << buddy.get_name()
            << "</span></div><br>\n";
 }
 
