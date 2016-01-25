@@ -518,7 +518,7 @@ error:
 
 /**
  * Requests summary:
- * /v/<format>/conversations/buddy
+ * PUT /v/<format>/conversations/buddy
  */
 static int put_conv_request(const vector<string> &request,
                             const char *upload_data, size_t upload_data_size,

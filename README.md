@@ -52,12 +52,18 @@ specified conversation starting with *MSG_ID*
 
 * `.../v1/json/status/max_msg_id` - latest message id (json only)
 * `.../v1/json/status/max_my_msg_id` - latest *my message* id received (json only)
+* `.../v1/FORMAT/status/account-status` - status of the first account; it can be
+  "Offline", "Unknown" or another status reported by libpurple.
 
 * `.../v1/FORMAT/cmd/clear_history` - clear history
 
 #### POST requests
 
 * `.../v1/FORMAT/conv-messages/ID` - send a message for conversation *ID*
+
+#### PUT requests
+
+* `.../v1/FORMAT/conversations/BUDDY_NAME` - create a new conversation with *BUDDY_NAME*
 
 #### DELETE requests
 
