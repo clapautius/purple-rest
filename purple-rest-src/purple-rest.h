@@ -12,7 +12,7 @@
 #define PLUGIN_ID "core-purple_rest"
 
 // uncomment this for extra logging and more details in the HTTP responses
-#define PURPLE_REST_DEBUG
+//#define PURPLE_REST_DEBUG
 
 typedef enum
 {

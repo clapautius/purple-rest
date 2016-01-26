@@ -34,9 +34,23 @@ function displayRefresh()
 /**
  * Returns a string containing the HTML representation of a button.
  */
-function buttonStr(text, jsText, extraStyle)
+function buttonHtmlStr(text, jsText, extraStyle)
 {
     var str = '<span class="purple-button" onclick="' + jsText + '"';
+    if (extraStyle) {
+        str = str + ' style="' + extraStyle + '"';
+    }
+    str = str + '>' + text + '</span>';
+    return str;
+}
+
+
+/**
+ * Returns a string containing the HTML representation of a button.
+ */
+function smallButtonHtmlStr(text, jsText, extraStyle)
+{
+    var str = '<span class="purple-small-button" onclick="' + jsText + '"';
     if (extraStyle) {
         str = str + ' style="' + extraStyle + '"';
     }
@@ -226,12 +240,12 @@ function displayConversations(oldMaxId)
     // :fixme: get rid of this table
     var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;"><tr>' +
         '<td style="width: 50%; text-align: left;">' +
-        convCurrentTitleAsHtml() +
+        convCurrentTitleHtmlStr() +
         '</td>';
 
     conversationsLine = conversationsLine + '<td style="width: 50%; text-align: right;">' +
-        buttonStr("Conv. menu", "dialogBoxMenuConvMenu();") +
-        buttonStr("Switch conv.", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
+        buttonHtmlStr("Conv. menu", "dialogBoxMenuConvMenu();") +
+        buttonHtmlStr("Switch conv.", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
 
     $("#conversations").html(conversationsLine);
     displayMessages(null, "success", oldMaxId);
@@ -261,14 +275,14 @@ function sendMessageToPurple()
 /* DEPRECATED
 function dialogBoxMenuBackButton()
 {
-    var buttonText = buttonStr("Back to chat", "dialogBoxMenuExit();", "margin-bottom: 2em;") + '<br/>';
+    var buttonText = buttonHtmlStr("Back to chat", "dialogBoxMenuExit();", "margin-bottom: 2em;") + '<br/>';
     $("#inner-content").append(buttonText);
 }
 */
 
 function dialogBoxMenuBackButtonStr()
 {
-    return buttonStr("Back to chat", "dialogBoxMenuExit();",
+    return buttonHtmlStr("Back to chat", "dialogBoxMenuExit();",
                      "margin-bottom: 2em; margin-top: 1em;");
 }
 
@@ -280,6 +294,7 @@ function prepareForMainMenu()
     // :fixme: is there a better option?
     innerContentText = $("#inner-content").html();
 
+    disableRefreshTimer();
     disableMainMenu();
     dialogBoxMenuActive = true;
 }
@@ -295,7 +310,7 @@ function displayCenterMenu(options, prefix = "")
     // add menu options
     var menuText = '<br/>';
     for (var i = 0; i < options.length; i++) {
-        menuText += buttonStr(options[i][0], options[i][1]);
+        menuText += buttonHtmlStr(options[i][0], options[i][1]);
         menuText += '<br/><br/>';
     }
     $("#inner-content").html(prefix + dialogBoxMenuBackButtonStr() + menuText);
@@ -330,14 +345,12 @@ function dialogBoxMenuBuddies(onlineOnly = false)
     // get buddies
     var buddiesUrl = '';
     if (onlineOnly) {
-        buddiesUrl = urlPrefixHtml + "buddies/online";
+        buddiesUrl = urlPrefixJson + "buddies/online";
     } else {
-        buddiesUrl = urlPrefixHtml + "buddies/all";
+        buddiesUrl = urlPrefixJson + "buddies/all";
     }
-    $("#inner-content").load(buddiesUrl,
-                             function (responseText, textStatus) {
-                                 dialogBoxMenuBuddiesDisplay(responseText, textStatus);
-                             });
+
+    $.get(buddiesUrl, function (data) { dialogBoxMenuBuddiesDisplay(data); }).fail( function() { showError("Error getting buddy list"); });
 }
 
 
@@ -365,9 +378,23 @@ function showStatus(data)
 }
 
 
-function dialogBoxMenuBuddiesDisplay()
+function showError(errMsg)
 {
-    $("#inner-content").prepend(dialogBoxMenuBackButtonStr());
+    $("#inner-content").html(dialogBoxMenuBackButtonStr() +
+                             '<div class="error-msg"><span class="error-msg">Status: ' +
+                              errMsg +
+                             '</span></div>');
+}
+
+
+function dialogBoxMenuBuddiesDisplay(buddies)
+{
+    var htmlStr = dialogBoxMenuBackButtonStr();
+    // :fixme: check if data is valid
+    for (var i = 0; i < buddies.length; i++) {
+        htmlStr += buddyHtmlStr(buddies[i]);
+    }
+    $("#inner-content").html(htmlStr);
 }
 
 
@@ -418,7 +445,7 @@ function dialogBoxMenuGotoConversation(conv_id, conv_name)
 function displayConversationButton(conv)
 {
     var jsFuncText = 'dialogBoxMenuGotoConversation(' + conv.id + ', \'' + conv.name + '\');'
-    var buttonText = '<br/>' + buttonStr(conv.name, jsFuncText) + '<br/>';
+    var buttonText = '<br/>' + buttonHtmlStr(conv.name, jsFuncText) + '<br/>';
     $("#inner-content").append(buttonText);
 }
 
@@ -444,9 +471,9 @@ function showConversationsList(data)
  */
 function showMainMenu()
 {
-    mainMenuText = buttonStr("&#9776;", "dialogBoxMenu();") +
-        buttonStr("All msgs.", "allMsgs();") +
-        buttonStr("Clear history", "clearHistory();");
+    mainMenuText = buttonHtmlStr("&#9776;", "dialogBoxMenu();") +
+        buttonHtmlStr("All msgs.", "allMsgs();") +
+        buttonHtmlStr("Clear history", "clearHistory();");
     $("#menu").html(mainMenuText);
 }
 
@@ -481,7 +508,7 @@ function dialogBoxMenuConvMenu()
         menuOptions.push([ "Close conversation", "convClose();" ]);
     }
     displayCenterMenu(menuOptions,
-                      "<br/><div>" + convCurrentTitleAsHtml() + "</div><br/>");
+                      "<br/><div>" + convCurrentTitleHtmlStr() + "</div><br/>");
 }
 
 
@@ -507,7 +534,7 @@ function convClose()
 }
 
 
-function convCurrentTitleAsHtml()
+function convCurrentTitleHtmlStr()
 {
     return '<span class="conv-title">➤&nbsp;' +
         (currentConversation.id > 0 ? currentConversation.name : 'All msgs.') +
@@ -515,17 +542,35 @@ function convCurrentTitleAsHtml()
 }
 
 
+function buddyHtmlStr(buddy)
+{
+    var htmlStr;
+    if (buddy.status == 'online') {
+        var funcName = 'onBuddyClick(\'' + buddy.name + '\');';
+        htmlStr = '<div class="buddy buddy-online"><span class="buddy-name buddy-online">'
+            + buddy.name + '</span>'
+            + smallButtonHtmlStr('Chat', funcName)
+            + '</div><hr class="buddy"/>\n';
+    } else {
+        htmlStr = '<div class="buddy buddy-offline"><span class="buddy-name buddy-offline">'
+            + buddy.name + '</span></div><hr class="buddy"/>\n';
+    }
+    return htmlStr;
+}
+
+
 function onBuddyClick(name)
 {
     console.log("Creating new conversation for " + name);
-    var putUrl = urlPrefixHtml + "conversations/" + name;
+    var putUrl = urlPrefixJson + "conversations/" + name;
     $.ajax({
         url: putUrl,
         type: 'put',
+        dataType: 'json',
         success: function(data) {
-            // :fixme: switch to the newly created conversation
-            currentConversation.id = 0;
-            showStatus(data);
+            currentConversation.id = +data[0].id;
+            currentConversation.name = data[0].name;
+            dialogBoxMenuExit();
         },
         error: function(data) {
             displayError("Error creating conversation");

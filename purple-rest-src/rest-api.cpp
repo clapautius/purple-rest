@@ -540,10 +540,22 @@ static int put_conv_request(const vector<string> &request,
             PurpleConversation *conv = purple_conversation_new(
               PURPLE_CONV_TYPE_IM, buddy->account, buddy->name);
             if (conv) {
-                // :fixme: - send back the proper response type
-                // maybe send the conv id directly or a redirect header
-                response_str = "OK";
-                content_type = "text/html";
+                std::unique_ptr<p_rest::RestResponse> response;
+                if (request[kFormatIdx] == "json") {
+                    response.reset(new p_rest::JsonResponse);
+                    content_type = "application/json";
+                }
+                else if (request[kFormatIdx] == "html") {
+                    response.reset(new p_rest::HtmlResponse);
+                    content_type = "text/html";
+                }
+                else {
+                    http_response_info("Invalid format", response_str, content_type);
+                    goto error;
+                }
+                auto conv_id = p_rest::g_conv_list.get_or_add_conversation(conv);
+                response->add_conversation(conv, conv_id);
+                response_str = response->get_text();
                 goto ok;
             } else {
                 http_response_info("Error creating new conversation" ,
@@ -581,9 +593,9 @@ error:
  */
 void perform_rest_request(const char *url, HttpMethod method,
                           const char *upload_data, size_t upload_data_size,
-                          char **buf, int *buf_len, char **content_type, int *http_code)
+                          char **buf, int *buf_len, char **p_content_type, int *http_code)
 {
-    string response, content_type_str;
+    string response, content_type;
     purple_info(string("Got new request: ") + url);
     purple_info(std::string("Prefix is: ") + g_url_prefix);
 
@@ -603,7 +615,7 @@ void perform_rest_request(const char *url, HttpMethod method,
             *http_code = 400;
             *buf = (char*)strdup("Could not find the expected prefix");
             *buf_len = strlen(*buf);
-            *content_type = strdup("text/plain");
+            *p_content_type = strdup("text/plain");
             return;
         }
     }
@@ -620,7 +632,7 @@ void perform_rest_request(const char *url, HttpMethod method,
     }
     free(url_to_be_tokenized);
 
-    // :debug:
+#if defined(PURPLE_REST_DEBUG)
     purple_info("Request elements");
     int idx = 0;
     std::ostringstream ostr;
@@ -628,6 +640,7 @@ void perform_rest_request(const char *url, HttpMethod method,
         ostr << idx++ << " : " << elt.c_str() << std::endl;
     }
     purple_info(ostr.str());
+#endif
 
     using RequestMap = std::map<string, std::function<int(const vector<string>&,
                                                           string&, string &)>>;
@@ -643,73 +656,64 @@ void perform_rest_request(const char *url, HttpMethod method,
 
     RequestMap delete_actions = { { "conversations", delete_conversations_request } };
 
-    if (kHttpMethodPost == method || kHttpMethodPut == method) {
-        if (request.size() >= 3) {
-            if (request[2] == "conv-messages" && method == kHttpMethodPost) {
-                *http_code = post_messages_request(request, upload_data, upload_data_size,
-                                                   response, content_type_str);
-            } else if (request[2] == "conversations" && method == kHttpMethodPut) {
-                *http_code = put_conv_request(request, upload_data, upload_data_size,
-                                              response, content_type_str);
+    if (request.size() >= 3) {
+#if defined(PURPLE_REST_DEBUG)
+        // first element is version - ignore it for now
+        purple_info(std::string("Output type: ") + request[1]);
+#endif
+        const string &cmd = request[2];
+        if (kHttpMethodGet == method) {
+            if (get_actions.find(cmd) != get_actions.end()) {
+                *http_code = get_actions[cmd](request, response, content_type);
             } else {
-                goto error;
+                http_response_info("Unknown GET method: " + cmd, response, content_type);
+                *http_code = 400;
             }
-            return;
-        } else {
-            goto error;
-        }
-    } else if (kHttpMethodGet == method || kHttpMethodDelete == method) {
-        if (request.size() >= 3) {
-            // first element is version - ignore it for now
-
-            purple_info(std::string("Output type: ") + request[1]);
-            if (kHttpMethodGet == method) {
-                if (get_actions.find(request[2]) != get_actions.end()) {
-                    *http_code = get_actions[request[2]](request, response,
-                                                         content_type_str);
-                } else {
-                    http_response_info("Unknown GET method: " + request[2],
-                                       response, content_type_str);
-                    *http_code = 400;
-                }
-            } else if (kHttpMethodDelete == method) {
-                if (delete_actions.find(request[2]) != delete_actions.end()) {
-                    *http_code = delete_actions[request[2]](request, response,
-                                                            content_type_str);
-                } else {
-                    http_response_info("Unknown DELETE method: " + request[2],
-                                       response, content_type_str);
-                    *http_code = 400;
-                }
+        } else if (kHttpMethodDelete == method) {
+            if (delete_actions.find(cmd) != delete_actions.end()) {
+                *http_code = delete_actions[cmd](request, response, content_type);
             } else {
+                http_response_info("Unknown DELETE method: "+cmd, response, content_type);
+                *http_code = 400;
+            }
+        } else if (kHttpMethodPost == method) {
+            if (cmd == "conv-messages") {
+                *http_code = post_messages_request(request, upload_data, upload_data_size,
+                                                   response, content_type);
+            } else {
+                http_response_info("Unknown POST method: "+cmd , response, content_type);
+                *http_code = 400;
+            }
+        } else if (kHttpMethodPut == method) {
+            if (cmd == "conversations") {
+                *http_code = put_conv_request(request, upload_data, upload_data_size,
+                                              response, content_type);
+            } else {
+                http_response_info("Unknown PUT method " + cmd, response, content_type);
                 *http_code = 400;
             }
         } else {
-            http_response_info("Not enough params", response, content_type_str);
+            http_response_info("Unknown HTTP method " + cmd, response, content_type);
             *http_code = 400;
         }
-
-        if (response.size() > 0) {
-            *buf = (char*)malloc(response.size() + 1);
-            strncpy(*buf, response.c_str(), response.size() + 1);
-            *buf_len = response.size();
-            *content_type = strdup(content_type_str.c_str());
-        } else {
-            *buf = NULL;
-            *buf_len = 0;
-            *content_type = NULL;
-        }
     } else {
-        // unknown method
-        goto error;
+        http_response_info("Not enough params", response, content_type);
+        *http_code = 400;
     }
 
-    return;
+#if defined(PURPLE_REST_DEBUG)
+    purple_info(string("HTTP response: ") + response);
+#endif
 
-error:
-    *buf = NULL;
-    *buf_len = 0;
-    *http_code = 400;
-    purple_info("Error processing request");
+    if (response.size() > 0) {
+        *buf = (char*)malloc(response.size() + 1);
+        strncpy(*buf, response.c_str(), response.size() + 1);
+        *buf_len = response.size();
+        *p_content_type = strdup(content_type.c_str());
+    } else {
+        *buf = NULL;
+        *buf_len = 0;
+        *p_content_type = NULL;
+    }
     return;
 }

@@ -100,6 +100,37 @@ span.purple-button-disabled {
     margin-right: 1ex;
 }
 
+span.purple-small-button {
+	-moz-box-shadow: 0px 2px 3px -1px #276873;
+	-webkit-box-shadow: 0px 2px 3px -1px #276873;
+	box-shadow: 0px 5px 7px -3px #276873;
+	background-color:#599bb3;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:80%;
+	font-weight:bold;
+	/*padding:6px 12px;*/
+	padding:2px 4px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #3d768a;
+    margin-left: 1ex;
+    margin-right: 1ex;
+}
+
+.purple-small-button:hover {
+	background-color:#408c99;
+}
+
+.purple-small-button:active {
+	position:relative;
+	top:1px;
+}
+
 /* :fixme: probably not used anymore */
 span.conversation, span.menu {
     border: 1px solid #aaa;
@@ -167,4 +198,27 @@ span.info-msg {
     background-color: #e0e0e0;
 	font-family:Arial;
     font-size: 105%;
+}
+
+span.error-msg {
+    /*border: 1px solid black;*/
+    display: inline-block;
+    padding: 4px 2em;
+    margin: 2em;
+    color: #555269;
+    background-color: #e0e0e0;
+	font-family:Arial;
+    font-size: 105%;
+}
+
+hr.buddy {
+    height: 1px;
+    color: #eee;
+    background-color: #eee;
+    border: 0;
+    width: 80%;
+}
+
+span.buddy-name {
+    margin-right: 6px;
 }
