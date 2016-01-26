@@ -50,8 +50,23 @@ specified conversation starting with *MSG_ID*
 * `.../v1/FORMAT/my-messages/` - all *my messages*
 * `.../v1/FORMAT/my-messages/start_from/MSG_ID` - *my messages* starting with *MSG_ID*
 
+* `.../v1/FORMAT/buddies/all` - list of all buddies
+* `.../v1/FORMAT/buddies/online` - list of online buddies
+ * response for *json* format
+```
+[
+  { "group" : "Buddies",
+    "name" : "purple-rest3@localhost",
+    "status" : "offline"
+  },
+  ...
+]
+```
+
 * `.../v1/json/status/max_msg_id` - latest message id (json only)
 * `.../v1/json/status/max_my_msg_id` - latest *my message* id received (json only)
+
+
 * `.../v1/FORMAT/status/account-status` - status of the first account; it can be
   "Offline", "Unknown" or another status reported by libpurple.
 
@@ -64,6 +79,15 @@ specified conversation starting with *MSG_ID*
 #### PUT requests
 
 * `.../v1/FORMAT/conversations/BUDDY_NAME` - create a new conversation with *BUDDY_NAME*
+ * for *json* format the server returns details of the newly created conversation
+```
+[
+  {                                                                                                                   ▒│
+    "id" : 2,                                                                                                        ▒│
+    "name" : "purple-rest@localhost"                                                                                 ▒│
+  }                                                                                                                   ▒│
+]
+```
 
 #### DELETE requests
 
