@@ -255,8 +255,7 @@ function displayConversations(oldMaxId)
 function sendMessageResult(data)
 {
     $("#send_msg_text").val("");
-    // wait 1 sec. for the message to be processed
-    window.setTimeout(areThereNewMessagesP, 1000);
+    areThereNewMessagesP();
 }
 
 

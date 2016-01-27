@@ -488,10 +488,20 @@ static int post_messages_request(const vector<string> &request,
             if (p_purple_conv) {
                 // set account as 'available'
                 libpurple::reset_idle();
-                // set callback data
-                libpurple::g_send_msg_data.conv = p_purple_conv;
-                libpurple::g_send_msg_data.msg = string(upload_data, upload_data_size);
-                purple_timeout_add(100, timeout_cb, NULL);
+
+                int type = purple_conversation_get_type(p_purple_conv);
+                string msg = string(upload_data, upload_data_size);
+                switch (type) {
+                case PURPLE_CONV_TYPE_IM:
+                    purple_conv_im_send(PURPLE_CONV_IM(p_purple_conv), msg.c_str());
+                    break;
+                case PURPLE_CONV_TYPE_CHAT:
+                    purple_conv_chat_send(PURPLE_CONV_CHAT(p_purple_conv), msg.c_str());
+                    break;
+                default:
+                    // :fixme: do something
+                    break;
+                }
                 response_str = "OK";
                 content_type = "text/html";
             } else {

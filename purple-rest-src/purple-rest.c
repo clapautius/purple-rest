@@ -30,11 +30,16 @@ static pthread_mutex_t rest_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t rest_cond = PTHREAD_COND_INITIALIZER;
 static int operation_in_progress = 0;
 static char *p_url = NULL;
-static char *stored_upload_data = NULL;
+static char *p_stored_upload_data = NULL;
 static size_t stored_size = 0;
-static char *content = NULL, *content_type = NULL;
+static char *p_content = NULL, *p_content_type = NULL;
 static int content_size = 0, http_code = 200;
 static HttpMethod http_method = kHttpMethodUndefined;
+
+// We should not use purple functions from another thread, so using purple_debug_info in
+// the http thread is not a good idea.
+// Use this only in case of emergency.
+//#define DEBUG_POST_REQUEST
 
 
 void reset_async_data()
@@ -44,18 +49,15 @@ void reset_async_data()
     content_size = 0;
     http_code = 200;
     http_method = kHttpMethodUndefined;
-    free(stored_upload_data);
-    stored_upload_data = NULL;
+    free(p_stored_upload_data);
+    p_stored_upload_data = NULL;
     stored_size = 0;
-    free(content);
-    content = NULL;
-    free(content_type);
-    content_type = NULL;
+    free(p_content);
+    p_content = NULL;
+    free(p_content_type);
+    p_content_type = NULL;
 }
 
-// We should not use purple functions (like purple_debug_info) from another thread.
-// Use this only in case of emergency.
-//#define DEBUG_POST_REQUEST
 
 /**
  * This will run on a separate thread.
@@ -81,9 +83,9 @@ int answer_to_http_connection(
 #ifdef DEBUG_POST_REQUEST
                     purple_debug_info(PLUGIN_ID, "POST: storing data\n");
 #endif
-                    stored_upload_data = malloc(*upload_data_size + 1);
-                    memcpy(stored_upload_data, upload_data, *upload_data_size);
-                    stored_upload_data[*upload_data_size] = 0;
+                    p_stored_upload_data = malloc(*upload_data_size + 1);
+                    memcpy(p_stored_upload_data, upload_data, *upload_data_size);
+                    p_stored_upload_data[*upload_data_size] = 0;
                     stored_size = *upload_data_size + 1;
                     *upload_data_size = 0;
                     return MHD_YES;
@@ -107,7 +109,8 @@ int answer_to_http_connection(
 
     p_url = strdup(url);
     operation_in_progress = 1;
-    purple_timeout_add(20, do_work, NULL);
+    // :fixme: is there another way to send the message, without using a timer?
+    purple_timeout_add(10, do_work, NULL);
     pthread_mutex_lock(&rest_mutex);
     while(operation_in_progress) {
         pthread_cond_wait(&rest_cond, &rest_mutex);
@@ -115,10 +118,10 @@ int answer_to_http_connection(
     pthread_mutex_unlock(&rest_mutex);
 
     struct MHD_Response *response = NULL;
-    response = MHD_create_response_from_buffer(content_size, content,
+    response = MHD_create_response_from_buffer(content_size, p_content,
                                                MHD_RESPMEM_MUST_COPY);
-    if (content_type) {
-        MHD_add_response_header(response, "Content-Type", content_type);
+    if (p_content_type) {
+        MHD_add_response_header(response, "Content-Type", p_content_type);
     }
     // use only in case of emergency
 #ifdef DEBUG_POST_REQUEST
@@ -143,8 +146,8 @@ int answer_to_http_connection(
  */
 static gboolean do_work(gpointer ignored)
 {
-    perform_rest_request(p_url, http_method, stored_upload_data, stored_size,
-                         &content, &content_size, &content_type, &http_code);
+    perform_rest_request(p_url, http_method, p_stored_upload_data, stored_size,
+                         &p_content, &content_size, &p_content_type, &http_code);
     pthread_mutex_lock(&rest_mutex);
     operation_in_progress = 0;
     pthread_cond_signal(&rest_cond);

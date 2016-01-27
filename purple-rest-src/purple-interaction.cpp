@@ -27,11 +27,8 @@ using std::shared_ptr;
 using p_rest::ImMessage;
 using p_rest::History;
 using p_rest::g_conv_list;
-using libpurple::g_send_msg_data;
 
-// :fixme: - don't use globals
 p_rest::History g_msg_history;
-
 std::string g_url_prefix;
 
 
@@ -143,33 +140,8 @@ void init_purple_rest_module(PurplePlugin *plugin, const char *url_prefix)
 }
 
 
-gboolean timeout_cb(gpointer user_data)
-{
-    purple_debug_info(PLUGIN_ID, "Timeout callback");
-    int type = purple_conversation_get_type(g_send_msg_data.conv);
-    switch (type) {
-    case PURPLE_CONV_TYPE_IM:
-        purple_conv_im_send(PURPLE_CONV_IM(g_send_msg_data.conv),
-                            g_send_msg_data.msg.c_str());
-        break;
-
-    case PURPLE_CONV_TYPE_CHAT:
-        purple_conv_chat_send(PURPLE_CONV_CHAT(g_send_msg_data.conv),
-                              g_send_msg_data.msg.c_str());
-        break;
-    default:
-        // :fixme: do something
-        break;
-    }
-    g_send_msg_data.conv = NULL;
-    g_send_msg_data.msg.clear();
-    return FALSE;
-}
-
 namespace libpurple
 {
-
-struct SendMsgData g_send_msg_data;
 
 void purple_info(const std::string &msg)
 {
