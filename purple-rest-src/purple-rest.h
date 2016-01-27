@@ -16,6 +16,7 @@
 
 typedef enum
 {
+    kHttpMethodUndefined,
     kHttpMethodPost,
     kHttpMethodGet,
     kHttpMethodDelete,

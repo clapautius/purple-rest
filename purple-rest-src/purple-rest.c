@@ -10,6 +10,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include <pthread.h>
 
 #include <microhttpd.h>
 
@@ -22,30 +23,64 @@
 
 void init_purple_rest_module();
 
+static gboolean do_work(gpointer);
 
+// data used for communication between threads
+static pthread_mutex_t rest_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t rest_cond = PTHREAD_COND_INITIALIZER;
+static int operation_in_progress = 0;
+static char *p_url = NULL;
+static char *stored_upload_data = NULL;
+static size_t stored_size = 0;
+static char *content = NULL, *content_type = NULL;
+static int content_size = 0, http_code = 200;
+static HttpMethod http_method = kHttpMethodUndefined;
+
+
+void reset_async_data()
+{
+    free(p_url);
+    p_url = NULL;
+    content_size = 0;
+    http_code = 200;
+    http_method = kHttpMethodUndefined;
+    free(stored_upload_data);
+    stored_upload_data = NULL;
+    stored_size = 0;
+    free(content);
+    content = NULL;
+    free(content_type);
+    content_type = NULL;
+}
+
+// We should not use purple functions (like purple_debug_info) from another thread.
+// Use this only in case of emergency.
+//#define DEBUG_POST_REQUEST
+
+/**
+ * This will run on a separate thread.
+ * We should not call libpurple functions from this thread.
+ */
 int answer_to_http_connection(
   void *cls, struct MHD_Connection *connection,
   const char *url, const char *method, const char *version,
   const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
     static int post_request_in_progress;
-    static char *stored_upload_data ;
-    static size_t stored_size;
-    char *content = NULL, *content_type = NULL;
-    int content_size = 0, http_code = 200;
-    HttpMethod http_method = kHttpMethodGet;
 
     if (0 == strcmp(method, MHD_HTTP_METHOD_POST)) {
         http_method = kHttpMethodPost;
+#ifdef DEBUG_POST_REQUEST
         purple_debug_info(PLUGIN_ID, "POST: upload_data=%p, upload_data_size=%ld\n",
                           upload_data, *upload_data_size);
+#endif
         // :fixme: - atm we don't handle multiple pieces of data
         if (post_request_in_progress) {
-            if (*upload_data_size == 0) {
-                purple_debug_info(PLUGIN_ID, "POST: calling the function\n");
-            } else {
+            if (*upload_data_size != 0) {
                 if (upload_data) {
+#ifdef DEBUG_POST_REQUEST
                     purple_debug_info(PLUGIN_ID, "POST: storing data\n");
+#endif
                     stored_upload_data = malloc(*upload_data_size + 1);
                     memcpy(stored_upload_data, upload_data, *upload_data_size);
                     stored_upload_data[*upload_data_size] = 0;
@@ -55,7 +90,9 @@ int answer_to_http_connection(
                 }
             }
         } else {
+#ifdef DEBUG_POST_REQUEST
             purple_debug_info(PLUGIN_ID, "POST: starting POST\n");
+#endif
             post_request_in_progress = 1;
             return MHD_YES;
         }
@@ -67,29 +104,52 @@ int answer_to_http_connection(
         http_method = kHttpMethodPut;
     }
 
-    perform_rest_request(url, http_method, stored_upload_data, stored_size,
-                         &content, &content_size, &content_type, &http_code);
-    if (post_request_in_progress) {
-        post_request_in_progress = 0;
-        free(stored_upload_data);
-        stored_upload_data = NULL;
-        stored_size = 0;
+
+    p_url = strdup(url);
+    operation_in_progress = 1;
+    purple_timeout_add(20, do_work, NULL);
+    pthread_mutex_lock(&rest_mutex);
+    while(operation_in_progress) {
+        pthread_cond_wait(&rest_cond, &rest_mutex);
     }
+    pthread_mutex_unlock(&rest_mutex);
+
     struct MHD_Response *response = NULL;
     response = MHD_create_response_from_buffer(content_size, content,
                                                MHD_RESPMEM_MUST_COPY);
     if (content_type) {
         MHD_add_response_header(response, "Content-Type", content_type);
     }
+    // use only in case of emergency
+#ifdef DEBUG_POST_REQUEST
     purple_debug_info(PLUGIN_ID, "Sending back HTTP response: %d\n", http_code);
     if (response == NULL) {
         purple_debug_warning(PLUGIN_ID, "microhttpd response is NULL\n");
     }
+#endif
     MHD_queue_response(connection, http_code, response);
     MHD_destroy_response(response);
-    free(content);
-    free(content_type);
+
+    if (post_request_in_progress) {
+        post_request_in_progress = 0;
+    }
+    reset_async_data();
     return MHD_YES;
+}
+
+
+/**
+ * This will run in libpurple main thread.
+ */
+static gboolean do_work(gpointer ignored)
+{
+    perform_rest_request(p_url, http_method, stored_upload_data, stored_size,
+                         &content, &content_size, &content_type, &http_code);
+    pthread_mutex_lock(&rest_mutex);
+    operation_in_progress = 0;
+    pthread_cond_signal(&rest_cond);
+    pthread_mutex_unlock(&rest_mutex);
+    return FALSE; // to stop the timer from firing again
 }
 
 

@@ -24,6 +24,17 @@ Q. What is the difference between wrote-im-msg and sent-im-msg?
 incoming or outgoing message).
 
 
+multi-threading
+______________
+
+Pidgin and libpurple are not thread safe.  It's better for you to hook
+your asynchronous code into the glib/GTK+ main loop and use signals and
+callbacks to start and step through your request and then retrieve data
+when it's ready.  See eventloop.h:
+
+https://developer.pidgin.im/doxygen/2.10.5/html/eventloop_8h.html
+
+
 buddies hierarchy
 _________________
 
@@ -59,10 +70,6 @@ Send a message:
 
 curl --data "Some message" http://localhost:8888/bibi/v/html/conversations/2
 
-TBD
-___
-
-write about threads!
 
 ************
 * glib QRH *
