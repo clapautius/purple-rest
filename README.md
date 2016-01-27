@@ -53,7 +53,7 @@ specified conversation starting with *MSG_ID*
 * `.../v1/FORMAT/buddies/all` - list of all buddies
 * `.../v1/FORMAT/buddies/online` - list of online buddies
  * response for *json* format
-```
+ ```
 [
   { "group" : "Buddies",
     "name" : "purple-rest3@localhost",
@@ -80,12 +80,12 @@ specified conversation starting with *MSG_ID*
 
 * `.../v1/FORMAT/conversations/BUDDY_NAME` - create a new conversation with *BUDDY_NAME*
  * for *json* format the server returns details of the newly created conversation
-```
+ ```
 [
-  {                                                                                                                   ▒│
-    "id" : 2,                                                                                                        ▒│
-    "name" : "purple-rest@localhost"                                                                                 ▒│
-  }                                                                                                                   ▒│
+  {
+    "id" : 2,
+    "name" : "purple-rest@localhost"
+  }
 ]
 ```
 
