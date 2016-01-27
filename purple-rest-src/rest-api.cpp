@@ -34,7 +34,7 @@ const int kFormatIdx = 1;
  *
  * @return true if OK, false on error.
  */
-static bool str_to_uint64_t(const char*str, uint64_t &num)
+static bool str_to_uint64(const char*str, uint64_t &num)
 {
     char *p = NULL;
     long int ret = strtol(str, &p, 10);
@@ -91,7 +91,7 @@ static int get_messages_request(const vector<string> &request, string &response_
     }
     if (request.size() > kStartFromIdIdx + 1) {
         if (request[kStartFromIdIdx] == "start_from") {
-            if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
+            if (!str_to_uint64(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
                 goto error;
             }
         }
@@ -135,7 +135,7 @@ static int get_my_messages_request(const vector<string> &request, string &respon
     std::unique_ptr<p_rest::RestResponse> response;
     if (request.size() > kStartFromIdIdx + 1) {
         if (request[kStartFromIdIdx] == "start_from") {
-            if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
+            if (!str_to_uint64(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
                 goto error;
             }
         }
@@ -267,14 +267,14 @@ static int get_conv_messages_request(const vector<string> &request, string &resp
         else {
             return 400;
         }
-        if (!str_to_uint64_t(request[kConvIdIdx].c_str(), conv_id)) {
+        if (!str_to_uint64(request[kConvIdIdx].c_str(), conv_id)) {
             goto error;
         }
         const int kStartFromIdIdx = 4;
         uint64_t start_from_id = 0;
         if (request.size() > kStartFromIdIdx + 1) { // we might have 'start_from'
             if (request[kStartFromIdIdx] == "start_from") {
-                if (!str_to_uint64_t(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
+                if (!str_to_uint64(request[kStartFromIdIdx + 1].c_str(), start_from_id)) {
                     goto error;
                 }
             }
@@ -371,12 +371,11 @@ static int delete_conversations_request(const vector<string> &request,
     using p_rest::g_conv_list;
     int err_code = 500;
     if (request.size() > 3) {
-        // we don't care about format atm, we don't send anything back
-        // :fixme: we should send a human readable error message
+        // we don't care about format, in case of success we only send the 200 response
         p_rest::conv_id_t conv_id = 0;
-        if (str_to_uint64_t(request[3].c_str(), conv_id)) {
+        if (str_to_uint64(request[3].c_str(), conv_id)) {
             ImConversation &conv = g_conv_list.get_conversation_by_id(conv_id);
-            if (conv == g_conv_list.m_null_conv) {
+            if (!conv) {
                 http_response_info("Cannot find conversation with the specified id",
                                    response_str, content_type);
                 err_code = 404;
@@ -473,12 +472,12 @@ static int post_messages_request(const vector<string> &request,
     purple_info(dbg.str());
     if (request.size() > 3) {
         p_rest::conv_id_t conv_id = 0;
-        if (str_to_uint64_t(request[3].c_str(), conv_id)) {
+        if (str_to_uint64(request[3].c_str(), conv_id)) {
             using p_rest::ImConversation;
             using p_rest::g_conv_list;
             const PurpleConversation *p_purple_conv = nullptr;
             ImConversation &conv = g_conv_list.get_conversation_by_id(conv_id);
-            if (!(conv == g_conv_list.m_null_conv)) {
+            if (conv) {
                 p_purple_conv = conv.get_purple_conv();
             }
 #if defined(PURPLE_REST_DEBUG)
@@ -580,6 +579,56 @@ error:
 
 
 /**
+ * Processes a request, splits the url into components.
+ *
+ * @param[in] url
+ * @param[out] request : will contain the request params (elements from the url separated
+ * by /)
+ * @param[out] err_msg
+ * @return true if OK, false on error.
+ */
+bool process_url(const char *url, vector<string> &request, string &err_msg)
+{
+    // basic checks
+    if (nullptr == url) {
+        return false;
+    }
+    purple_info(std::string("Prefix is: ") + g_url_prefix);
+    std::string url_str(url);
+    if (!g_url_prefix.empty()) {
+        if (url_str.compare(0, g_url_prefix.size(), g_url_prefix) == 0) {
+            url_str = url_str.substr(g_url_prefix.size());
+            purple_info(std::string("Request after removing prefix: ") + url_str);
+        } else {
+            // something is fishy - no prefix - abort
+            err_msg = "Could not find the expected prefix";
+            purple_info("Unable to find prefix in request, aborting.");
+            return false;
+        }
+    }
+
+    // strtok wants to modify the string, so we make a copy
+    char *url_to_be_tokenized = strdup(url_str.c_str());
+    char *p = strtok(url_to_be_tokenized, "/");
+    while (p) {
+        request.push_back(p);
+        p = strtok(NULL, "/");
+    }
+    free(url_to_be_tokenized);
+#if defined(PURPLE_REST_DEBUG)
+    purple_info("Request elements");
+    int idx = 0;
+    std::ostringstream ostr;
+    for (auto &elt : request) {
+        ostr << idx++ << " : " << elt.c_str() << std::endl;
+    }
+    purple_info(ostr.str());
+#endif
+    return true;
+}
+
+
+/**
  * Function called when the plugin gets a new REST request.
  *
  * @param[in] url : the full URL of the REST request.
@@ -595,52 +644,17 @@ void perform_rest_request(const char *url, HttpMethod method,
                           const char *upload_data, size_t upload_data_size,
                           char **buf, int *buf_len, char **p_content_type, int *http_code)
 {
-    string response, content_type;
+    string response, content_type, err_msg;
     purple_info(string("Got new request: ") + url);
-    purple_info(std::string("Prefix is: ") + g_url_prefix);
 
-    // basic checks
-    if (NULL == url) {
+    vector<string> request;
+    if (!process_url(url, request, err_msg)) {
+        *http_code = 400;
+        *buf = (char*)strdup(err_msg.c_str());
+        *buf_len = strlen(*buf);
+        *p_content_type = strdup("text/plain");
         return;
     }
-
-    std::string url_str(url);
-    if (!g_url_prefix.empty()) {
-        if (url_str.compare(0, g_url_prefix.size(), g_url_prefix) == 0) {
-            url_str = url_str.substr(g_url_prefix.size());
-            purple_info(std::string("Request after removing prefix: ") + url_str);
-        } else {
-            // something is fishy - no prefix - abort
-            purple_info("Unable to find prefix in request, aborting.");
-            *http_code = 400;
-            *buf = (char*)strdup("Could not find the expected prefix");
-            *buf_len = strlen(*buf);
-            *p_content_type = strdup("text/plain");
-            return;
-        }
-    }
-
-    // tokenize url
-    std::vector<std::string> request;
-
-    // strtok wants to modify the string, so we make a copy
-    char *url_to_be_tokenized = strdup(url_str.c_str());
-    char *p = strtok(url_to_be_tokenized, "/");
-    while (p) {
-        request.push_back(p);
-        p = strtok(NULL, "/");
-    }
-    free(url_to_be_tokenized);
-
-#if defined(PURPLE_REST_DEBUG)
-    purple_info("Request elements");
-    int idx = 0;
-    std::ostringstream ostr;
-    for (auto &elt : request) {
-        ostr << idx++ << " : " << elt.c_str() << std::endl;
-    }
-    purple_info(ostr.str());
-#endif
 
     using RequestMap = std::map<string, std::function<int(const vector<string>&,
                                                           string&, string &)>>;

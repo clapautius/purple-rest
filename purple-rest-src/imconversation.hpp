@@ -45,6 +45,14 @@ public:
                 m_purple_conv == rhs.m_purple_conv);
     }
 
+    /**
+     * Valid conversation objects must have an id different of 0.
+     */
+    operator bool() const
+    {
+        return m_id != 0;
+    }
+
 private:
 
     PurpleConversation* m_purple_conv;
@@ -80,14 +88,14 @@ public:
      */
     ImConversation& get_conversation_by_id(conv_id_t id);
 
-    static ImConversation m_null_conv;
-
     conv_id_t get_conversation_id(PurpleConversation *conv) const;
 
     /**
      * Remove the conversation with the id ID from the converation list.
      */
     void remove_conversation(conv_id_t id);
+
+    static ImConversation m_null_conv;
 
 private:
 

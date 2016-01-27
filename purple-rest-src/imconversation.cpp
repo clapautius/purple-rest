@@ -17,7 +17,11 @@ namespace p_rest
 ImConversation::ImConversation(PurpleConversation *conv)
   : m_purple_conv(conv)
 {
-    m_id = m_free_id.fetch_add(1);
+    if (conv) {
+        m_id = m_free_id.fetch_add(1);
+    } else {
+        m_id = 0;
+    }
 }
 
 
@@ -118,7 +122,7 @@ void ImConversationsList::remove_conversation(conv_id_t id)
 }
 
 
-ImConversation ImConversationsList::m_null_conv(NULL);
+ImConversation ImConversationsList::m_null_conv(nullptr);
 
 ImConversationsList g_conv_list;
 
