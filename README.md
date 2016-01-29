@@ -47,6 +47,8 @@ specified conversation starting with *MSG_ID*
 
 * `.../v1/FORMAT/conversations/all` - conversations list
 
+* `.../v1/FORMAT/accounts/all` - accounts list
+
 * `.../v1/FORMAT/my-messages/` - all *my messages*
 * `.../v1/FORMAT/my-messages/start_from/MSG_ID` - *my messages* starting with *MSG_ID*
 

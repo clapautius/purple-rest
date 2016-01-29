@@ -45,6 +45,7 @@ public:
 
     virtual void add_buddy(const Buddy &buddy) = 0;
 
+    virtual void add_account(const PurpleAccount *account) = 0;
 };
 
 
@@ -66,6 +67,8 @@ public:
     virtual void add_generic_param(const std::string &param_name, const char* p_str);
 
     virtual void add_buddy(const Buddy &buddy);
+
+    virtual void add_account(const PurpleAccount *account);
 
 private:
 
@@ -92,6 +95,8 @@ public:
     virtual void add_generic_param(const std::string &param_name, const char* p_str);
 
     virtual void add_buddy(const Buddy &buddy);
+
+    virtual void add_account(const PurpleAccount *account);
 
 protected:
 

@@ -323,6 +323,7 @@ function dialogBoxMenu()
                     [ "Show status", "dialogBoxMenuGetStatus();" ],
                     [ "Online buddies", "dialogBoxMenuBuddies(true);" ],
                     [ "All buddies", "dialogBoxMenuBuddies();" ],
+                    [ "Accounts", "dialogBoxMenuAccounts();" ],
                     [ "Desktop layout", "desktopLayout();" ] ];
     displayCenterMenu(menuOptions);
 }
@@ -350,6 +351,15 @@ function dialogBoxMenuBuddies(onlineOnly = false)
     }
 
     $.get(buddiesUrl, function (data) { dialogBoxMenuBuddiesDisplay(data); }).fail( function() { showError("Error getting buddy list"); });
+}
+
+
+function dialogBoxMenuAccounts()
+{
+    // get accounts
+    var accountsUrl =  urlPrefixJson + "accounts/all";
+
+    $.get(accountsUrl, function (data) { dialogBoxMenuAccountsDisplay(data); }).fail( function() { showError("Error getting accounts list"); });
 }
 
 
@@ -392,6 +402,17 @@ function dialogBoxMenuBuddiesDisplay(buddies)
     // :fixme: check if data is valid
     for (var i = 0; i < buddies.length; i++) {
         htmlStr += buddyHtmlStr(buddies[i]);
+    }
+    $("#inner-content").html(htmlStr);
+}
+
+
+function dialogBoxMenuAccountsDisplay(accounts)
+{
+    var htmlStr = dialogBoxMenuBackButtonStr();
+    // :fixme: check if data is valid
+    for (var i = 0; i < accounts.length; i++) {
+        htmlStr += accountHtmlStr(accounts[i]);
     }
     $("#inner-content").html(htmlStr);
 }
@@ -554,6 +575,15 @@ function buddyHtmlStr(buddy)
         htmlStr = '<div class="buddy buddy-offline"><span class="buddy-name buddy-offline">'
             + buddy.name + '</span></div><hr class="buddy"/>\n';
     }
+    return htmlStr;
+}
+
+
+function accountHtmlStr(account)
+{
+    var htmlStr;
+    htmlStr = '<div class="account"><span class="account">'
+            + account.alias + '</span></div><hr class="account"/>\n';
     return htmlStr;
 }
 

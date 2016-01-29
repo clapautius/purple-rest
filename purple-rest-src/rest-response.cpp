@@ -79,6 +79,15 @@ void HtmlResponse::add_buddy(const Buddy &buddy)
 }
 
 
+void HtmlResponse::add_account(const PurpleAccount *account)
+{
+    if (account) {
+        m_ostr << "<div class=\"account\"><span class=\"account\">"
+               << account->alias << "</span></div><br/>\n";
+    }
+}
+
+
 JsonResponse::JsonResponse()
   : m_response(Json::arrayValue)
 {
@@ -141,6 +150,16 @@ void JsonResponse::add_buddy(const Buddy &buddy)
     // :fixme: - add the rest of the elements
     // :fixme: - group them by group
     m_response.append(new_buddy);
+}
+
+
+void JsonResponse::add_account(const PurpleAccount *account)
+{
+    Json::Value new_account(Json::objectValue);
+    new_account["username"] = account->username;
+    new_account["alias"] = account->alias;
+    new_account["protocol_id"] = account->protocol_id;
+    m_response.append(new_account);
 }
 
 

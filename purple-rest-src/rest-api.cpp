@@ -458,6 +458,56 @@ error:
 
 
 /**
+ * @param[in] request : vector containing URL components (elements separated by '/').
+ * @param[out] response_str : response to be sent back.
+ * @param[out] content_type : string describing the MIME type of the response.
+ *
+ * @return HTTP code to be sent back to user.
+ *
+ * Requests summary:
+ * /v/<format>/accounts/all
+ */
+static int get_accounts_request(const vector<string> &request, string &response_str,
+                                string &content_type)
+{
+    std::unique_ptr<p_rest::RestResponse> response;
+    const int kFilterIdx = 3;
+    if (request.size() > 3) {
+        if (request[kFormatIdx] == "json") {
+            response.reset(new p_rest::JsonResponse);
+            content_type = "application/json";
+        }
+        else if (request[kFormatIdx] == "html") {
+            response.reset(new p_rest::HtmlResponse);
+            content_type = "text/html";
+        }
+        else {
+            http_response_info("Invalid format", response_str, content_type);
+            return 400;
+        }
+        if (request[kFilterIdx] == "all") {
+            GList *accounts = purple_accounts_get_all();
+            GList *ptr = g_list_first(accounts);
+            while (ptr) {
+                response->add_account(reinterpret_cast<PurpleAccount*>(ptr));
+                ptr = g_list_next(ptr);
+            }
+        } else {
+            http_response_info("Invalid parameters", response_str, content_type);
+            goto error;
+        }
+    } else {
+        http_response_info("Not enough parameters", response_str, content_type);
+        goto error;
+    }
+    response_str = response->get_text();
+    return 200;
+error:
+    return 400;
+}
+
+
+/**
  * Requests summary:
  * /v/<format>/conv-messages/<id>
  */
@@ -675,7 +725,8 @@ void perform_rest_request(const char *url, HttpMethod method,
                                { "status", get_status_request },
                                { "conv-messages", get_conv_messages_request },
                                { "cmd", get_cmd_request },
-                               { "buddies", get_buddies_request }
+                               { "buddies", get_buddies_request },
+                               { "accounts", get_accounts_request }
     };
 
     RequestMap delete_actions = { { "conversations", delete_conversations_request } };
