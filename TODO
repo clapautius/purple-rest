@@ -1,3 +1,13 @@
+Rest API
+========
+
 * grey out button when menu is activated
 * check json spirit library
 * fix '-' vs. '_' in api
+* add login / logout (password) support
+
+HTML client
+===========
+
+* add notifications in browser
+* improve chat switch
