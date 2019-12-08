@@ -6,6 +6,7 @@
 [Build](#build)  
 [Install](#install)  
 [Usage](#usage)  
+[Dev. notes](#dev-notes)
 
 ## Description
 
@@ -147,7 +148,7 @@ specified conversation starting with *MSG_ID*
 * _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
 nginx / apache redirecting.
 
-## Dev. notes
+## Dev. notes<a name="dev-notes"/>
 
 ### Resources, tutorials
 
