@@ -28,22 +28,31 @@ Screenshots:
 * cmake
 * c++ compiler (g++ / clang)
 * development stuff (headers / libs) for
- * libpurple
- * glib
- * jsoncpp library
- * microhttpd library
+  * libpurple
+  * glib
+  * jsoncpp library
+  * microhttpd library
+
+### Build the plugin
+
+```
+mkdir purple-rest-build
+cd purple-rest-build
+cmake <PURPLE-REST-REPO>/purple-rest-src
+make
+```
 
 ## Install
 
 ### Installing the pidgin / finch plugin
 
-**TBD**
+Copy the file `libpurple-rest.so` from the build dir. to `~/.purple/plugins`.
 
-### Installing the web client
+#### Configuration
 
-Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
-
-#### pidgin / finch configuration
+* _/plugins/purple-rest/server-port_ : listen port
+* _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
+nginx / apache redirecting.
 
 Things to be added to ```~/.purple/pref.xml```
 
@@ -58,6 +67,10 @@ Things to be added to ```~/.purple/pref.xml```
       </pref>
       ...
 ```
+
+### Installing the web client
+
+Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
 
 #### Configuring apache web server
 
@@ -141,12 +154,6 @@ specified conversation starting with *MSG_ID*
 #### DELETE requests
 
 * `.../v1/FORMAT/conversations/ID` - delete the conversation *ID*
-
-### Configuration
-
-* _/plugins/purple-rest/server-port_ : listen port
-* _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
-nginx / apache redirecting.
 
 ## Dev. notes<a name="dev-notes"/>
 
