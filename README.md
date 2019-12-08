@@ -70,6 +70,8 @@ Things to be added to ```~/.purple/pref.xml```
 
 ### Installing the web client
 
+The web client's files (*index.html*, *purple-rest.js*, etc.) should be in `/var/www/html/purple-rest` (considering the default *apache* configuration).
+
 Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
 
 #### Configuring apache web server
@@ -83,7 +85,6 @@ Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
   ProxyPassReverse http://localhost:8888
 </Location>
 ```
-* the web client's files (*index.html*, *purple-rest.js*, etc.) should be in `/var/www/html/purple-rest` (considering the configuration above)
 
 ## Usage
 
