@@ -1,5 +1,12 @@
 # pidgin / finch / purple REST plugin
 
+## Table of Contents  
+
+[Description](#description)  
+[Build](#build)  
+[Install](#install)  
+[Usage](#usage)  
+
 ## Description
 
 This plugin provides a RESTful API for pidgin / finch.
@@ -24,6 +31,45 @@ Screenshots:
  * glib
  * jsoncpp library
  * microhttpd library
+
+## Install
+
+### Installing the pidgin / finch plugin
+
+**TBD**
+
+### Installing the web client
+
+Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
+
+#### pidgin / finch configuration
+
+Things to be added to ```~/.purple/pref.xml```
+
+```xml
+<pref version='1' name='/'>
+  <pref name='plugins'>
+    <pref name='core'>
+      ...
+      <pref name='purple-rest'>
+        <pref name='server-port' type='int' value='8888'/>
+        <pref name='url-prefix' type='string' value='purple-rest/'/>
+      </pref>
+      ...
+```
+
+#### Configuring apache web server
+
+* enable proxy module (on debian symlink the files *proxy.load*, *proxy.conf* and *proxy_http.load*)
+* add these to *default.conf* or *default-ssl.conf*:
+
+```
+<Location "/purple-rest/rest">
+  ProxyPass http://localhost:8888
+  ProxyPassReverse http://localhost:8888
+</Location>
+```
+* the web client's files (*index.html*, *purple-rest.js*, etc.) should be in `/var/www/html/purple-rest` (considering the configuration above)
 
 ## Usage
 
@@ -100,39 +146,6 @@ specified conversation starting with *MSG_ID*
 * _/plugins/purple-rest/server-port_ : listen port
 * _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
 nginx / apache redirecting.
-
-## Installing and using the web client
-
-Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
-
-### pidgin / finch configuration
-
-Things to be added to ```~/.purple/pref.xml```
-
-```xml
-<pref version='1' name='/'>
-  <pref name='plugins'>
-    <pref name='core'>
-      ...
-      <pref name='purple-rest'>
-        <pref name='server-port' type='int' value='8888'/>
-        <pref name='url-prefix' type='string' value='purple-rest/'/>
-      </pref>
-      ...
-```
-
-### Configuring apache web server
-
-* enable proxy module (on debian symlink the files *proxy.load*, *proxy.conf* and *proxy_http.load*)
-* add these to *default.conf* or *default-ssl.conf*:
-
-```
-<Location "/purple-rest/rest">
-  ProxyPass http://localhost:8888
-  ProxyPassReverse http://localhost:8888
-</Location>
-```
-* the web client's files (*index.html*, *purple-rest.js*, etc.) should be in `/var/www/html/purple-rest` (considering the configuration above)
 
 ## Dev. notes
 
