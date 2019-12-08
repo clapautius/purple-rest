@@ -133,3 +133,9 @@ Things to be added to ```~/.purple/pref.xml```
 </Location>
 ```
 * the web client's files (*index.html*, *purple-rest.js*, etc.) should be in `/var/www/html/purple-rest` (considering the configuration above)
+
+## Dev. notes
+
+### Resources, tutorials
+
+* web notifications: https://developers.google.com/web/fundamentals/push-notifications/display-a-notification
