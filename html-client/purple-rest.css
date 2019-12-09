@@ -183,8 +183,11 @@ span.conversation, span.menu {
 	padding:4px 8px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #3d768a;
-    margin-left: 1ex;
-    margin-right: 1ex;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #276873;
+	margin-left: 1ex;
+	margin-right: 1ex;
 }
 
 div.send_msg {

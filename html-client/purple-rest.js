@@ -143,8 +143,11 @@ function areThereNewMessagesP()
             console.log("max remote id "+remoteMaxId + ", max current id "+maxCurrentId);
             if (remoteMaxId != maxCurrentId) {
                 var oldMaxId = maxCurrentId;
+                // display notification only on automatic update
+                if (maxCurrentId != -1) {
+                    notifyNewMessage("New chat messages !");
+                }
                 maxCurrentId = remoteMaxId;
-                notifyNewMessage("New chat messages !");
                 displayConversations(oldMaxId);
             }
         },
@@ -507,7 +510,7 @@ function showMainMenu()
         '<td style="width: 40%; text-align: middle;">' +
         buttonHtmlStr("Clear history", "clearHistory();") + '</td>' +
         '<td style="width: 10%; text-align: right;">' +
-        buttonHtmlStr("⭮", "displayError('Not ready yet');") + '</td></tr></table>';
+        buttonHtmlStr("⭮", "clearAndDisplayConversations();") + '</td></tr></table>';
     $("#menu").html(mainMenuText);
 }
 
