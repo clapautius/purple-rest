@@ -243,14 +243,14 @@ function displayConversations(oldMaxId)
     // conversations window
     // :fixme: get rid of this table
     var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;">' + '<tr>' +
-        '<td style="width: 20%; text-align: middle;">' +
+        '<td style="width: 10%; text-align: middle;">' +
           //buttonHtmlStr("Menu", "dialogBoxMenuConvMenu();") +
           buttonHtmlStr("💬", "dialogBoxMenuConvMenu();") +
         "</td>" +
-        '<td style="width: 60%; text-align: middle;">' +
+        '<td style="width: 80%; text-align: middle;">' +
           convCurrentTitleHtmlStr() +
         "</td>" +
-        '<td style="width: 20%; text-align: middle;">' +
+        '<td style="width: 10%; text-align: middle;">' +
           //buttonHtmlStr("Switch", "dialogBoxMenuSwitchToConversations();") +
           // ⇿
           buttonHtmlStr("⬌", "dialogBoxMenuSwitchToConversations();") +
