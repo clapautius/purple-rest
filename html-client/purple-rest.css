@@ -18,7 +18,14 @@ div.inner-content {
 }
 
 div.messages {
-    margin: 3px;
+    -moz-box-shadow: 0px 5px 5px -3px #276873;
+    -webkit-box-shadow: 0px 5px 5px -3px #276873;
+    box-shadow: 0px 5px 5px -3px #276873;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+
+    margin: 7px;
     max-height: 60ex;
     border: 1px solid #888;
     overflow-y: scroll;
@@ -51,10 +58,11 @@ div.main-menu {
 /*    margin-bottom: 5px; */
     text-align: left;
     padding: 0px;
+    background-color: #eee;
 }
 
 div.conversations {
-    border-bottom: 1px solid black;
+/*    border-bottom: 1px solid black;*/
 /*    margin-bottom: 5px; */
     text-align: left;
     padding: 5px;
@@ -178,8 +186,8 @@ span.conversation, span.menu {
 	border-radius:6px;
 	display:inline-block;
 	color:#105269;
-	font-family:Arial;
-	font-weight:bold;
+	/*font-family:Arial;*/
+	/*font-weight:bold;*/
 	padding:4px 8px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #3d768a;

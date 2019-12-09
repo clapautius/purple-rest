@@ -574,8 +574,8 @@ function convClose()
 function convCurrentTitleHtmlStr()
 {
     //var prefix = '➤&nbsp;';
-    var prefix = '❲&nbsp;';
-    var suffix = '&nbsp;❳';
+    var prefix = '&nbsp;❲&nbsp;';
+    var suffix = '&nbsp;❳&nbsp;';
     return '<span class="conv-title">' + prefix +
         (currentConversation.id > 0 ? currentConversation.name : 'All messages') +
         suffix + '</span>';
