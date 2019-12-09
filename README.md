@@ -158,6 +158,5 @@ specified conversation starting with *MSG_ID*
 
 ## Dev. notes<a name="dev-notes"/>
 
-### Resources, tutorials
+See [dev-notes.md](doc/dev-notes.md)
 
-* web notifications: https://developers.google.com/web/fundamentals/push-notifications/display-a-notification
