@@ -239,14 +239,20 @@ function displayConversations(oldMaxId)
 
     // conversations window
     // :fixme: get rid of this table
-    var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;"><tr>' +
-        '<td style="width: 50%; text-align: left;">' +
-        convCurrentTitleHtmlStr() +
-        '</td>';
-
-    conversationsLine = conversationsLine + '<td style="width: 50%; text-align: right;">' +
-        buttonHtmlStr("Conv. menu", "dialogBoxMenuConvMenu();") +
-        buttonHtmlStr("Switch conv.", "dialogBoxMenuSwitchToConversations();") + '</td></table>';
+    var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;">' + '<tr>' +
+        '<td style="width: 20%; text-align: middle;">' +
+          //buttonHtmlStr("Menu", "dialogBoxMenuConvMenu();") +
+          buttonHtmlStr("💬", "dialogBoxMenuConvMenu();") +
+        "</td>" +
+        '<td style="width: 60%; text-align: middle;">' +
+          convCurrentTitleHtmlStr() +
+        "</td>" +
+        '<td style="width: 20%; text-align: middle;">' +
+          //buttonHtmlStr("Switch", "dialogBoxMenuSwitchToConversations();") +
+          // ⇿
+          buttonHtmlStr("⬌", "dialogBoxMenuSwitchToConversations();") +
+        "</td>" +
+        '</tr></table>';
 
     $("#conversations").html(conversationsLine);
     displayMessages(null, "success", oldMaxId);
@@ -557,9 +563,12 @@ function convClose()
 
 function convCurrentTitleHtmlStr()
 {
-    return '<span class="conv-title">➤&nbsp;' +
-        (currentConversation.id > 0 ? currentConversation.name : 'All msgs.') +
-        '</span>';
+    //var prefix = '➤&nbsp;';
+    var prefix = '❲&nbsp;';
+    var suffix = '&nbsp;❳';
+    return '<span class="conv-title">' + prefix +
+        (currentConversation.id > 0 ? currentConversation.name : 'All messages') +
+        suffix + '</span>';
 }
 
 
