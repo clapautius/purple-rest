@@ -1,3 +1,7 @@
+# Resources, tutorials
+
+* web notifications: https://developers.google.com/web/fundamentals/push-notifications/display-a-notification
+
 # libpurple
 
 ## libpurple signals
@@ -37,8 +41,8 @@ https://developer.pidgin.im/doxygen/2.10.5/html/eventloop_8h.html
 (to be confirmed)
 
 * group
-  ** contact (?)
-     *** buddy
+ * contact (?)
+  * buddy
 
 
 # libmicrohttpd
