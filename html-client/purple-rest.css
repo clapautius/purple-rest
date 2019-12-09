@@ -41,7 +41,19 @@ span.message-text {
     margin-left: 1ex;
 }
 
-div.conversations, div.menu {
+table.main-menu {
+    margin: 0;
+    border: 0;
+}
+
+div.main-menu {
+    border-bottom: 1px solid black;
+/*    margin-bottom: 5px; */
+    text-align: left;
+    padding: 0px;
+}
+
+div.conversations {
     border-bottom: 1px solid black;
 /*    margin-bottom: 5px; */
     text-align: left;

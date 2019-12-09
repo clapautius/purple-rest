@@ -498,9 +498,16 @@ function showConversationsList(data)
  */
 function showMainMenu()
 {
-    mainMenuText = buttonHtmlStr("&#9776;", "dialogBoxMenu();") +
-        buttonHtmlStr("All msgs.", "allMsgs();") +
-        buttonHtmlStr("Clear history", "clearHistory();");
+    // :fixme: get rid of this table
+    mainMenuText = '<table class="main-menu" cellpadding="0" style="text-align: center; width: 100%;">' + '<tr>' +
+        '<td style="width: 10%; text-align: left;">' +
+        buttonHtmlStr("&#9776;", "dialogBoxMenu();") + '</td>' +
+        '<td style="width: 40%; text-align: middle;">' +
+        buttonHtmlStr("All messages", "allMsgs();") + '</td>' +
+        '<td style="width: 40%; text-align: middle;">' +
+        buttonHtmlStr("Clear history", "clearHistory();") + '</td>' +
+        '<td style="width: 10%; text-align: right;">' +
+        buttonHtmlStr("⭮", "displayError('Not ready yet');") + '</td></tr></table>';
     $("#menu").html(mainMenuText);
 }
 
