@@ -1,7 +1,15 @@
 body {
     background-color: #e0e0e0;
-    margin: 2px;
+    /*font-size: 32pt;*/
 }
+
+
+@media (max-width: 1000px) {
+  html { font-size: 32pt; }
+  body { margin-right: 1rem; }
+}
+
+
 
 div.content {
   border-width: 1px;
@@ -79,6 +87,7 @@ span.purple-button {
 	display:inline-block;
 	cursor:pointer;
 	color:#ffffff;
+	font-size: 1.1rem;
 	font-family:Arial;
 	/*font-size:20px;*/
 	font-weight:bold;
@@ -186,6 +195,7 @@ span.conversation, span.menu {
 	border-radius:6px;
 	display:inline-block;
 	color:#105269;
+	font-size: 1.1rem;
 	/*font-family:Arial;*/
 	/*font-weight:bold;*/
 	padding:4px 8px;
@@ -198,6 +208,10 @@ span.conversation, span.menu {
 	margin-right: 1ex;
 }
 
+.send_msg {
+    font-size: 1rem;
+}
+
 div.send_msg {
     padding: 2px;
     text-align: center;
@@ -208,6 +222,7 @@ input#send_msg_text {
 }
 
 div.status-bar {
+    font-size: 1rem;
     font-style: italic;
     font-size: small;
     background: #eee;
@@ -215,6 +230,7 @@ div.status-bar {
 }
 
 div#status-bar-1 {
+    font-size: 1rem;
     width: 50%;
     float: left;
     border-right: 1px solid #aaa;
@@ -223,6 +239,7 @@ div#status-bar-1 {
 }
 
 div#status-bar-2 {
+    font-size: 1rem;
 }
 
 .buddy-online {
