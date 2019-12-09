@@ -1,17 +1,15 @@
-*************
-* libpurple *
-*************
+# libpurple
 
-libpurple signals
-_________________
+## libpurple signals
 
+```
 void (*wrote_im_msg)(PurpleAccount *account, const char *who,
                 char *message, PurpleConversation *conv,
                PurpleMessageFlags flags);
 
 void (*sent_im_msg)(PurpleAccount *account, const char *receiver,
               const char *message);
-
+```
 -----
 
 received-im-msg: doesn't fill message flags?
@@ -24,8 +22,7 @@ Q. What is the difference between wrote-im-msg and sent-im-msg?
 incoming or outgoing message).
 
 
-multi-threading
-______________
+## multi-threading
 
 Pidgin and libpurple are not thread safe.  It's better for you to hook
 your asynchronous code into the glib/GTK+ main loop and use signals and
@@ -35,8 +32,7 @@ when it's ready.  See eventloop.h:
 https://developer.pidgin.im/doxygen/2.10.5/html/eventloop_8h.html
 
 
-buddies hierarchy
-_________________
+## buddies hierarchy
 
 (to be confirmed)
 
@@ -45,8 +41,7 @@ _________________
      *** buddy
 
 
-libmicrohttpd
-_____________
+# libmicrohttpd
 
 [libmicrohttpd] How to process a post request without MHD_post_processor?
 
@@ -63,17 +58,16 @@ Finally, if you are eventually called  a *second* time with '0 ==
 *upload_data_size', you can be sure that the upload is complete.
 
 
-use from cmd. line
-__________________
+# use from cmd. line
 
 Send a message:
 
-curl --data "Some message" http://localhost:8888/bibi/v/html/conversations/2
+`curl --data "Some message" http://localhost:8888/bibi/v/html/conversations/2`
 
 
-************
-* glib QRH *
-************
+# glib QRH
 
+```
 GList* g_list_first(GList*)
 GList* g_list_next(GList*)
+```
