@@ -3,12 +3,33 @@ body {
     /*font-size: 32pt;*/
 }
 
-
-@media (max-width: 1000px) {
-  html { font-size: 32pt; }
-  body { margin-right: 1rem; }
+div.messages {
+    max-height: 65ex;
 }
 
+
+@media (max-width: 1000px) {
+    html
+    {
+        font-size: 32pt;
+    }
+    body
+    {
+        margin-right: 0.5rem;
+        margin-left: 0.5rem;
+    }
+    div.messages {
+        max-height: 42ex;
+    }
+}
+
+@media (max-height: 1000px) {
+    /*
+    div.messages {
+        max-height: 30ex;
+    }
+   */
+}
 
 
 div.content {
@@ -35,7 +56,6 @@ div.messages {
     border-radius:5px;
 
     margin: 7px;
-    max-height: 60ex;
     border: 1px solid #888;
     overflow-y: scroll;
     text-align: left;
@@ -51,7 +71,7 @@ div.message {
 
 span.message-sender {
     font-style: italic;
-    font-size: small;
+    font-size: 90%;
     color: green;
 }
 

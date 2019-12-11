@@ -89,7 +89,7 @@ function enableRefreshTimer()
 {
     if (autoRefresh) {
         disableRefreshTimer(); // disable old timer if it exists
-        timerId = window.setTimeout(areThereNewMessagesP, 10000);
+        timerId = window.setTimeout(areThereNewMessagesP, 30000);
     }
 }
 
@@ -251,9 +251,11 @@ function displayConversations(oldMaxId)
           convCurrentTitleHtmlStr() +
         "</td>" +
         '<td style="width: 10%; text-align: middle;">' +
-          //buttonHtmlStr("Switch", "dialogBoxMenuSwitchToConversations();") +
-          // ⇿
-          buttonHtmlStr("⬌", "dialogBoxMenuSwitchToConversations();") +
+        //buttonHtmlStr("Switch", "dialogBoxMenuSwitchToConversations();") +
+        // ⇿
+        //buttonHtmlStr("⬌", "dialogBoxMenuSwitchToConversations();") +
+        // « »
+        buttonHtmlStr("⇠⇢", "dialogBoxMenuSwitchToConversations();") +
         "</td>" +
         '</tr></table>';
 
@@ -510,7 +512,9 @@ function showMainMenu()
         '<td style="width: 40%; text-align: middle;">' +
         buttonHtmlStr("Clear history", "clearHistory();") + '</td>' +
         '<td style="width: 10%; text-align: right;">' +
-        buttonHtmlStr("⭮", "clearAndDisplayConversations();") + '</td></tr></table>';
+        //buttonHtmlStr("⭮", "clearAndDisplayConversations();") +
+        buttonHtmlStr("⤾", "clearAndDisplayConversations();") +
+        '</td></tr></table>';
     $("#menu").html(mainMenuText);
 }
 
