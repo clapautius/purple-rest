@@ -23,7 +23,7 @@ It should also be able to provide various ways to remote control pidgin / finch.
 ![purple rest html 1](doc/img/purple-rest-screenshot1.png?raw=true "HTML client - screenshot1")
 ![purple rest html 2](doc/img/purple-rest-screenshot2.png?raw=true "HTML client - screenshot2")
 
-##### Mobile
+##### Mobile (firefox on android)
 
 ![purple rest html 3](doc/img/purple-rest-screenshot-3-frx-android.png?raw=true "HTML client - screenshot-3-frx-android")
 
