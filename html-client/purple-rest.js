@@ -172,10 +172,12 @@ function updateMessages(data)
 
     if (currentConversation.id > 0) {
         // enable input
-        $("#send_msg").show()
+        $("#send-msg-text").show()
+        $("#send-msg-button").show()
     } else {
         // disable input
-        $("#send_msg").hide()
+        $("#send-msg-text").hide()
+        $("#send-msg-button").hide()
     }
     window.setTimeout(postUpdateMessages, 100);
 }
@@ -243,14 +245,14 @@ function displayConversations(oldMaxId)
     // conversations window
     // :fixme: get rid of this table
     var conversationsLine = '<table cellpadding="0" style="text-align: center; width: 100%;">' + '<tr>' +
-        '<td style="width: 10%; text-align: middle;">' +
+        '<td style="width: 10%; text-align: right;">' +
           //buttonHtmlStr("Menu", "dialogBoxMenuConvMenu();") +
-          buttonHtmlStr("💬", "dialogBoxMenuConvMenu();") +
+          buttonHtmlStr("&nbsp;💬&nbsp;", "dialogBoxMenuConvMenu();") +
         "</td>" +
         '<td style="width: 80%; text-align: middle;">' +
           convCurrentTitleHtmlStr() +
         "</td>" +
-        '<td style="width: 10%; text-align: middle;">' +
+        '<td style="width: 10%; text-align: left;">' +
         //buttonHtmlStr("Switch", "dialogBoxMenuSwitchToConversations();") +
         // ⇿
         //buttonHtmlStr("⬌", "dialogBoxMenuSwitchToConversations();") +
@@ -266,7 +268,7 @@ function displayConversations(oldMaxId)
 
 function sendMessageResult(data)
 {
-    $("#send_msg_text").val("");
+    $("#send-msg-text").val("");
     areThereNewMessagesP();
 }
 
@@ -275,7 +277,7 @@ function sendMessageToPurple()
 {
     disableRefreshTimer();
     var postUrl = urlPrefixHtml + "conv-messages/" + currentConversation.id;
-    message = $("#send_msg_text").val();
+    message = $("#send-msg-text").val();
     console.log("Sending message " + message + " to address " + postUrl);
     $.post(postUrl, message, function(data, textStatus) {
         console.log(textStatus);
@@ -513,7 +515,7 @@ function showMainMenu()
         buttonHtmlStr("Clear history", "clearHistory();") + '</td>' +
         '<td style="width: 10%; text-align: right;">' +
         //buttonHtmlStr("⭮", "clearAndDisplayConversations();") +
-        buttonHtmlStr("⤾", "clearAndDisplayConversations();") +
+        buttonHtmlStr("⤿", "clearAndDisplayConversations();") +
         '</td></tr></table>';
     $("#menu").html(mainMenuText);
 }
@@ -578,8 +580,8 @@ function convClose()
 function convCurrentTitleHtmlStr()
 {
     //var prefix = '➤&nbsp;';
-    var prefix = '&nbsp;❲&nbsp;';
-    var suffix = '&nbsp;❳&nbsp;';
+    var prefix = '❲&nbsp;';
+    var suffix = '&nbsp;❳';
     return '<span class="conv-title">' + prefix +
         (currentConversation.id > 0 ? currentConversation.name : 'All messages') +
         suffix + '</span>';

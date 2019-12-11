@@ -8,6 +8,16 @@ div.messages {
 }
 
 
+input#send-msg-text {
+    width: 40rem;
+}
+
+/*
+div.conversations {
+    padding-top: 0.1rem;
+}
+*/
+
 @media (max-width: 1000px) {
     html
     {
@@ -21,14 +31,9 @@ div.messages {
     div.messages {
         max-height: 42ex;
     }
-}
-
-@media (max-height: 1000px) {
-    /*
-    div.messages {
-        max-height: 30ex;
+    input#send-msg-text {
+        width: 20rem;
     }
-   */
 }
 
 
@@ -96,7 +101,7 @@ div.conversations {
 /*    border-bottom: 1px solid black;*/
 /*    margin-bottom: 5px; */
     text-align: left;
-    padding: 5px;
+    padding-top: 0.25rem;
 }
 
 span.purple-button {
@@ -233,17 +238,24 @@ span.conversation, span.menu {
 	margin-right: 1ex;
 }
 
-.send_msg {
+.send-msg {
     font-size: 1rem;
 }
 
-div.send_msg {
+div.send-msg {
     padding: 2px;
     text-align: center;
+    background-color: #e9e9e9;
 }
 
-input#send_msg_text {
+input#send-msg-text {
     margin-bottom: 4px;
+}
+
+#send-msg-button {
+    border-width: 3px;
+    color:#105269;
+    font-weight: bold;
 }
 
 div.status-bar {
