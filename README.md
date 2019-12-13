@@ -20,8 +20,8 @@ It should also be able to provide various ways to remote control pidgin / finch.
 
 ##### Desktop
 
-![purple rest html 1](doc/img/purple-rest-screenshot1.png?raw=true "HTML client - screenshot1")
-![purple rest html 2](doc/img/purple-rest-screenshot2.png?raw=true "HTML client - screenshot2")
+![purple rest html 1](doc/img/purple-rest-screenshot-1-chat.png?raw=true "HTML client - screenshot1")
+![purple rest html 2](doc/img/purple-rest-screenshot-2-main-menu.png?raw=true "HTML client - screenshot2")
 
 ##### Mobile (firefox on android)
 
