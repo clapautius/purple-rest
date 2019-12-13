@@ -62,6 +62,20 @@ function smallButtonHtmlStr(text, jsText, extraStyle)
 }
 
 
+/**
+ * Returns a string containing the HTML representation of a button in the center menu
+ */
+function buttonMenuHtmlStr(text, jsText, extraStyle)
+{
+    var str = '<div class="purple-button-menu-item" onclick="' + jsText + '"';
+    if (extraStyle) {
+        str = str + ' style="' + extraStyle + '"';
+    }
+    str = str + '>' + text + '</div>';
+    return str;
+}
+
+
 // function called before any command (with the name of the command as parameter
 // can return false, in this case the command is not executed
 function preMenuCommand(cmd)
@@ -72,19 +86,6 @@ function preMenuCommand(cmd)
         }
     }
     return true;
-}
-
-
-/*
-  :fixme: - deprecated?
-*/
-function desktopLayout()
-{
-    if (!preMenuCommand('Desktop layout')) {
-        return;
-    }
-
-    $("#content").css("width", "50em");
 }
 
 
@@ -186,6 +187,13 @@ function updateMessagesError()
 }
 
 
+function hideSendMsg()
+{
+    $("#send-msg-text").hide()
+    $("#send-msg-button").hide()
+}
+
+
 function updateMessages(data)
 {
     $("#messages").append(data);
@@ -196,8 +204,7 @@ function updateMessages(data)
         $("#send-msg-button").show()
     } else {
         // disable input
-        $("#send-msg-text").hide()
-        $("#send-msg-button").hide()
+        hideSendMsg();
     }
     window.setTimeout(postUpdateMessages, 100);
 }
@@ -269,7 +276,7 @@ function displayConversations(oldMaxId)
           //buttonHtmlStr("Menu", "dialogBoxMenuConvMenu();") +
           buttonHtmlStr("&nbsp;💬&nbsp;", "dialogBoxMenuConvMenu();") +
         "</td>" +
-        '<td style="width: 80%; text-align: middle;">' +
+        '<td style="width: 80%; text-align: center;">' +
           convCurrentTitleHtmlStr() +
         "</td>" +
         '<td style="width: 10%; text-align: left;">' +
@@ -315,12 +322,12 @@ function dialogBoxMenuBackButton()
 
 function dialogBoxMenuBackButtonStr()
 {
-    return buttonHtmlStr("Back to chat", "dialogBoxMenuExit();",
+    return buttonHtmlStr("⬅&nbsp;&nbsp;&nbsp;Back to chat", "dialogBoxMenuExit();",
                      "margin-bottom: 2em; margin-top: 1em;");
 }
 
 
-function prepareForMainMenu()
+function prepareForCenterMenu()
 {
     // display a menu inside 'inner-content' div
     // put original 'inner-content' text in global var inner-content-text
@@ -339,13 +346,15 @@ function displayCenterMenu(options, prefix = "")
     if (dialogBoxMenuActive) {
         return;
     }
-    prepareForMainMenu();
+    prepareForCenterMenu();
     // add menu options
-    var menuText = '<br/>';
+    var menuText = '';
+    menuText += '<div class="center-menu">';
     for (var i = 0; i < options.length; i++) {
-        menuText += buttonHtmlStr(options[i][0], options[i][1]);
-        menuText += '<br/><br/>';
+        menuText += buttonMenuHtmlStr(options[i][0], options[i][1]);
+        //menuText += '<br/>';
     }
+    menuText += '<br/></div>';
     $("#inner-content").html(prefix + dialogBoxMenuBackButtonStr() + menuText);
 }
 
@@ -357,8 +366,7 @@ function dialogBoxMenu()
                     [ "Show status", "dialogBoxMenuGetStatus();" ],
                     [ "Online buddies", "dialogBoxMenuBuddies(true);" ],
                     [ "All buddies", "dialogBoxMenuBuddies();" ],
-                    [ "Accounts", "dialogBoxMenuAccounts();" ],
-                    [ "Desktop layout", "desktopLayout();" ] ];
+                    [ "Accounts", "dialogBoxMenuAccounts();" ] ];
     displayCenterMenu(menuOptions);
 }
 
@@ -494,28 +502,30 @@ function dialogBoxMenuGotoConversation(conv_id, conv_name)
     dialogBoxMenuExit();
 }
 
-
+/*
 function displayConversationButton(conv)
 {
-    var jsFuncText = 'dialogBoxMenuGotoConversation(' + conv.id + ', \'' + conv.name + '\');'
-    var buttonText = '<br/>' + buttonHtmlStr(conv.name, jsFuncText) + '<br/>';
+    var buttonText = buttonMenuHtmlStr(conv.name, jsFuncText);
     $("#inner-content").append(buttonText);
 }
-
+*/
 
 /**
  * Display the list of conversations (and the 'back' button) into the main dialog window.
  */
 function showConversationsList(data)
 {
-    prepareForMainMenu();
-    $("#inner-content").text("");
-    $("#inner-content").append(dialogBoxMenuBackButtonStr());
+    var menuOptions = [ ];
+    var menuText = '';
+
     var conversations = data;
+    var jsFuncText = '';
     for (var i = 0; i < conversations.length; i++) {
-        displayConversationButton(conversations[i]);
+        jsFuncText = 'dialogBoxMenuGotoConversation(' + conversations[i].id + ', \'' + conversations[i].name + '\');'
+        menuOptions.push( [ conversations[i].name, jsFuncText] );
     }
-    $("#inner-content").append("<br/>");
+    /*$("#inner-content").append('<br/></div>');*/
+    displayCenterMenu(menuOptions, menuText);
 }
 
 
@@ -528,9 +538,9 @@ function showMainMenu()
     mainMenuText = '<table class="main-menu" cellpadding="0" style="text-align: center; width: 100%;">' + '<tr>' +
         '<td style="width: 10%; text-align: left;">' +
         buttonHtmlStr("&#9776;", "dialogBoxMenu();") + '</td>' +
-        '<td style="width: 40%; text-align: middle;">' +
+        '<td style="width: 40%; text-align: center;">' +
         buttonHtmlStr("All messages", "allMsgs();") + '</td>' +
-        '<td style="width: 40%; text-align: middle;">' +
+        '<td style="width: 40%; text-align: center;">' +
         buttonHtmlStr("Clear history", "clearHistory();") + '</td>' +
         '<td style="width: 10%; text-align: right;">' +
         //buttonHtmlStr("⭮", "clearAndDisplayConversations();") +
@@ -545,8 +555,8 @@ function showMainMenu()
  */
 function disableMainMenu()
 {
-    $("#menu > span").prop("onclick", null).off("click");
-    $("#menu > span").attr("class", "purple-button-disabled");
+    $("#menu span").prop("onclick", null).off("click");
+    $("#menu span").attr("class", "purple-button-disabled");
 }
 
 
@@ -566,11 +576,14 @@ function enableMainMenu()
 function dialogBoxMenuConvMenu()
 {
     menuOptions = [ ];
+    var menuText = '';
     if (currentConversation.id != 0)  {
         menuOptions.push([ "Close conversation", "convClose();" ]);
+        menuText = "<br/><div>" + convCurrentTitleHtmlStr() + "</div><br/>";
+    } else {
+        menuText = "<br/><div><b>No options for 'All messages'<br/>Select a specific chat !</b></div><br/>";
     }
-    displayCenterMenu(menuOptions,
-                      "<br/><div>" + convCurrentTitleHtmlStr() + "</div><br/>");
+    displayCenterMenu(menuOptions, menuText);
 }
 
 

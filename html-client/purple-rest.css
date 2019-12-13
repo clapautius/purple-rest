@@ -97,6 +97,12 @@ div.main-menu {
     background-color: #ccc;
 }
 
+div.center-menu {
+    width: 18rem;
+    text-align: center;
+    margin: auto;
+}
+
 div.conversations {
 /*    border-bottom: 1px solid black;*/
 /*    margin-bottom: 5px; */
@@ -148,6 +154,7 @@ span.purple-button-disabled {
 	border-radius:6px;
 	display:inline-block;
 	color:#eeeeee;
+	font-size: 1.1rem;
 	font-family:Arial;
 	/*font-size:20px;*/
 	font-weight:bold;
@@ -155,8 +162,10 @@ span.purple-button-disabled {
 	padding:4px 8px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #ccc;
-    margin-left: 1ex;
-    margin-right: 1ex;
+        margin-left: 0.2ex;
+        margin-right: 0.2ex;
+        margin-top: 2px;
+        margin-bottom: 10px;
 }
 
 span.purple-small-button {
@@ -188,6 +197,37 @@ span.purple-small-button {
 .purple-small-button:active {
 	position:relative;
 	top:1px;
+}
+
+
+div.purple-button-menu-item {
+	-moz-box-shadow: 0px 5px 7px -3px #276873;
+	-webkit-box-shadow: 0px 5px 7px -3px #276873;
+	box-shadow: 0px 5px 7px -3px #276873;
+	background-color:#599bb3;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	/*display:inline-block;*/
+	cursor:pointer;
+	color:#ffffff;
+	/*font-size: 1.1rem;*/
+	/*font-family:Arial;*/
+	/*font-size:20px;*/
+	/*font-weight:bold;*/
+	/*padding:6px 12px;*/
+	padding:4px 8px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #3d768a;
+        text-align: center;
+        margin-left: 0.2ex;
+        margin-right: 0.2ex;
+        margin-top: 2px;
+        margin-bottom: 1rem;
+}
+
+.purple-button-menu-item:hover {
+	background-color:#408c99;
 }
 
 /* :fixme: probably not used anymore */
