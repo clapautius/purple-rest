@@ -12,7 +12,10 @@ var innerContentText = "";
 
 // :fixme: put runtime values in a data structure
 var autoRefresh = true;
+var autoRefreshInterval = 10000;
 
+var windowIsVisible = false;
+var windowWasVisible = false;
 
 function displayError(errorMsg)
 {
@@ -85,11 +88,20 @@ function desktopLayout()
 }
 
 
-function enableRefreshTimer()
+function enableRefreshTimer(updateDisplay = false)
 {
     if (autoRefresh) {
         disableRefreshTimer(); // disable old timer if it exists
-        timerId = window.setTimeout(areThereNewMessagesP, 30000);
+        if (windowIsVisible) {
+            autoRefreshInterval = 10000;
+        } else {
+            autoRefreshInterval = 90000;
+        }
+        timerId = window.setTimeout(areThereNewMessagesP, autoRefreshInterval);
+        if (windowIsVisible != windowWasVisible || updateDisplay) {
+            var refreshIntervalHr = autoRefreshInterval / 1000;
+            $("#status-bar-1").text("Auto-refresh: ON (" + refreshIntervalHr.toString() + "s)");
+        }
     }
 }
 
@@ -128,10 +140,18 @@ function clearHistory()
 }
 
 
+function updateVisibility()
+{
+    windowWasVisible = windowIsVisible;
+    windowIsVisible = document.hasFocus();
+}
+
+
 function areThereNewMessagesP()
 {
     newMsgUrl = urlPrefixJson + "status/max_msg_id";
     console.log("Checking new messages (using url " + newMsgUrl + ")");
+    updateVisibility();
 
     $.ajax({
         url: newMsgUrl,
@@ -144,7 +164,7 @@ function areThereNewMessagesP()
             if (remoteMaxId != maxCurrentId) {
                 var oldMaxId = maxCurrentId;
                 // display notification only on automatic update
-                if (maxCurrentId != -1) {
+                if (maxCurrentId != -1 && !windowIsVisible) {
                     notifyNewMessage("New chat messages !");
                 }
                 maxCurrentId = remoteMaxId;
@@ -441,8 +461,7 @@ function dialogBoxMenuAutoRefresh()
         $("#status-bar-1").text("Auto-refresh: OFF");
     } else {
         autoRefresh = true;
-        $("#status-bar-1").text("Auto-refresh: ON");
-        enableRefreshTimer();
+        enableRefreshTimer(true);
     }
     $("#inner-content").html(dialogBoxMenuBackButtonStr() +
                              '<div class="info-msg"><span class="info-msg">Done</span></div>');
@@ -635,6 +654,7 @@ function onBuddyClick(name)
 
 
 function notifyNewMessage(msg) {
+  var notifOptions = { tag : 'purple-rest-new-chat-msg' };
   // Let's check if the browser supports notifications
   if (!("Notification" in window)) {
     alert("This browser does not support desktop notification");
@@ -643,7 +663,7 @@ function notifyNewMessage(msg) {
   // Let's check whether notification permissions have already been granted
   else if (Notification.permission === "granted") {
     // If it's okay let's create a notification
-    var notification = new Notification(msg);
+    var notification = new Notification(msg, notifOptions);
   }
 
   // Otherwise, we need to ask the user for permission
@@ -651,7 +671,7 @@ function notifyNewMessage(msg) {
     Notification.requestPermission().then(function (permission) {
       // If the user accepts, let's create a notification
       if (permission === "granted") {
-        var notification = new Notification(msg);
+        var notification = new Notification(msg, notifOptions);
       }
     });
   }
