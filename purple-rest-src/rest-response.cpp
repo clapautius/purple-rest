@@ -82,8 +82,16 @@ void HtmlResponse::add_buddy(const Buddy &buddy)
 void HtmlResponse::add_account(const PurpleAccount *account)
 {
     if (account) {
-        m_ostr << "<div class=\"account\"><span class=\"account\">"
-               << account->alias << "</span></div><br/>\n";
+        if (account->alias) {
+            m_ostr << "<div class=\"account\"><span class=\"account\">"
+                   << account->alias << "</span></div><br/>\n";
+        } else if (account->username) {
+            m_ostr << "<div class=\"account\"><span class=\"account\">"
+                   << account->username << "</span></div><br/>\n";
+        } else {
+            m_ostr << "<div class=\"account\"><span class=\"account\">"
+                   << "Unknown" << "</span></div><br/>\n";
+        }
     }
 }
 
@@ -156,9 +164,9 @@ void JsonResponse::add_buddy(const Buddy &buddy)
 void JsonResponse::add_account(const PurpleAccount *account)
 {
     Json::Value new_account(Json::objectValue);
-    new_account["username"] = account->username;
-    new_account["alias"] = account->alias;
-    new_account["protocol_id"] = account->protocol_id;
+    new_account["username"] = (account->username ? account->username : "None");
+    new_account["alias"] = (account->alias ? account->alias : "None");
+    new_account["protocol_id"] = (account->protocol_id ? account->protocol_id : "None");
     m_response.append(new_account);
 }
 

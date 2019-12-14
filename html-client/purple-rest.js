@@ -640,8 +640,13 @@ function buddyHtmlStr(buddy)
 function accountHtmlStr(account)
 {
     var htmlStr;
-    htmlStr = '<div class="account"><span class="account">'
+    if (account.alias != 'None') {
+        htmlStr = '<div class="account"><span class="account">'
             + account.alias + '</span></div><hr class="account"/>\n';
+    } else {
+        htmlStr = '<div class="account"><span class="account">'
+            + account.username + '</span></div><hr class="account"/>\n';
+    }
     return htmlStr;
 }
 

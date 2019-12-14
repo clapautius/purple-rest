@@ -489,7 +489,7 @@ static int get_accounts_request(const vector<string> &request, string &response_
             GList *accounts = purple_accounts_get_all();
             GList *ptr = g_list_first(accounts);
             while (ptr) {
-                response->add_account(reinterpret_cast<PurpleAccount*>(ptr));
+                response->add_account(reinterpret_cast<PurpleAccount*>(ptr->data));
                 ptr = g_list_next(ptr);
             }
         } else {
