@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2019, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -32,10 +32,16 @@ p_rest::History g_msg_history;
 std::string g_url_prefix;
 
 
-static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffer,
-                               PurpleConversation *conv, int flags, void *data)
+static void wrote_im_msg_cb(PurpleAccount *account, char *sender, char *buffer,
+                            PurpleConversation *conv, int flags, void *data)
 {
-    purple_debug_info(PLUGIN_ID, "Got an IM msg: %s\n", buffer);
+    std::ostringstream dbg_msg;
+    dbg_msg << "wrote-im-msg: (account, sender, buffer, conv, flags, data)"
+            << account << "," << sender << "," << buffer << ","
+            << conv << "," << flags << "," << data;
+    purple_debug_info(PLUGIN_ID, "New IM msg in conversation: %s\n",
+                      dbg_msg.str().c_str());
+
     ImMessage::ImMessageType msg_type = ImMessage::kMsgTypeIm;
     if (flags & PURPLE_MESSAGE_SYSTEM) {
         purple_debug_info(PLUGIN_ID, "This is a SYSTEM msg\n");
@@ -46,59 +52,6 @@ static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffe
                      g_conv_list.get_or_add_conversation(conv), msg_type));
     g_msg_history.add_im_message(new_msg);
 }
-
-
-#if 0
-static void received_chat_msg_cb(PurpleAccount *account, char *sender, char *buffer,
-                                 PurpleConversation *conv, int flags, void *data)
-{
-    ImMessage::ImMessageType msg_type = ImMessage::kMsgTypeChat;
-    purple_debug_info(PLUGIN_ID, "Got a chat msg (see below):\n");
-    std::ostringstream dbg_msg;
-    dbg_msg << __FUNCTION__ << "(account, sender, buffer, conv, flags, data)"
-            << account << "," << sender << "," << buffer << ","
-            << conv << "," << flags << "," << data;
-    purple_debug_info(PLUGIN_ID, "  %s\n", dbg_msg.str().c_str());
-    if (flags & PURPLE_MESSAGE_NICK) {
-        purple_debug_info(PLUGIN_ID, "This is a NICK msg\n");
-        msg_type = ImMessage::kMsgTypeChatAcc;
-    }
-    shared_ptr<ImMessage> new_msg
-      (new ImMessage(account, buffer, History::get_new_id(), sender,
-                     g_conv_list.get_or_add_conversation(conv), msg_type));
-    g_msg_history.add_im_message(new_msg);
-}
-
-
-static void sent_im_msg_cb(PurpleAccount *account, const char *recipient,
-                           const char *buffer, void *data)
-{
-    std::ostringstream dbg_msg;
-    dbg_msg << "sent-im-msg: (account, recipient, buffer, data)" << account << ", "
-            << recipient << ", " << buffer << ", " << data;
-    purple_debug_info(PLUGIN_ID, "Sent an IM msg: %s\n", dbg_msg.str().c_str());
-}
-#endif
-
-
-static void wrote_im_msg_cb(PurpleAccount *account, char *sender, char *buffer,
-                            PurpleConversation *conv, int flags, void *data)
-{
-    std::ostringstream dbg_msg;
-    dbg_msg << "wrote-im-msg: (account, sender, buffer, conv, flags, data)"
-            << account << "," << sender << "," << buffer << ","
-            << conv << "," << flags << "," << data;
-    purple_debug_info(PLUGIN_ID, "New IM msg in conversation: %s\n",
-                      dbg_msg.str().c_str());
-    received_im_msg_cb(account, sender, buffer, conv, flags, data);
-}
-
-
-#if 0
-void (*wrote_chat_msg)(PurpleAccount *account, const char *who,
-                       char *message, PurpleConversation *conv,
-                       PurpleMessageFlags flags);
-#endif
 
 
 static void wrote_chat_msg_cb(PurpleAccount *account, char *sender, char *buffer,
