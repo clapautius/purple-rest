@@ -34,6 +34,11 @@ public:
          * Chat message that contains the nick.
          */
         kMsgTypeChatAcc,
+
+        /**
+         * System message (e.g. status).
+         */
+        kMsgTypeSystem,
     } ImMessageType;
 
     ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender, unsigned conv_id, ImMessageType type = kMsgTypeUnknown);

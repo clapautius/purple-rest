@@ -36,9 +36,14 @@ static void received_im_msg_cb(PurpleAccount *account, char *sender, char *buffe
                                PurpleConversation *conv, int flags, void *data)
 {
     purple_debug_info(PLUGIN_ID, "Got an IM msg: %s\n", buffer);
+    ImMessage::ImMessageType msg_type = ImMessage::kMsgTypeIm;
+    if (flags & PURPLE_MESSAGE_SYSTEM) {
+        purple_debug_info(PLUGIN_ID, "This is a SYSTEM msg\n");
+        msg_type = ImMessage::kMsgTypeSystem;
+    }
     shared_ptr<ImMessage> new_msg
       (new ImMessage(account, buffer, History::get_new_id(), sender,
-                     g_conv_list.get_or_add_conversation(conv), ImMessage::kMsgTypeIm));
+                     g_conv_list.get_or_add_conversation(conv), msg_type));
     g_msg_history.add_im_message(new_msg);
 }
 
@@ -111,6 +116,10 @@ static void wrote_chat_msg_cb(PurpleAccount *account, char *sender, char *buffer
     if (flags & PURPLE_MESSAGE_NICK) {
         purple_debug_info(PLUGIN_ID, "This is a NICK msg\n");
         msg_type = ImMessage::kMsgTypeChatAcc;
+    }
+    if (flags & PURPLE_MESSAGE_SYSTEM) {
+        purple_debug_info(PLUGIN_ID, "This is a SYSTEM msg\n");
+        msg_type = ImMessage::kMsgTypeSystem;
     }
     shared_ptr<ImMessage> new_msg
       (new ImMessage(account, buffer, History::get_new_id(), sender,

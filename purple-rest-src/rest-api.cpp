@@ -146,7 +146,8 @@ static int get_my_messages_request(const vector<string> &request, string &respon
           {
               return (elt->get_id() > start_from_id &&
                       (ImMessage::kMsgTypeIm == elt->get_type() ||
-                       ImMessage::kMsgTypeChatAcc == elt->get_type()));
+                       ImMessage::kMsgTypeChatAcc == elt->get_type() ||
+                       ImMessage::kMsgTypeSystem == elt->get_type()));
           });
         for (auto &e : msg_list) {
             response->add_message(e);

@@ -19,7 +19,8 @@ void History::add_im_message(std::shared_ptr<ImMessage> msg)
 {
     m_message_list.push_back(msg);
     if (msg->get_type() == ImMessage::kMsgTypeIm ||
-        msg->get_type() == ImMessage::kMsgTypeChatAcc) {
+        msg->get_type() == ImMessage::kMsgTypeChatAcc ||
+        msg->get_type() == ImMessage::kMsgTypeSystem) {
         m_max_my_msg_id = msg->get_id();
     }
 }

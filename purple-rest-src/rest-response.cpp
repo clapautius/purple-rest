@@ -121,6 +121,11 @@ void JsonResponse::add_message(std::shared_ptr<ImMessage> &msg)
     new_msg["text"] = msg->get_text();
     new_msg["sender"] = msg->get_sender();
     new_msg["conversation"] = msg->get_conv_id();
+    string flags;
+    if (msg->get_type() == ImMessage::kMsgTypeSystem) {
+        flags += "system:";
+    }
+    new_msg["flags"] = flags;
     m_response.append(new_msg);
 }
 
