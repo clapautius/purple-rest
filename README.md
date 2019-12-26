@@ -76,13 +76,18 @@ Things to be added to ```~/.purple/pref.xml```
 
 ### Installing the web client
 
-The web client's files (*index.html*, *purple-rest.js*, etc.) should be in `/var/www/html/purple-rest` (considering the default *apache* configuration).
+Considering the default *apache* configuration, the web client's files (*index.html*,
+*purple-rest.js*, etc.) should be in:
+ * `/var/www/html/purple-rest` - for debian
+ * `/srv/www/htdocs/purple-rest` - for openSuse
 
 Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
 
 #### Configuring apache web server
 
-* enable proxy module (on debian symlink the files *proxy.load*, *proxy.conf* and *proxy_http.load*)
+##### Debian
+
+* enable proxy module (symlink the files *proxy.load*, *proxy.conf* and *proxy_http.load*)
 * add these to *default.conf* or *default-ssl.conf*:
 
 ```
@@ -91,6 +96,22 @@ Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
   ProxyPassReverse http://localhost:8888
 </Location>
 ```
+
+##### OpenSuse
+
+* install the *yast2-http-server* module.
+* go to yast -> Network services -> HTTP server -> Server modules
+* enable `proxy_http`
+* add these to *default-server.conf*:
+
+```
+<Location "/purple-rest/rest">
+  ProxyPass http://localhost:8888
+  ProxyPassReverse http://localhost:8888
+</Location>
+```
+
+:todo:
 
 ## Usage
 

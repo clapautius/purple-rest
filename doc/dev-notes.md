@@ -1,6 +1,20 @@
+# Synopsis
+
+## Definitions
+
+**IM conversation, chat conversation** : IM conversation = conversation between two
+people; chat = conversation with multiple participants.
+
 # Resources, tutorials
 
-* web notifications: https://developers.google.com/web/fundamentals/push-notifications/display-a-notification
+* Pidgin/Finch/libpurple API Documentation : https://docs.pidgin.im/pidgin/2.x.y/
+
+* Web notifications: https://developers.google.com/web/fundamentals/push-notifications/display-a-notification
+
+## Shortcuts
+
+PurpleMessageFlags (`enum PurpleMessageFlags`) :
+https://docs.pidgin.im/pidgin/2.x.y/conversation_8h.html#a66e44dfdc0de2953d73f03fb806bf6f5
 
 # libpurple
 
@@ -25,6 +39,15 @@ Q. What is the difference between wrote-im-msg and sent-im-msg?
 - wrote-im-msg: called when a message is displayed in a chat window (no matter if it's an
 incoming or outgoing message).
 
+## message flags
+
+### relevant log fragments
+
+```
+(21:06:14) core-purple_rest: New IM msg in conversation: wrote-im-msg: (account, sender, buffer, conv, flags, data)0x5584945f8290,t@jabber.x,t@jabber.x has gone away.,0x5584948cde60,16404,0
+(21:06:14) core-purple_rest: Got an IM msg: t@jabber.x has gone away.
+```
+*16404 = 0b100000000010100*
 
 ## multi-threading
 
