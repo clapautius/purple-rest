@@ -5,6 +5,12 @@
 **IM conversation, chat conversation** : IM conversation = conversation between two
 people; chat = conversation with multiple participants.
 
+## UML diagrams
+
+UML activity dia. (basic ver.)
+
+![purple rest uml 1](uml-purple-rest-activity-dia.png?raw=true "UML activity dia. (basic ver.)")
+
 # Resources, tutorials
 
 * Pidgin/Finch/libpurple API Documentation : https://docs.pidgin.im/pidgin/2.x.y/
