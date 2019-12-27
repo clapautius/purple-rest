@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmlns:UML="http://schema.omg.org/spec/UML/1.4" xmi.version="1.2" timestamp="2019-12-27T21:41:26" verified="false">
+ <XMI.header>
+  <XMI.documentation>
+   <XMI.exporter>umbrello uml modeller http://umbrello.kde.org</XMI.exporter>
+   <XMI.exporterVersion>1.6.13</XMI.exporterVersion>
+   <XMI.exporterEncoding>UnicodeUTF8</XMI.exporterEncoding>
+  </XMI.documentation>
+  <XMI.metamodel xmi.name="UML" href="UML.xml" xmi.version="1.4"/>
+ </XMI.header>
+ <XMI.content>
+  <UML:Model isAbstract="false" isSpecification="false" name="UML Model" isRoot="false" xmi.id="m1" isLeaf="false">
+   <UML:Namespace.ownedElement>
+    <UML:Stereotype isAbstract="false" namespace="m1" isSpecification="false" visibility="public" name="folder" isRoot="false" xmi.id="folder" isLeaf="false"/>
+    <UML:Model isAbstract="false" namespace="m1" isSpecification="false" visibility="public" name="Logical View" isRoot="false" xmi.id="Logical_View" isLeaf="false">
+     <UML:Namespace.ownedElement>
+      <UML:Package isAbstract="false" namespace="Logical_View" isSpecification="false" visibility="public" name="Datatypes" isRoot="false" xmi.id="Datatypes" stereotype="folder" isLeaf="false">
+       <UML:Namespace.ownedElement>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="char" isRoot="false" xmi.id="ukS2LeNVZaNQ7" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="int" isRoot="false" xmi.id="uKhIRa9bWCT02" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="float" isRoot="false" xmi.id="uLVV3BmQHg8Yi" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="double" isRoot="false" xmi.id="upDPuHChkGIpd" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="bool" isRoot="false" xmi.id="uEftvK5CCjzMX" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="string" isRoot="false" xmi.id="uOsLDkqekOqVG" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="unsigned char" isRoot="false" xmi.id="uoVUU7qEWYvHw" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="signed char" isRoot="false" xmi.id="uU5r43Fa5veL0" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="unsigned int" isRoot="false" xmi.id="usJsURuNFlEfj" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="signed int" isRoot="false" xmi.id="uw2Y00uwtjGCe" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="short int" isRoot="false" xmi.id="uyMN9ZaJpm7bu" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="unsigned short int" isRoot="false" xmi.id="ukTRB4pnXXyPX" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="signed short int" isRoot="false" xmi.id="ua6xy6LqUaOWY" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="long int" isRoot="false" xmi.id="uLZwLEXe48Z8L" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="signed long int" isRoot="false" xmi.id="u06H4LLqXkRwR" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="unsigned long int" isRoot="false" xmi.id="ubi3hWwneX1dg" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="long double" isRoot="false" xmi.id="uUGyvPFQ81sFv" isLeaf="false"/>
+        <UML:DataType isAbstract="false" namespace="Datatypes" isSpecification="false" visibility="public" name="wchar_t" isRoot="false" xmi.id="uMmvxWsaYq3Yo" isLeaf="false"/>
+       </UML:Namespace.ownedElement>
+      </UML:Package>
+     </UML:Namespace.ownedElement>
+     <XMI.extension xmi.extender="umbrello">
+      <diagrams resolution="96">
+       <diagram snapy="25" linecolor="#839496" name="purple-rest-activity-dia" showgrid="0" griddotcolor="#d3d3d3" isopen="1" zoom="100" usefillcolor="1" font="Droid Sans,12,-1,5,50,0,0,0,0,0" linewidth="2" showattsig="1" showscope="1" documentation="" showatts="1" backgroundcolor="#fdf6e3" xmi.id="u5lV5XPx7yQNf" fillcolor="#eee8d5" showpackage="1" showops="1" showpubliconly="0" textcolor="#268bd2" showstereotype="1" localid="-1" showopsig="1" snapgrid="0" type="6" canvaswidth="552" showattribassocs="1" canvasheight="748" snapcsgrid="0" snapx="25">
+        <widgets>
+         <activitywidget width="99" linecolor="#839496" precondition="" activitytype="1" height="29" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" activityname="get_actions" documentation="" usesdiagramfillcolor="0" xmi.id="uDcZEv5XgtJJS" fillcolor="#eee8d5" y="-357" postcondition="" x="64" localid="uqx8GZF4kEZ7E" textcolor="#268bd2" usesdiagramusefillcolor="0" showstereotype="1" isinstance="0" autoresize="1"/>
+         <activitywidget width="29" linecolor="#839496" precondition="" activitytype="4" height="29" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" activityname="" documentation="" usesdiagramfillcolor="0" xmi.id="uYJURw81mkhVK" fillcolor="#eee8d5" y="-411" postcondition="" x="-9" localid="uWgEoQb1RwqcD" textcolor="#268bd2" usesdiagramusefillcolor="0" showstereotype="1" isinstance="0" autoresize="0"/>
+         <activitywidget width="212" linecolor="#839496" precondition="" activitytype="1" height="29" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" activityname="answer_to_http_connection" documentation="" usesdiagramfillcolor="0" xmi.id="uxAp1APawkpmf" fillcolor="#eee8d5" y="-610" postcondition="" x="-100" localid="uk4h91bFzY5yy" textcolor="#268bd2" usesdiagramusefillcolor="0" showstereotype="1" isinstance="0" autoresize="1"/>
+         <activitywidget width="80" linecolor="#839496" precondition="" activitytype="1" height="29" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" activityname="do_work" documentation="" usesdiagramfillcolor="0" xmi.id="uMmRF0vPVTt28" fillcolor="#eee8d5" y="-547" postcondition="" x="-39" localid="ugPm37Xw94yVj" textcolor="#268bd2" usesdiagramusefillcolor="0" showstereotype="1" isinstance="0" autoresize="1"/>
+         <activitywidget width="122" linecolor="#839496" precondition="" activitytype="1" height="29" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" activityname="delete_actions" documentation="" usesdiagramfillcolor="0" xmi.id="uGc8CzKr6s1o9" fillcolor="#eee8d5" y="-354" postcondition="" x="-175" localid="uAg9ozFutdtMG" textcolor="#268bd2" usesdiagramusefillcolor="0" showstereotype="1" isinstance="0" autoresize="1"/>
+         <activitywidget width="173" linecolor="#839496" precondition="" activitytype="1" height="29" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" activityname="perform_rest_request" documentation="rest-api.cpp" usesdiagramfillcolor="0" xmi.id="uiVJGSfEwGJby" fillcolor="#eee8d5" y="-471" postcondition="" x="-85" localid="uYYJcpTuH6goF" textcolor="#268bd2" usesdiagramusefillcolor="0" showstereotype="1" isinstance="0" autoresize="1"/>
+        </widgets>
+        <messages/>
+        <associations>
+         <assocwidget seqnum="" linecolor="#839496" widgetaid="uxAp1APawkpmf" visibilityA="0" changeabilityB="900" visibilityB="0" changeabilityA="900" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" totalcounta="2" totalcountb="2" documentation="" usesdiagramfillcolor="1" indexa="1" fillcolor="none" indexb="1" textcolor="none" usesdiagramusefillcolor="1" widgetbid="uMmRF0vPVTt28" type="515" autoresize="1" roleBdoc="" roleAdoc="">
+          <linepath layout="Polyline">
+           <startpoint startx="3" starty="-581"/>
+           <endpoint endy="-547" endx="3"/>
+          </linepath>
+         </assocwidget>
+         <assocwidget seqnum="" linecolor="#839496" widgetaid="uiVJGSfEwGJby" visibilityA="0" changeabilityB="900" visibilityB="0" changeabilityA="900" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" totalcounta="2" totalcountb="2" documentation="" usesdiagramfillcolor="1" indexa="1" fillcolor="none" indexb="1" textcolor="none" usesdiagramusefillcolor="1" widgetbid="uYJURw81mkhVK" type="515" autoresize="1" roleBdoc="" roleAdoc="">
+          <linepath layout="Polyline">
+           <startpoint startx="5" starty="-442"/>
+           <endpoint endy="-411" endx="5"/>
+          </linepath>
+         </assocwidget>
+         <assocwidget seqnum="" linecolor="#839496" widgetaid="uYJURw81mkhVK" visibilityA="0" changeabilityB="900" visibilityB="0" changeabilityA="900" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" totalcounta="2" totalcountb="2" documentation="" usesdiagramfillcolor="1" indexa="1" fillcolor="none" indexb="1" textcolor="none" usesdiagramusefillcolor="1" widgetbid="uGc8CzKr6s1o9" type="515" autoresize="1" roleBdoc="" roleAdoc="">
+          <linepath layout="Polyline">
+           <startpoint startx="-9" starty="-382"/>
+           <endpoint endy="-354" endx="-53"/>
+          </linepath>
+         </assocwidget>
+         <assocwidget seqnum="" linecolor="#839496" widgetaid="uMmRF0vPVTt28" visibilityA="0" changeabilityB="900" visibilityB="0" changeabilityA="900" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" totalcounta="2" totalcountb="2" documentation="" usesdiagramfillcolor="1" indexa="1" fillcolor="none" indexb="1" textcolor="none" usesdiagramusefillcolor="1" widgetbid="uiVJGSfEwGJby" type="515" autoresize="1" roleBdoc="" roleAdoc="">
+          <linepath layout="Polyline">
+           <startpoint startx="3" starty="-518"/>
+           <endpoint endy="-471" endx="3"/>
+          </linepath>
+         </assocwidget>
+         <assocwidget seqnum="" linecolor="#839496" widgetaid="uYJURw81mkhVK" visibilityA="0" changeabilityB="900" visibilityB="0" changeabilityA="900" usefillcolor="1" linewidth="2" font="Droid Sans,12,-1,5,50,0,0,0,0,0" totalcounta="2" totalcountb="2" documentation="" usesdiagramfillcolor="1" indexa="1" fillcolor="none" indexb="1" textcolor="none" usesdiagramusefillcolor="1" widgetbid="uDcZEv5XgtJJS" type="515" autoresize="1" roleBdoc="" roleAdoc="">
+          <linepath layout="Polyline">
+           <startpoint startx="20" starty="-382"/>
+           <endpoint endy="-357" endx="64"/>
+          </linepath>
+         </assocwidget>
+        </associations>
+       </diagram>
+      </diagrams>
+     </XMI.extension>
+    </UML:Model>
+    <UML:Model isAbstract="false" namespace="m1" isSpecification="false" visibility="public" name="Use Case View" isRoot="false" xmi.id="Use_Case_View" isLeaf="false">
+     <UML:Namespace.ownedElement/>
+    </UML:Model>
+    <UML:Model isAbstract="false" namespace="m1" isSpecification="false" visibility="public" name="Component View" isRoot="false" xmi.id="Component_View" isLeaf="false">
+     <UML:Namespace.ownedElement/>
+    </UML:Model>
+    <UML:Model isAbstract="false" namespace="m1" isSpecification="false" visibility="public" name="Deployment View" isRoot="false" xmi.id="Deployment_View" isLeaf="false">
+     <UML:Namespace.ownedElement/>
+    </UML:Model>
+    <UML:Model isAbstract="false" namespace="m1" isSpecification="false" visibility="public" name="Entity Relationship Model" isRoot="false" xmi.id="Entity_Relationship_Model" isLeaf="false">
+     <UML:Namespace.ownedElement/>
+    </UML:Model>
+   </UML:Namespace.ownedElement>
+  </UML:Model>
+ </XMI.content>
+ <XMI.extensions xmi.extender="umbrello">
+  <docsettings uniqueid="uDcZEv5XgtJJS" documentation="" viewid="u5lV5XPx7yQNf"/>
+  <listview>
+   <listitem type="800" open="1" id="Views">
+    <listitem type="821" open="1" id="Component_View"/>
+    <listitem type="827" open="1" id="Deployment_View"/>
+    <listitem type="836" open="1" id="Entity_Relationship_Model"/>
+    <listitem type="801" open="1" id="Logical_View">
+     <listitem type="830" open="0" id="Datatypes">
+      <listitem type="829" open="1" id="uEftvK5CCjzMX"/>
+      <listitem type="829" open="1" id="ukS2LeNVZaNQ7"/>
+      <listitem type="829" open="1" id="upDPuHChkGIpd"/>
+      <listitem type="829" open="1" id="uLVV3BmQHg8Yi"/>
+      <listitem type="829" open="1" id="uKhIRa9bWCT02"/>
+      <listitem type="829" open="1" id="uUGyvPFQ81sFv"/>
+      <listitem type="829" open="1" id="uLZwLEXe48Z8L"/>
+      <listitem type="829" open="1" id="uyMN9ZaJpm7bu"/>
+      <listitem type="829" open="1" id="uU5r43Fa5veL0"/>
+      <listitem type="829" open="1" id="uw2Y00uwtjGCe"/>
+      <listitem type="829" open="1" id="u06H4LLqXkRwR"/>
+      <listitem type="829" open="1" id="ua6xy6LqUaOWY"/>
+      <listitem type="829" open="1" id="uOsLDkqekOqVG"/>
+      <listitem type="829" open="1" id="uoVUU7qEWYvHw"/>
+      <listitem type="829" open="1" id="usJsURuNFlEfj"/>
+      <listitem type="829" open="1" id="ubi3hWwneX1dg"/>
+      <listitem type="829" open="1" id="ukTRB4pnXXyPX"/>
+      <listitem type="829" open="1" id="uMmvxWsaYq3Yo"/>
+     </listitem>
+     <listitem type="809" open="0" label="purple-rest-activity-dia" id="u5lV5XPx7yQNf"/>
+    </listitem>
+    <listitem type="802" open="1" id="Use_Case_View"/>
+   </listitem>
+  </listview>
+  <codegeneration>
+   <codegenerator language="C++"/>
+  </codegeneration>
+ </XMI.extensions>
+</XMI>
