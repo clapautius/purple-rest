@@ -101,7 +101,7 @@ Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
 
 * install the *yast2-http-server* module.
 * go to yast -> Network services -> HTTP server -> Server modules
-* enable `proxy_http`
+* enable `proxy` and `proxy_http`
 * add these to *default-server.conf*:
 
 ```
@@ -110,8 +110,6 @@ Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
   ProxyPassReverse http://localhost:8888
 </Location>
 ```
-
-:todo:
 
 ## Usage
 
