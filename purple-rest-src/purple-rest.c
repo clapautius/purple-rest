@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2015-2020, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,13 @@
 #include "debug.h"
 
 #include "purple-rest.h"
+
+void perform_rest_request(const char *url, HttpMethod method,
+                          const char *upload_data, size_t upload_data_size,
+                          char **buf, int *buf_len, char **content_type,
+                          int *http_code);
+
+void init_rest_api();
 
 void init_purple_rest_module();
 
@@ -161,14 +168,16 @@ static gboolean plugin_load(PurplePlugin *plugin)
     purple_debug_info(PLUGIN_ID, "Purple REST plugin is up & running\n");
 
     // read preferences
-    int http_port = purple_prefs_get_int("/plugins/purple-rest/server-port");
-    const char *p = purple_prefs_get_string("/plugins/purple-rest/url-prefix");
+    int http_port = purple_prefs_get_int("/plugins/core/purple-rest/server-port");
+    const char *p = purple_prefs_get_string("/plugins/core/purple-rest/url-prefix");
     purple_debug_info(PLUGIN_ID, "server-port: %d\n", http_port);
     purple_debug_info(PLUGIN_ID, "url-prefix: %s\n", p ? p : "NULL");
     if (http_port == 0) {
         http_port = 8888;
     }
     purple_debug_info(PLUGIN_ID, "server-port (real): %d\n", http_port);
+
+    init_rest_api();
 
     // setup HTTP server
     struct MHD_Daemon *daemon;

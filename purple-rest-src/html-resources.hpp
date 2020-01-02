@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2019-2020, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -12,6 +12,9 @@
 
 #ifndef HTML_RESOURCES_HPP
 #define HTML_RESOURCES_HPP
+
+#include <string>
+
 
 #define HTML_STYLE "<style>\
 div.message {\
@@ -46,5 +49,28 @@ div.content\
 <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" >\n\
 </head>"
 
+
+/**
+ * Configurable elements for the HTML output (can be set up in purple config file).
+ */
+class HtmlTemplate
+{
+public:
+    HtmlTemplate();
+
+    void read_config();
+
+    std::string get_message_system_prefix() const;
+
+private:
+
+    std::string m_message_system_prefix;
+};
+
+
+/**
+ * @todo :fixme: get rid of this global
+ */
+extern HtmlTemplate g_html_template;
 
 #endif

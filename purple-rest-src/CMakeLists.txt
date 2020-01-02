@@ -13,7 +13,8 @@ set (PURPLE_REST_SRC
   immessage.cpp
   rest-response.cpp
   imconversation.cpp
-  imbuddy.cpp)
+  imbuddy.cpp
+  html-resources.cpp)
 
 add_library (purple-rest SHARED ${PURPLE_REST_SRC} purple-rest.c)
 

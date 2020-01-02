@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2015-2020, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -37,11 +37,18 @@ std::string HtmlResponse::get_text()
 
 void HtmlResponse::add_message(std::shared_ptr<ImMessage> &msg)
 {
-    m_ostr << "<div class=\"message\">"
-           << "<span class=\"message-sender\">" << msg->get_sender()
-           << "&nbsp;(" << msg->get_short_date_string() << "):"
-           << "</span><br>\n"
-           << "<span class=\"message-text\">" << msg->get_text() << "</span></div>\n";
+    if (msg->get_type() == ImMessage::kMsgTypeSystem) {
+        m_ostr << "<div class=\"message-system\">"
+               << "<span class=\"message-system-prefix\">" << g_html_template.get_message_system_prefix() << "</span>"
+               << msg->get_short_date_string() << "&nbsp;:&nbsp;"
+               << msg->get_text() << "</div>\n";
+    } else {
+        m_ostr << "<div class=\"message\">"
+               << "<span class=\"message-sender\">" << msg->get_sender()
+               << "&nbsp;(" << msg->get_short_date_string() << "):"
+               << "</span><br>\n"
+               << "<span class=\"message-text\">" << msg->get_text() << "</span></div>\n";
+    }
 }
 
 

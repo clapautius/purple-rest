@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2015-2020, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@
 #include "history.hpp"
 #include "purple-interaction.hpp"
 #include "rest-response.hpp"
+#include "html-resources.hpp"
 
 using std::string;
 using std::vector;
@@ -27,6 +28,12 @@ extern p_rest::History g_msg_history;
 extern std::string g_url_prefix;
 
 const int kFormatIdx = 1;
+
+
+void init_rest_api()
+{
+    g_html_template.read_config();
+}
 
 
 /**
