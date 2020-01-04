@@ -117,8 +117,8 @@ Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
 
 #### Definitions:
 
-*my messages* : IM messages and messages from chat conversations that contain user's
-nick.
+*my messages* : IM messages (except for system messages in IM conversations) and messages
+from chat conversations that contain user's nick.
 
 *FORMAT* : html | json
 

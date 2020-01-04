@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2015-2020 Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -19,8 +19,7 @@ void History::add_im_message(std::shared_ptr<ImMessage> msg)
 {
     m_message_list.push_back(msg);
     if (msg->get_type() == ImMessage::kMsgTypeIm ||
-        msg->get_type() == ImMessage::kMsgTypeChatAcc ||
-        msg->get_type() == ImMessage::kMsgTypeSystem) {
+        msg->get_type() == ImMessage::kMsgTypeChatAcc) {
         m_max_my_msg_id = msg->get_id();
     }
 }
