@@ -58,7 +58,7 @@ Copy the file `libpurple-rest.so` from the build dir. to `~/.purple/plugins`.
 
 * _/plugins/purple-rest/server-port_ : listen port
 * _/plugins/purple-rest/url-prefix_ : URL prefix (stripped from requests) - useful for
-nginx / apache redirecting.
+nginx / apache redirecting (default value is empty string).
 
 Things to be added to ```~/.purple/pref.xml```
 
@@ -69,7 +69,7 @@ Things to be added to ```~/.purple/pref.xml```
       ...
       <pref name='purple-rest'>
         <pref name='server-port' type='int' value='8888'/>
-        <pref name='url-prefix' type='string' value='purple-rest/'/>
+        <pref name='url-prefix' type='string' value=''/>
       </pref>
       ...
 ```

@@ -182,30 +182,32 @@ function areThereNewMessagesP()
         }
     });
 
-    // check if there are new messages for me (my-messages)
-    newMyMsgUrl = urlPrefixJson + "status/max_my_msg_id";
-    console.log("Checking new 'my messages' (using url " + newMyMsgUrl + ")");
-    $.ajax({
-        url: newMyMsgUrl,
-        dataType: 'json',
-        success: function(data) {
-            jsonSuccess = true;
-            var remoteMaxMyMsgId = data[0]["max_my_msg_id"];
-            console.log("max remote my msg id "+remoteMaxMyMsgId + ", max current my msg id " + maxCurrentMyMsgId);
-            if (remoteMaxMyMsgId != maxCurrentMyMsgId) {
-                var oldMaxId = maxCurrentMyMsgId;
-                // display notification only on automatic update
-                if (maxCurrentMyMsgId != -1 && !windowIsVisible) {
-                    notifyNewMessage("New chat messages !");
+    if (jsonSuccess) {
+        // check if there are new messages for me (my-messages)
+        newMyMsgUrl = urlPrefixJson + "status/max_my_msg_id";
+        console.log("Checking new 'my messages' (using url " + newMyMsgUrl + ")");
+        $.ajax({
+            url: newMyMsgUrl,
+            dataType: 'json',
+            success: function(data) {
+                jsonSuccess = true;
+                var remoteMaxMyMsgId = data[0]["max_my_msg_id"];
+                console.log("max remote my msg id "+remoteMaxMyMsgId + ", max current my msg id " + maxCurrentMyMsgId);
+                if (remoteMaxMyMsgId != maxCurrentMyMsgId) {
+                    var oldMaxId = maxCurrentMyMsgId;
+                    // display notification only on automatic update
+                    if (maxCurrentMyMsgId != -1 && !windowIsVisible) {
+                        notifyNewMessage("New chat messages !");
+                    }
+                    maxCurrentMyMsgId = remoteMaxMyMsgId;
                 }
-                maxCurrentMyMsgId = remoteMaxMyMsgId;
+            },
+            error: function(data) {
+                jsonSuccess = false;
+                displayError("Error getting my messages");
             }
-        },
-        error: function(data) {
-            jsonSuccess = false;
-            displayError("Error getting my messages");
-        }
-    });
+        });
+    }
 
     enableRefreshTimer();
 }
