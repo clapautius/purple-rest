@@ -78,8 +78,8 @@ Things to be added to ```~/.purple/pref.xml```
 
 Considering the default *apache* configuration, the web client's files (*index.html*,
 *purple-rest.js*, etc.) should be in:
- * `/var/www/html/purple-rest` - for debian
- * `/srv/www/htdocs/purple-rest` - for openSuse
+ * `/var/www/html/purple-rest` - for **debian**
+ * `/srv/www/htdocs/purple-rest` - for **openSuse**
 
 Assuming the HTTP URL is ```http://<WEBSERVER>/purple-rest/``` :
 
