@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2015-2020, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -41,7 +41,13 @@ public:
         kMsgTypeSystem,
     } ImMessageType;
 
-    ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender, unsigned conv_id, ImMessageType type = kMsgTypeUnknown);
+    typedef enum {
+        kMsgDirUndefined = 0,
+        kMsgDirIncoming,
+        kMsgDirOutgoing
+    } ImMessageDirection;
+
+    ImMessage(PurpleAccount *account, const char *msg, uint64_t id, const char *sender, unsigned conv_id, ImMessageType type = kMsgTypeUnknown, int purple_flags = 0);
 
     const std::string &get_text() const;
 
@@ -64,6 +70,11 @@ public:
         return m_conversation_id;
     }
 
+    ImMessageDirection get_direction() const
+    {
+        return m_direction;
+    }
+
 private:
 
     PurpleAccount *m_account;
@@ -79,6 +90,8 @@ private:
     ImMessageType m_type;
 
     unsigned m_conversation_id;
+
+    ImMessageDirection m_direction;
 };
 
 typedef std::shared_ptr<ImMessage> ImMessagePtr;

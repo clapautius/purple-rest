@@ -43,9 +43,15 @@ void HtmlResponse::add_message(std::shared_ptr<ImMessage> &msg)
                << msg->get_short_date_string() << "&nbsp;:&nbsp;"
                << msg->get_text() << "</div>\n";
     } else {
-        m_ostr << "<div class=\"message\">"
-               << "<span class=\"message-sender\">" << msg->get_sender()
-               << "&nbsp;(" << msg->get_short_date_string() << "):"
+        if (msg->get_direction() == ImMessage::kMsgDirIncoming) {
+            m_ostr << "<div class=\"message dir-incoming\">";
+        } else if (msg->get_direction() == ImMessage::kMsgDirOutgoing) {
+            m_ostr << "<div class=\"message dir-outgoing\">";
+        } else {
+            m_ostr << "<div class=\"message\">";
+        }
+        m_ostr << "<span class=\"message-sender\">" << msg->get_sender()
+               << "&nbsp;(" << msg->get_short_date_string() << ")"
                << "</span><br>\n"
                << "<span class=\"message-text\">" << msg->get_text() << "</span></div>\n";
     }
@@ -131,6 +137,12 @@ void JsonResponse::add_message(std::shared_ptr<ImMessage> &msg)
     string flags;
     if (msg->get_type() == ImMessage::kMsgTypeSystem) {
         flags += "system:";
+    }
+    if (msg->get_direction() == ImMessage::kMsgDirIncoming) {
+        flags += "dir-incoming:";
+    }
+    if (msg->get_direction() == ImMessage::kMsgDirOutgoing) {
+        flags += "dir-outgoing:";
     }
     new_msg["flags"] = flags;
     m_response.append(new_msg);

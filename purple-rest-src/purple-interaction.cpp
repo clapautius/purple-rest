@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2019, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2019-2020, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -49,7 +49,7 @@ static void wrote_im_msg_cb(PurpleAccount *account, char *sender, char *buffer,
     }
     shared_ptr<ImMessage> new_msg
       (new ImMessage(account, buffer, History::get_new_id(), sender,
-                     g_conv_list.get_or_add_conversation(conv), msg_type));
+                     g_conv_list.get_or_add_conversation(conv), msg_type, flags));
     g_msg_history.add_im_message(new_msg);
 }
 
@@ -76,7 +76,7 @@ static void wrote_chat_msg_cb(PurpleAccount *account, char *sender, char *buffer
     }
     shared_ptr<ImMessage> new_msg
       (new ImMessage(account, buffer, History::get_new_id(), sender,
-                     g_conv_list.get_or_add_conversation(conv), msg_type));
+                     g_conv_list.get_or_add_conversation(conv), msg_type, flags));
     g_msg_history.add_im_message(new_msg);
 }
 
