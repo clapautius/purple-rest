@@ -79,7 +79,13 @@ div.message {
 span.message-sender {
     font-style: italic;
     font-size: 90%;
-    color: green;
+    color: #599bb3;
+}
+
+div.dir-outgoing > span.message-sender {
+    font-style: italic;
+    font-size: 90%;
+    color: #D1633B;
 }
 
 span.message-text {
@@ -285,24 +291,32 @@ span.conversation, span.menu {
 */
 
 .conv-title {
+    /*
 	-moz-box-shadow: 2px 5px 7px -3px #276873;
 	-webkit-box-shadow: 2px 5px 7px -3px #276873;
 	box-shadow: 2px 5px 7px -3px #276873;
+*/
+	-moz-box-shadow: 2px 4px 6px -3px #994324;
+	-webkit-box-shadow: 2px 4px 6px -3px #994324;
+	box-shadow: 2px 4px 6px -3px #994324;
 	background-color:#ffffff;
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;
 	border-radius:6px;
 	display:inline-block;
-	color:#105269;
+	/*color: #105269;*/
+        color: #CE6038;
 	font-size: 1.1rem;
 	/*font-family:Arial;*/
 	/*font-weight:bold;*/
 	padding:4px 8px;
 	text-decoration:none;
-	text-shadow:0px 1px 0px #3d768a;
+	/*text-shadow:0px 1px 0px #3d768a;*/
+	text-shadow:0px 1px 0px #994324;
         border-width: 1px;
         border-style: solid;
-        border-color: #276873;
+        /*border-color: #276873;*/
+        border-color: #994324;
 	margin-left: 1ex;
 	margin-right: 1ex;
 }
