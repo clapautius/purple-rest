@@ -79,13 +79,15 @@ div.message {
 span.message-sender {
     font-style: italic;
     font-size: 90%;
-    color: #599bb3;
+    /*color: #599bb3;*/
+    color: #447f95;
 }
 
 div.dir-outgoing > span.message-sender {
     font-style: italic;
     font-size: 90%;
-    color: #D1633B;
+    /*color: #D1633B;*/
+    color: #B04D29;
 }
 
 span.message-text {
@@ -280,43 +282,29 @@ span.conversation, span.menu {
     font-weight: bold;
 }
 
-/*
-.conv-title {
-    font-weight: bold;
-    font-family:Arial;
-    font-size: 105%;
-    color: #105269;
-    border-bottom: 2px solid #105269;
-}
-*/
 
 .conv-title {
-    /*
-	-moz-box-shadow: 2px 5px 7px -3px #276873;
-	-webkit-box-shadow: 2px 5px 7px -3px #276873;
-	box-shadow: 2px 5px 7px -3px #276873;
-*/
-	-moz-box-shadow: 2px 4px 6px -3px #994324;
-	-webkit-box-shadow: 2px 4px 6px -3px #994324;
-	box-shadow: 2px 4px 6px -3px #994324;
+        -moz-box-shadow: 2px 4px 6px -3px #356273;
+        -webkit-box-shadow: 2px 4px 6px -3px #356273;
+        box-shadow: 2px 4px 6px -3px #356273;
 	background-color:#ffffff;
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;
 	border-radius:6px;
 	display:inline-block;
 	/*color: #105269;*/
-        color: #CE6038;
+        color: #447f95;
 	font-size: 1.1rem;
 	/*font-family:Arial;*/
 	/*font-weight:bold;*/
 	padding:4px 8px;
 	text-decoration:none;
 	/*text-shadow:0px 1px 0px #3d768a;*/
-	text-shadow:0px 1px 0px #994324;
+	text-shadow:0px 1px 0px #356273;
         border-width: 1px;
         border-style: solid;
         /*border-color: #276873;*/
-        border-color: #994324;
+        border-color: #356273;
 	margin-left: 1ex;
 	margin-right: 1ex;
 }
