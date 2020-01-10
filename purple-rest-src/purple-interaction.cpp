@@ -192,6 +192,45 @@ std::string get_account_status()
 }
 
 
+/**
+ * Set status for all active accounts.
+ *
+ * @param[in] status: one of: 'available', 'away', 'invisible'. (WIP)
+ *
+ * @return true if ok, false on error.
+ */
+bool set_status_for_all_accounts(const std::string &status)
+{
+    bool rc = true;
+    const char *status_id = nullptr;
+
+    if (status == "available") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AVAILABLE);
+    } else if (status == "away") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AWAY);
+    } else if (status == "invisible") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_INVISIBLE);
+    } else {
+        rc = false;
+        purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
+    }
+    purple_debug_info(PLUGIN_ID, "Status id: %s\n", status_id ? status_id : "nullptr");
+
+    if (rc) {
+        GList *p_accounts = purple_accounts_get_all_active();
+        PurpleAccount *p_acc = nullptr;
+        while (p_accounts) {
+            p_acc = reinterpret_cast<PurpleAccount*>(g_list_first(p_accounts)->data);
+            // get the presence of the account
+            PurplePresence *p_presence = purple_account_get_presence(p_acc);
+            purple_presence_switch_status(p_presence, status_id);
+            p_accounts = g_list_next(p_accounts);
+        }
+    }
+    return rc;
+}
+
+
 void reset_idle()
 {
     purple_idle_touch();

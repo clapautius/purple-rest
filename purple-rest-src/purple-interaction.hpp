@@ -1,4 +1,4 @@
-/* Purple REST plugin -- Copyright (C) 2015, Tudor M. Pristavu
+/* Purple REST plugin -- Copyright (C) 2015-2020, Tudor M. Pristavu
 
    This program is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free Software
@@ -46,6 +46,8 @@ void collect_buddies(PurpleBlistNode *p, std::vector<p_rest::Buddy> &list,
 std::string buddy_get_group_name(PurpleBlistNode *p);
 
 std::string get_account_status();
+
+bool set_status_for_all_accounts(const std::string &status);
 
 void reset_idle();
 

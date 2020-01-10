@@ -647,6 +647,55 @@ error:
 
 
 /**
+ * Requests summary:
+ * PUT /v/<format>/accounts-status/STATUS
+ */
+static int put_acc_status_request(const vector<string> &request,
+                                  const char *upload_data, size_t upload_data_size,
+                                  string &response_str, string &content_type)
+{
+    std::ostringstream dbg;
+    int err = 400;
+    dbg << "PUT request: new accounts status request";
+    purple_info(dbg.str());
+    if (request.size() > 3) {
+        const string &status = request[3];
+        std::unique_ptr<p_rest::RestResponse> response;
+        if (request[kFormatIdx] == "json") {
+            response.reset(new p_rest::JsonResponse);
+            content_type = "application/json";
+        }
+        else if (request[kFormatIdx] == "html") {
+            response.reset(new p_rest::HtmlResponse);
+            content_type = "text/html";
+        }
+        else {
+            http_response_info("Invalid format", response_str, content_type);
+            goto error;
+        }
+        if (libpurple::set_status_for_all_accounts(status)) {
+            std::string current_status = libpurple::get_account_status();
+            response->add_generic_param("status", current_status.c_str());
+            response_str = response->get_text();
+            goto ok;
+        } else {
+            http_response_info("Error setting status", response_str, content_type);
+        }
+        err = 500;
+        goto error;
+    } else {
+        goto error;
+    }
+
+ok:
+    return 200;
+
+error:
+    return err;
+}
+
+
+/**
  * Processes a request, splits the url into components.
  *
  * @param[in] url
@@ -771,6 +820,9 @@ void perform_rest_request(const char *url, HttpMethod method,
             if (cmd == "conversations") {
                 *http_code = put_conv_request(request, upload_data, upload_data_size,
                                               response, content_type);
+            } else if (cmd == "accounts-status") {
+                *http_code = put_acc_status_request(request, upload_data, upload_data_size,
+                                                    response, content_type);
             } else {
                 http_response_info("Unknown PUT method " + cmd, response, content_type);
                 *http_code = 400;

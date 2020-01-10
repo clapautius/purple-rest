@@ -177,6 +177,9 @@ specified conversation starting with *MSG_ID*
 ]
 ```
 
+* `.../v1/FORMAT/accounts-status/STATUS` - set status of all the active accounts; it can be
+  "Available", "Away" or "Invisible". (WIP)
+
 #### DELETE requests
 
 * `.../v1/FORMAT/conversations/ID` - delete the conversation *ID*
