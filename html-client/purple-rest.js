@@ -399,9 +399,10 @@ function dialogBoxMenu()
                     [ "All buddies", "dialogBoxMenuBuddies();" ],
                     [ "Accounts", "dialogBoxMenuAccounts();" ],
                     [ "Show status", "dialogBoxMenuGetStatus();" ],
-                    [ "Set status 'Available'", "dialogBoxMenuSetStatus('available');" ],
-                    [ "Set status 'Away'", "dialogBoxMenuSetStatus('away');" ],
-                    [ "Set status 'Invisible'", "dialogBoxMenuSetStatus('invisible');" ],
+                    [ "🖦 Reset idle time", "dialogBoxMenuSetStatus('reset-idle');" ],
+                    [ "🗪 Set status 'Available'", "dialogBoxMenuSetStatus('available');" ],
+                    [ "⏳ Set status 'Away'", "dialogBoxMenuSetStatus('away');" ],
+                    [ "∅ Set status 'Invisible'", "dialogBoxMenuSetStatus('invisible');" ],
                   ];
     displayCenterMenu(menuOptions);
 }
@@ -451,7 +452,12 @@ function dialogBoxMenuGetStatus()
 
 function dialogBoxMenuSetStatus(newStatus)
 {
-    var putStatusUrl = urlPrefixJson + "accounts-status/" + newStatus;
+    var putStatusUrl = urlPrefixJson;
+    if (newStatus == "reset-idle") {
+        putStatusUrl += "reset-idle/";
+    } else {
+        putStatusUrl += "accounts-status/" + newStatus;
+    }
     $.ajax({
         url: putStatusUrl,
         type: 'put',

@@ -180,6 +180,9 @@ specified conversation starting with *MSG_ID*
 * `.../v1/FORMAT/accounts-status/STATUS` - set status of all the active accounts; it can be
   "Available", "Away" or "Invisible". (WIP)
 
+* `.../v1/FORMAT/reset-idle` - reset idle time by calling libpurple's `purple_idle_touch`
+  function (similar to typing something in pidgin / finch window).
+
 #### DELETE requests
 
 * `.../v1/FORMAT/conversations/ID` - delete the conversation *ID*

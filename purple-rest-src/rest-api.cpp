@@ -697,6 +697,44 @@ error:
 
 
 /**
+ * Requests summary:
+ * PUT /v/<format>/reset-idle
+ */
+static int put_reset_idle_request(const vector<string> &request,
+                                  const char *upload_data, size_t upload_data_size,
+                                  string &response_str, string &content_type)
+{
+    std::ostringstream dbg;
+    int err = 400;
+    std::string current_status;
+    dbg << "PUT request: reset-idle request";
+    purple_info(dbg.str());
+    std::unique_ptr<p_rest::RestResponse> response;
+    if (request[kFormatIdx] == "json") {
+        response.reset(new p_rest::JsonResponse);
+        content_type = "application/json";
+    }
+    else if (request[kFormatIdx] == "html") {
+        response.reset(new p_rest::HtmlResponse);
+        content_type = "text/html";
+    }
+    else {
+        http_response_info("Invalid format", response_str, content_type);
+        goto error;
+    }
+    libpurple::reset_idle();
+    current_status = libpurple::get_account_status();
+    response->add_generic_param("status", current_status.c_str());
+    response_str = response->get_text();
+
+    return 200;
+
+error:
+    return err;
+}
+
+
+/**
  * Processes a request, splits the url into components.
  *
  * @param[in] url
@@ -823,6 +861,9 @@ void perform_rest_request(const char *url, HttpMethod method,
                                               response, content_type);
             } else if (cmd == "accounts-status") {
                 *http_code = put_acc_status_request(request, upload_data, upload_data_size,
+                                                    response, content_type);
+            } else if (cmd == "reset-idle") {
+                *http_code = put_reset_idle_request(request, upload_data, upload_data_size,
                                                     response, content_type);
             } else {
                 http_response_info("Unknown PUT method " + cmd, response, content_type);
