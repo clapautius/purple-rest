@@ -393,12 +393,13 @@ function displayCenterMenu(options, prefix = "")
 
 function dialogBoxMenu()
 {
-    var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
+    var autoRefreshText = "🔃 ";
+    autoRefreshText += (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
     menuOptions = [ [ autoRefreshText, "dialogBoxMenuAutoRefresh();" ],
-                    [ "Online buddies", "dialogBoxMenuBuddies(true);" ],
-                    [ "All buddies", "dialogBoxMenuBuddies();" ],
-                    [ "Accounts", "dialogBoxMenuAccounts();" ],
-                    [ "Show status", "dialogBoxMenuGetStatus();" ],
+                    [ "👤 Online buddies", "dialogBoxMenuBuddies(true);" ],
+                    [ "👥 All buddies", "dialogBoxMenuBuddies();" ],
+                    [ "⚙ Accounts", "dialogBoxMenuAccounts();" ],
+                    [ "🗈 Show status", "dialogBoxMenuGetStatus();" ],
                     [ "🖦 Reset idle time", "dialogBoxMenuSetStatus('reset-idle');" ],
                     [ "🗪 Set status 'Available'", "dialogBoxMenuSetStatus('available');" ],
                     [ "⏳ Set status 'Away'", "dialogBoxMenuSetStatus('away');" ],
