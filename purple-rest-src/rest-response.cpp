@@ -8,6 +8,7 @@
 
 #include "rest-response.hpp"
 #include "html-resources.hpp"
+#include "purple-interaction.hpp"
 
 using std::string;
 
@@ -95,16 +96,9 @@ void HtmlResponse::add_buddy(const Buddy &buddy)
 void HtmlResponse::add_account(const PurpleAccount *account)
 {
     if (account) {
-        if (account->alias) {
-            m_ostr << "<div class=\"account\"><span class=\"account\">"
-                   << account->alias << "</span></div><br/>\n";
-        } else if (account->username) {
-            m_ostr << "<div class=\"account\"><span class=\"account\">"
-                   << account->username << "</span></div><br/>\n";
-        } else {
-            m_ostr << "<div class=\"account\"><span class=\"account\">"
-                   << "Unknown" << "</span></div><br/>\n";
-        }
+        m_ostr << "<div class=\"account\"><span class=\"account\">"
+               << libpurple::get_purple_account_name(account).c_str()
+               << "</span></div><br/>\n";
     }
 }
 

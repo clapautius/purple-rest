@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <map>
+#include <vector>
 
 #include "purple-interaction.hpp"
 
@@ -167,28 +169,60 @@ void visit_buddies(std::function<bool(PurpleBuddy*)> func, PurpleBlistNode *p = 
 }
 
 
+/**
+ * @return a string containing status for all accounts. Format of the string is:
+ * Status1 (accountX, accountY), status2 (accountZ) ...
+ * E.g. Available (john@jabber, john@skype), invisible (john@fb).
+ */
 std::string get_account_status()
 {
-    std::string result;
-    // :fixme:
-    // atm we get the status only for the first account (assuming the status is
-    // identical forall active accounts - which may not be true)
+    std::ostringstream result;
+    std::map<std::string, std::vector<std::string> > statuses;
     GList *p_accounts = purple_accounts_get_all_active();
-    if (p_accounts) {
-        PurpleStatus *p_status = purple_account_get_active_status(
-          reinterpret_cast<PurpleAccount*>(g_list_first(p_accounts)->data));
+    std::string status;
+    std::string acc_name;
+    while (p_accounts) {
+        PurpleAccount *p_acc =
+          reinterpret_cast<PurpleAccount*>(p_accounts->data);
+        PurpleStatus *p_status = purple_account_get_active_status(p_acc);
         const char *p_status_text = purple_primitive_get_name_from_type(
           purple_status_type_get_primitive(purple_status_get_type(p_status)));
         if (p_status_text) {
-            result = p_status_text;
+            status = p_status_text;
         } else {
-            result = "Unknown";
-            }
-    } else {
-        // no active accounts -> offline
-        result = "Offline";
+            status = "Unknown";
+        }
+        acc_name = get_purple_account_name(p_acc);
+        statuses[status].push_back(acc_name);
+        p_accounts = g_list_next(p_accounts);
     }
-    return result;
+    if (statuses.size() == 0) {
+        // no active accounts -> offline
+        result << "Offline (all accounts)";
+    } else if (statuses.size() == 1) {
+          result << statuses.begin()->first << " (all accounts)";
+    } else {
+        bool first_status = true;
+        for (auto e : statuses) {
+            if (first_status) {
+                first_status = false;
+            } else {
+                result << "; ";
+            }
+            result << e.first << " (";
+            bool first_acc = true;
+            for (auto acc : e.second) {
+                if (first_acc) {
+                    first_acc = false;
+                } else {
+                    result << ", ";
+                }
+                result << acc;
+            }
+            result << ")  ";
+        }
+    }
+    return result.str();
 }
 
 
@@ -248,6 +282,18 @@ PurpleBuddy* get_buddy_by_name(const std::string &buddy_name)
                 return false;
             }});
     return ret;
+}
+
+
+std::string get_purple_account_name(const PurpleAccount *p_account)
+{
+    if (p_account->alias) {
+        return std::string(p_account->alias);
+    } else if (p_account->username) {
+        return std::string(p_account->username);
+    } else {
+        return "Unknown_account";
+    }
 }
 
 }

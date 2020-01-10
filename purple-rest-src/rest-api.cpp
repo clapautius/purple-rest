@@ -200,6 +200,7 @@ static int get_status_request(const vector<string> &request, string &response_st
     } else if (request[param_idx] == "max_my_msg_id") {
         response->add_generic_param("max_my_msg_id", g_msg_history.get_max_my_msg_id());
     } else if (request[param_idx] == "account-status") {
+        // :fixme: - rename this to all-accouns-status or something
         response->add_generic_param("status", libpurple::get_account_status().c_str());
     } else {
         goto error;

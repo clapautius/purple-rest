@@ -53,6 +53,12 @@ void reset_idle();
 
 PurpleBuddy* get_buddy_by_name(const std::string &buddy_name);
 
+/**
+ * @return A name for the purple account (which can be the alias, the username or
+ * 'Unknown_account' if none is available.
+ */
+std::string get_purple_account_name(const PurpleAccount*);
+
 }
 
 #endif
