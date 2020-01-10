@@ -15,6 +15,8 @@ UML activity dia. (basic ver.)
 
 * Pidgin/Finch/libpurple API Documentation : https://docs.pidgin.im/pidgin/2.x.y/
 
+* Pidgin/Finch/libpurple sources: https://bitbucket.org/pidgin/main/src/default/
+
 * Web notifications: https://developers.google.com/web/fundamentals/push-notifications/display-a-notification
 
 ## Shortcuts

@@ -219,7 +219,7 @@ std::string get_account_status()
                 }
                 result << acc;
             }
-            result << ")  ";
+            result << ")";
         }
     }
     return result.str();

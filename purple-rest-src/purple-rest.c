@@ -113,7 +113,6 @@ int answer_to_http_connection(
         http_method = kHttpMethodPut;
     }
 
-
     p_url = strdup(url);
     operation_in_progress = 1;
     // :fixme: is there another way to send the message, without using a timer?
