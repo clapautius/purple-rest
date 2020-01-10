@@ -395,10 +395,14 @@ function dialogBoxMenu()
 {
     var autoRefreshText = (autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh');
     menuOptions = [ [ autoRefreshText, "dialogBoxMenuAutoRefresh();" ],
-                    [ "Show status", "dialogBoxMenuGetStatus();" ],
                     [ "Online buddies", "dialogBoxMenuBuddies(true);" ],
                     [ "All buddies", "dialogBoxMenuBuddies();" ],
-                    [ "Accounts", "dialogBoxMenuAccounts();" ] ];
+                    [ "Accounts", "dialogBoxMenuAccounts();" ],
+                    [ "Show status", "dialogBoxMenuGetStatus();" ],
+                    [ "Set status 'Available'", "dialogBoxMenuSetStatus('available');" ],
+                    [ "Set status 'Away'", "dialogBoxMenuSetStatus('away');" ],
+                    [ "Set status 'Invisible'", "dialogBoxMenuSetStatus('invisible');" ],
+                  ];
     displayCenterMenu(menuOptions);
 }
 
@@ -442,6 +446,23 @@ function dialogBoxMenuGetStatus()
     var statusUrl = urlPrefixJson + "status/account-status";
     // :fixme: add another error function
     $.get(statusUrl, function (data) { showStatus(data); }).fail(updateMessagesError);
+}
+
+
+function dialogBoxMenuSetStatus(newStatus)
+{
+    var putStatusUrl = urlPrefixJson + "accounts-status/" + newStatus;
+    $.ajax({
+        url: putStatusUrl,
+        type: 'put',
+        dataType: 'json',
+        success: function(data) {
+            showStatus(data);
+        },
+        error: function(data) {
+            displayError("Error changing status");
+        }
+    });
 }
 
 
