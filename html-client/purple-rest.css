@@ -261,6 +261,7 @@ div.purple-button-menu-item {
         margin-right: 0.2ex;
         margin-top: 2px;
         margin-bottom: 1rem;
+        line-height: 1.5;
 }
 
 .purple-button-menu-item:hover {
