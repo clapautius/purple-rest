@@ -482,10 +482,14 @@ function showStatus(data)
     } else {
         statusText = "OK";
     }
+    /*
     $("#inner-content").html(dialogBoxMenuBackButtonStr() +
                              '<div class="info-msg"><span class="info-msg">Status: ' +
                               statusText +
                              '</span></div>');
+    */
+    $("#inner-content").html(dialogBoxMenuBackButtonStr() +
+                             messageBoxText("Status: " + statusText, "Status"));
 }
 
 
@@ -731,7 +735,8 @@ function onBuddyClick(name)
 }
 
 
-function notifyNewMessage(msg) {
+function notifyNewMessage(msg)
+{
   var notifOptions = { tag : 'purple-rest-new-chat-msg' };
   // Let's check if the browser supports notifications
   if (!("Notification" in window)) {
@@ -756,6 +761,21 @@ function notifyNewMessage(msg) {
 
   // At last, if the user has denied notifications, and you
   // want to be respectful there is no need to bother them any more.
+}
+
+
+function messageBoxText(message, title = "")
+{
+    var messageBoxText = '<div class="message-box">';
+    if (title) {
+        messageBoxText += '<div class="message-box-title">';
+        messageBoxText += title;
+        messageBoxText += '</div>\n';
+    }
+    messageBoxText += '<div class="message-box-text">';
+    messageBoxText += message;
+    messageBoxText += '</div></div><br/>\n';
+    return messageBoxText;
 }
 
 showMainMenu();

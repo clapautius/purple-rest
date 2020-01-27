@@ -366,7 +366,7 @@ span.info-msg {
     margin: 2em;
     color: #105269;
     background-color: #e0e0e0;
-	font-family:Arial;
+    font-family:Arial;
     font-size: 105%;
 }
 
@@ -391,4 +391,37 @@ hr.buddy {
 
 span.buddy-name {
     margin-right: 6px;
+}
+
+
+div.message-box {
+        -moz-box-shadow: 2px 4px 6px -3px #356273;
+        -webkit-box-shadow: 2px 4px 6px -3px #356273;
+        box-shadow: 2px 4px 6px -3px #356273;
+	background-color:#ffffff;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+        color: black;
+	/*padding:4px 8px;*/
+        padding: 0;
+	text-decoration:none;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #356273;
+	margin-left: 8rem;
+	margin-right: 8rem;
+        margin-bottom: 1em;
+}
+
+div.message-box-text {
+    margin-top: 1ex;
+    margin-bottom: 1ex;
+}
+
+div.message-box-title {
+    background-color: #666;
+    color: #fff;
+    padding: 2px;
+    font-weight: bold;
 }
