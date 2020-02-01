@@ -425,3 +425,7 @@ div.message-box-title {
     padding: 2px;
     font-weight: bold;
 }
+
+hr.account {
+    width: 70%;
+}

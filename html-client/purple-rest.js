@@ -482,12 +482,6 @@ function showStatus(data)
     } else {
         statusText = "OK";
     }
-    /*
-    $("#inner-content").html(dialogBoxMenuBackButtonStr() +
-                             '<div class="info-msg"><span class="info-msg">Status: ' +
-                              statusText +
-                             '</span></div>');
-    */
     $("#inner-content").html(dialogBoxMenuBackButtonStr() +
                              messageBoxText("Status: " + statusText, "Status"));
 }
@@ -516,11 +510,13 @@ function dialogBoxMenuBuddiesDisplay(buddies)
 function dialogBoxMenuAccountsDisplay(accounts)
 {
     var htmlStr = dialogBoxMenuBackButtonStr();
+    var accountsStr = "";
     // :fixme: check if data is valid
     for (var i = 0; i < accounts.length; i++) {
-        htmlStr += accountHtmlStr(accounts[i]);
+        accountsStr += accountHtmlStr(accounts[i]);
     }
-    $("#inner-content").html(htmlStr);
+    htmlStrFull = htmlStr + messageBoxText(accountsStr, "Accounts");
+    $("#inner-content").html(htmlStrFull);
 }
 
 
