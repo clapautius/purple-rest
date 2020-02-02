@@ -473,7 +473,7 @@ function dialogBoxMenuSetStatus(newStatus)
         type: 'put',
         dataType: 'json',
         success: function(data) {
-            showStatus(data);
+            showStatuses(data);
         },
         error: function(data) {
             displayError("Error changing status");

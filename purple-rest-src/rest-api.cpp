@@ -507,6 +507,12 @@ static int get_accounts_request(const vector<string> &request, string &response_
                 response->add_account(reinterpret_cast<PurpleAccount*>(ptr->data));
                 ptr = g_list_next(ptr);
             }
+        } else if (!request[kFilterIdx].empty()) {
+            if (request.size() > 4) {
+                if (request[4] == "statuses") {
+                    libpurple::get_statuses_for_account(request[3], true);
+                }
+            } // :fixme: do something
         } else {
             http_response_info("Invalid parameters", response_str, content_type);
             goto error;
@@ -681,8 +687,10 @@ static int put_acc_status_request(const vector<string> &request,
             goto error;
         }
         if (libpurple::set_status_for_all_accounts(status)) {
-            std::string current_status = libpurple::get_account_status();
-            response->add_generic_param("status", current_status.c_str());
+            std::map<string, string> statuses = libpurple::get_accounts_status();
+            for (auto &elt : statuses) {
+                response->add_generic_param(elt.first.c_str(), elt.second.c_str());
+            }
             response_str = response->get_text();
             goto ok;
         } else {

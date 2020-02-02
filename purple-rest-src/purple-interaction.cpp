@@ -26,6 +26,7 @@
 #include "history.hpp"
 
 using std::shared_ptr;
+using std::string;
 using p_rest::ImMessage;
 using p_rest::History;
 using p_rest::g_conv_list;
@@ -169,6 +170,90 @@ void visit_buddies(std::function<bool(PurpleBuddy*)> func, PurpleBlistNode *p = 
 }
 
 
+PurpleAccount* get_account_by_name(const std::string &account_name,
+    bool only_active)
+{
+    GList *p_accounts = nullptr;
+    if (only_active) {
+        p_accounts = purple_accounts_get_all_active();
+    } else {
+        p_accounts = purple_accounts_get_all();
+    }
+    std::string purple_acc_name;
+    PurpleAccount *p_acc = nullptr;
+    PurpleAccount *p_result = nullptr;
+    while (p_accounts) {
+        p_acc = reinterpret_cast<PurpleAccount*>(p_accounts->data);
+        purple_acc_name = get_purple_account_name(p_acc);
+        if (purple_acc_name[purple_acc_name.size() - 1] == '/') {
+            purple_acc_name.erase(purple_acc_name.size() - 1);
+        }
+        if (purple_acc_name == account_name) {
+            p_result = p_acc;
+            break;
+        }
+        p_accounts = g_list_next(p_accounts);
+    }
+    return p_result;
+}
+
+
+std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
+                                                  bool debug_on)
+{
+    std::vector<string> result;
+    std::string status;
+    if (p_account) {
+        PurplePresence *p_presence = purple_account_get_presence(p_account);
+        GList *p_statuses = purple_presence_get_statuses(p_presence);
+        const char *p_status_text = nullptr;
+        while (p_statuses) {
+            PurpleStatus *p_stat = reinterpret_cast<PurpleStatus*>(p_statuses->data);
+            p_status_text = purple_primitive_get_name_from_type(
+              purple_status_type_get_primitive(purple_status_get_type(p_stat)));
+            if (p_status_text) {
+                status = p_status_text;
+            } else {
+                status = "Unknown";
+            }
+            if (debug_on) {
+                if (purple_status_is_active(p_stat)) {
+                    status += " (active)";
+                }
+                if (purple_status_is_exclusive(p_stat)) {
+                    status += " (exclusive)";
+                }
+                if (purple_status_is_independent(p_stat)) {
+                    status += " (independent)";
+                }
+            }
+            purple_debug_info(PLUGIN_ID, "Status: %s\n", status.c_str());
+            result.push_back(status);
+            p_statuses = g_list_next(p_statuses);
+        }
+        purple_debug_info(PLUGIN_ID, "End of statuses\n");
+    }
+    return result;
+}
+
+
+std::vector<std::string> get_statuses_for_account(const std::string &account_name,
+                                                  bool debug_on)
+{
+    std::vector<string> result;
+    PurpleAccount *p_account = get_account_by_name(account_name);
+    if (p_account) {
+        purple_debug_info(PLUGIN_ID, "Found matching account for %s\n",
+                          account_name.c_str());
+        result = get_statuses_for_account(p_account, debug_on);
+    } else {
+        purple_debug_info(PLUGIN_ID, "Couldn't find matching account for %s\n",
+                          account_name.c_str());
+    }
+    return result;
+}
+
+
 /**
  * @return a string containing status for all accounts. Format of the string is:
  * Status1 (accountX, accountY), status2 (accountZ) ...
@@ -282,7 +367,11 @@ bool set_status_for_all_accounts(const std::string &status)
         GList *p_accounts = purple_accounts_get_all_active();
         PurpleAccount *p_acc = nullptr;
         while (p_accounts) {
-            p_acc = reinterpret_cast<PurpleAccount*>(g_list_first(p_accounts)->data);
+            p_acc = reinterpret_cast<PurpleAccount*>(p_accounts->data);
+            purple_debug_info(PLUGIN_ID, "Setting status for %s\n",
+                              get_purple_account_name(p_acc).c_str());
+            // :fixme: atm it's just for debug, ignore result
+            get_statuses_for_account(p_acc, true);
             // get the presence of the account
             PurplePresence *p_presence = purple_account_get_presence(p_acc);
             purple_presence_switch_status(p_presence, status_id);

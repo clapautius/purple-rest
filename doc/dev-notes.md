@@ -76,6 +76,31 @@ https://developer.pidgin.im/doxygen/2.10.5/html/eventloop_8h.html
   * buddy
 
 
+## status, presence
+
+### libpurple 3.0
+
+**A PurpleStatus can be thought of as an "instance" of a PurpleStatusType.**
+
+If you're familiar with object-oriented programming languages then this should be
+immediately clear. Say, for example, that one of your AIM buddies has set himself as
+"away." You have a PurpleBuddy node for this person in your buddy list. Purple wants to
+mark this buddy as "away," so it creates a new PurpleStatus. The PurpleStatus has its
+PurpleStatusType set to the "away" state for the oscar PRPL. The PurpleStatus also
+contains the buddy's away message. PurpleStatuses are sometimes saved, depending on the
+context. The current PurpleStatuses associated with each of your accounts are saved so
+that the next time you start Purple, your accounts will be set to their last known
+statuses. There is also a list of saved statuses that are written to the status.xml
+file. Also, each PurpleStatus has a "saveable" boolean. If "saveable" is set to FALSE then
+the status is NEVER saved. **All PurpleStatuses should be inside a PurplePresence.**
+
+**A PurpleStatus is either "independent" or "exclusive." Independent statuses can be active
+or inactive and they don't affect anything else. However, you can only have one exclusive
+status per PurplePresence. If you activate one exclusive status, then the previous
+exclusive status is automatically deactivated.**
+
+**A PurplePresence is like a collection of PurpleStatuses (plus some other random info).**
+
 # libmicrohttpd
 
 [libmicrohttpd] How to process a post request without MHD_post_processor?

@@ -46,6 +46,18 @@ void collect_buddies(PurpleBlistNode *p, std::vector<p_rest::Buddy> &list,
  */
 std::string buddy_get_group_name(PurpleBlistNode *p);
 
+/**
+ * @param[in] debug_on : add debug info about statuses (active, exclusive, etc.)
+ **/
+std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
+                                                  bool debug_on = false);
+
+/**
+ * @param[in] debug_on : add debug info about statuses (active, exclusive, etc.)
+ **/
+std::vector<std::string> get_statuses_for_account(const std::string &account_name,
+                                                  bool debug_on = false);
+
 std::string get_account_status();
 
 std::map<std::string, std::string> get_accounts_status();
@@ -55,6 +67,9 @@ bool set_status_for_all_accounts(const std::string &status);
 void reset_idle();
 
 PurpleBuddy* get_buddy_by_name(const std::string &buddy_name);
+
+PurpleAccount* get_account_by_name(const std::string &account_name,
+                                   bool only_active = true);
 
 /**
  * @return A name for the purple account (which can be the alias, the username or

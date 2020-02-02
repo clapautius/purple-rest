@@ -135,6 +135,8 @@ specified conversation starting with *MSG_ID*
 
 * `.../v1/FORMAT/accounts/all` - accounts list
 
+* `.../v1/FORMAT/accounts/ACC_NAME/statuses` - get all statuses for account
+
 * `.../v1/FORMAT/my-messages/` - all *my messages*
 * `.../v1/FORMAT/my-messages/start_from/MSG_ID` - *my messages* starting with *MSG_ID*
 
@@ -186,6 +188,8 @@ specified conversation starting with *MSG_ID*
 
 * `.../v1/FORMAT/reset-idle` - reset idle time by calling libpurple's `purple_idle_touch`
   function (similar to typing something in pidgin / finch window).
+
+* `.../v1/FORMAT/accounts/ACC_NAME/status/STATUS` - set active status for the specified account
 
 #### DELETE requests
 
