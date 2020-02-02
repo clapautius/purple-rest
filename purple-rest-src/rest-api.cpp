@@ -901,7 +901,10 @@ void perform_rest_request(const char *url, HttpMethod method,
     RequestMap delete_actions = { { "conversations", delete_conversations_request } };
 
     RequestWithDataMap put_actions = { { "conversations", put_conv_request },
-                                       { "accounts", put_accounts_request } };
+                                       { "accounts", put_accounts_request },
+                                       { "accounts-status", put_acc_status_request },
+                                       { "reset-idle", put_reset_idle_request }
+    };
 
     if (request.size() >= 3) {
 #if defined(PURPLE_REST_DEBUG)
@@ -935,12 +938,6 @@ void perform_rest_request(const char *url, HttpMethod method,
             if (put_actions.find(cmd) != put_actions.end()) {
                 *http_code = put_actions[cmd](request, upload_data, upload_data_size,
                                               response, content_type);
-            } else if (cmd == "accounts-status") { // :fixme: put this in map
-                *http_code = put_acc_status_request(request, upload_data, upload_data_size,
-                                                    response, content_type);
-            } else if (cmd == "reset-idle") { // :fixme: put this in map
-                *http_code = put_reset_idle_request(request, upload_data, upload_data_size,
-                                                    response, content_type);
             } else {
                 http_response_info("Unknown PUT method " + cmd, response, content_type);
                 *http_code = 400;

@@ -343,7 +343,7 @@ std::map<std::string, std::string> get_accounts_status()
  * Set status for the specified account.
  *
  * @param[in] account_name: account name (without trailing '/')
- * @param[in] status: one of: 'available', 'away', 'invisible'. (WIP)
+ * @param[in] status: one of: 'available', 'away', 'invisible', 'offline'. (WIP)
  *
  * @return true if ok, false on error.
  */
@@ -358,6 +358,8 @@ bool set_status_for_account(const std::string &account_name, const std::string &
         status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AWAY);
     } else if (status == "invisible") {
         status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_INVISIBLE);
+    } else if (status == "offline") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_OFFLINE);
     } else {
         rc = false;
         purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
@@ -399,6 +401,8 @@ bool set_status_for_all_accounts(const std::string &status)
         status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AWAY);
     } else if (status == "invisible") {
         status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_INVISIBLE);
+    } else if (status == "offline") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_OFFLINE);
     } else {
         rc = false;
         purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
