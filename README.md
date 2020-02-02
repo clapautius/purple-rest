@@ -158,6 +158,10 @@ specified conversation starting with *MSG_ID*
 * `.../v1/FORMAT/status/account-status` - status of the first account; it can be
   "Offline", "Unknown" or another status reported by libpurple.
 
+ **:fixme:** fix this 'account / accounts / account-status' mess
+* `.../v1/FORMAT/status/accounts` - status of all the accounts; it can be
+  "Offline", "Unknown" or another status reported by libpurple.
+
 * `.../v1/FORMAT/cmd/clear_history` - clear history
 
 #### POST requests

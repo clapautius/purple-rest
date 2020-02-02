@@ -227,6 +227,34 @@ std::string get_account_status()
 
 
 /**
+ * @return a map containing the status of all the accounts.
+ */
+std::map<std::string, std::string> get_accounts_status()
+{
+    std::map<std::string, std::string > result;
+    GList *p_accounts = purple_accounts_get_all_active();
+    std::string status;
+    std::string acc_name;
+    while (p_accounts) {
+        PurpleAccount *p_acc =
+          reinterpret_cast<PurpleAccount*>(p_accounts->data);
+        PurpleStatus *p_status = purple_account_get_active_status(p_acc);
+        const char *p_status_text = purple_primitive_get_name_from_type(
+          purple_status_type_get_primitive(purple_status_get_type(p_status)));
+        if (p_status_text) {
+            status = p_status_text;
+        } else {
+            status = "Unknown";
+        }
+        acc_name = get_purple_account_name(p_acc);
+        result[acc_name] = status;
+        p_accounts = g_list_next(p_accounts);
+    }
+    return result;
+}
+
+
+/**
  * Set status for all active accounts.
  *
  * @param[in] status: one of: 'available', 'away', 'invisible'. (WIP)

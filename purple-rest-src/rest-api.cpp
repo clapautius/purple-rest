@@ -202,6 +202,12 @@ static int get_status_request(const vector<string> &request, string &response_st
     } else if (request[param_idx] == "account-status") {
         // :fixme: - rename this to all-accouns-status or something
         response->add_generic_param("status", libpurple::get_account_status().c_str());
+    } else if (request[param_idx] == "accounts") {
+        // :fixme: - rename this to all-accouns-status or something
+        std::map<std::string, std::string> statuses = libpurple::get_accounts_status();
+        for (auto &elt : statuses) {
+            response->add_generic_param(elt.first.c_str(), elt.second.c_str());
+        }
     } else {
         goto error;
     }

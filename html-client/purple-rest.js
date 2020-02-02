@@ -399,7 +399,8 @@ function dialogBoxMenu()
                     [ "👤 Online buddies", "dialogBoxMenuBuddies(true);" ],
                     [ "👥 All buddies", "dialogBoxMenuBuddies();" ],
                     [ "⚙ Accounts", "dialogBoxMenuAccounts();" ],
-                    [ "🗈 Show status", "dialogBoxMenuGetStatus();" ],
+                    [ "🗈 Show global status", "dialogBoxMenuGetStatus();" ],
+                    [ "🗈 Show status (each account)", "dialogBoxMenuGetStatuses();" ],
                     [ "🖦 Reset idle time", "dialogBoxMenuSetStatus('reset-idle');" ],
                     [ "🗪 Set status 'Available'", "dialogBoxMenuSetStatus('available');" ],
                     [ "⏳ Set status 'Away'", "dialogBoxMenuSetStatus('away');" ],
@@ -451,6 +452,14 @@ function dialogBoxMenuGetStatus()
 }
 
 
+function dialogBoxMenuGetStatuses()
+{
+    var statusUrl = urlPrefixJson + "status/accounts";
+    // :fixme: add another error function
+    $.get(statusUrl, function (data) { showStatuses(data); }).fail(updateMessagesError);
+}
+
+
 function dialogBoxMenuSetStatus(newStatus)
 {
     var putStatusUrl = urlPrefixJson;
@@ -484,6 +493,24 @@ function showStatus(data)
     }
     $("#inner-content").html(dialogBoxMenuBackButtonStr() +
                              messageBoxText("Status: " + statusText, "Status"));
+}
+
+
+function showStatuses(data)
+{
+    var statusText = "";
+    if (data) {
+        for (var i = 0; i < data.length; i++) {
+            var acc = Object.keys(data[i])[0];
+            var text = acc + '&nbsp;:&nbsp;' + data[i][acc];
+            statusText += '<div class="account"><span class="account">'
+                + text + '</span></div><hr class="account"/>\n';
+            $("#inner-content").html(dialogBoxMenuBackButtonStr() +
+                                     messageBoxText(statusText, "Status"));
+        }
+    } else {
+        displayError("Error getting accounts status");
+    }
 }
 
 
