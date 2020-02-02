@@ -238,10 +238,10 @@ std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
 
 
 std::vector<std::string> get_statuses_for_account(const std::string &account_name,
-                                                  bool debug_on)
+                                                  bool debug_on, bool only_active)
 {
     std::vector<string> result;
-    PurpleAccount *p_account = get_account_by_name(account_name);
+    PurpleAccount *p_account = get_account_by_name(account_name, only_active);
     if (p_account) {
         purple_debug_info(PLUGIN_ID, "Found matching account for %s\n",
                           account_name.c_str());
@@ -340,6 +340,49 @@ std::map<std::string, std::string> get_accounts_status()
 
 
 /**
+ * Set status for the specified account.
+ *
+ * @param[in] account_name: account name (without trailing '/')
+ * @param[in] status: one of: 'available', 'away', 'invisible'. (WIP)
+ *
+ * @return true if ok, false on error.
+ */
+bool set_status_for_account(const std::string &account_name, const std::string &status,
+                            bool only_active)
+{
+    bool rc = true;
+    const char *status_id = nullptr;
+    if (status == "available") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AVAILABLE);
+    } else if (status == "away") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AWAY);
+    } else if (status == "invisible") {
+        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_INVISIBLE);
+    } else {
+        rc = false;
+        purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
+    }
+    purple_debug_info(PLUGIN_ID, "Status id: %s\n", status_id ? status_id : "nullptr");
+
+    if (rc) {
+        PurpleAccount *p_acc = get_account_by_name(account_name, only_active);
+        if (p_acc) {
+            purple_debug_info(PLUGIN_ID, "Setting status for %s\n", account_name.c_str());
+            // :fixme: atm it's just for debug, ignore result
+            get_statuses_for_account(p_acc, true);
+            // get the presence of the account
+            PurplePresence *p_presence = purple_account_get_presence(p_acc);
+            purple_presence_switch_status(p_presence, status_id);
+        } else {
+            purple_debug_info(PLUGIN_ID, "No such account: %s\n", account_name.c_str());
+            rc = false;
+        }
+    }
+    return rc;
+}
+
+
+/**
  * Set status for all active accounts.
  *
  * @param[in] status: one of: 'available', 'away', 'invisible'. (WIP)
@@ -350,7 +393,6 @@ bool set_status_for_all_accounts(const std::string &status)
 {
     bool rc = true;
     const char *status_id = nullptr;
-
     if (status == "available") {
         status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AVAILABLE);
     } else if (status == "away") {

@@ -510,7 +510,7 @@ static int get_accounts_request(const vector<string> &request, string &response_
         } else if (!request[kFilterIdx].empty()) {
             if (request.size() > 4) {
                 if (request[4] == "statuses") {
-                    libpurple::get_statuses_for_account(request[3], true);
+                    libpurple::get_statuses_for_account(request[3], true, false);
                 }
             } // :fixme: do something
         } else {
@@ -710,6 +710,59 @@ error:
 }
 
 
+
+/**
+ * Requests summary:
+ * PUT /v/<format>/accounts/ACC_NAME/status/STATUS
+ */
+static int put_accounts_request(const vector<string> &request,
+                                const char *upload_data, size_t upload_data_size,
+                                string &response_str, string &content_type)
+{
+    std::ostringstream dbg;
+    int err = 400;
+    dbg << "PUT request: new accounts request";
+    purple_info(dbg.str());
+    // :atm: only accounts/ACC/status/STATUS is supported
+    if (request.size() == 6 && request[4] == "status") {
+        const string &status = request[5];
+        std::unique_ptr<p_rest::RestResponse> response;
+        if (request[kFormatIdx] == "json") {
+            response.reset(new p_rest::JsonResponse);
+            content_type = "application/json";
+        }
+        else if (request[kFormatIdx] == "html") {
+            response.reset(new p_rest::HtmlResponse);
+            content_type = "text/html";
+        }
+        else {
+            http_response_info("Invalid format", response_str, content_type);
+            goto error;
+        }
+        if (libpurple::set_status_for_account(request[3], status, false)) {
+            std::map<string, string> statuses = libpurple::get_accounts_status();
+            for (auto &elt : statuses) {
+                response->add_generic_param(elt.first.c_str(), elt.second.c_str());
+            }
+            response_str = response->get_text();
+            goto ok;
+        } else {
+            http_response_info("Error setting status", response_str, content_type);
+        }
+        err = 500;
+        goto error;
+    } else {
+        goto error;
+    }
+
+ok:
+    return 200;
+
+error:
+    return err;
+}
+
+
 /**
  * Requests summary:
  * PUT /v/<format>/reset-idle
@@ -829,6 +882,12 @@ void perform_rest_request(const char *url, HttpMethod method,
     using RequestMap = std::map<string, std::function<int(const vector<string>&,
                                                           string&, string &)>>;
 
+    // requests with upload data (PUT, POST)
+    using RequestWithDataMap = std::map<string,
+                std::function<int(const vector<string>&,
+                                  const char *upload_data, size_t upload_data_size,
+                                  string&, string &)>>;
+
     RequestMap get_actions = { { "messages", get_messages_request },
                                { "conversations", get_conversations_request },
                                { "my-messages", get_my_messages_request },
@@ -840,6 +899,9 @@ void perform_rest_request(const char *url, HttpMethod method,
     };
 
     RequestMap delete_actions = { { "conversations", delete_conversations_request } };
+
+    RequestWithDataMap put_actions = { { "conversations", put_conv_request },
+                                       { "accounts", put_accounts_request } };
 
     if (request.size() >= 3) {
 #if defined(PURPLE_REST_DEBUG)
@@ -870,13 +932,13 @@ void perform_rest_request(const char *url, HttpMethod method,
                 *http_code = 400;
             }
         } else if (kHttpMethodPut == method) {
-            if (cmd == "conversations") {
-                *http_code = put_conv_request(request, upload_data, upload_data_size,
+            if (put_actions.find(cmd) != put_actions.end()) {
+                *http_code = put_actions[cmd](request, upload_data, upload_data_size,
                                               response, content_type);
-            } else if (cmd == "accounts-status") {
+            } else if (cmd == "accounts-status") { // :fixme: put this in map
                 *http_code = put_acc_status_request(request, upload_data, upload_data_size,
                                                     response, content_type);
-            } else if (cmd == "reset-idle") {
+            } else if (cmd == "reset-idle") { // :fixme: put this in map
                 *http_code = put_reset_idle_request(request, upload_data, upload_data_size,
                                                     response, content_type);
             } else {

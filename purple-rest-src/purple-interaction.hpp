@@ -56,13 +56,17 @@ std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
  * @param[in] debug_on : add debug info about statuses (active, exclusive, etc.)
  **/
 std::vector<std::string> get_statuses_for_account(const std::string &account_name,
-                                                  bool debug_on = false);
+                                                  bool debug_on = false,
+                                                  bool only_active = true);
 
 std::string get_account_status();
 
 std::map<std::string, std::string> get_accounts_status();
 
 bool set_status_for_all_accounts(const std::string &status);
+
+bool set_status_for_account(const std::string &account_name, const std::string &status,
+                            bool only_active = true);
 
 void reset_idle();
 
