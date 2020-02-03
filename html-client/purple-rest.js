@@ -399,8 +399,7 @@ function dialogBoxMenu()
                     [ "👤 Online buddies", "dialogBoxMenuBuddies(true);" ],
                     [ "👥 All buddies", "dialogBoxMenuBuddies();" ],
                     [ "⚙ Accounts", "dialogBoxMenuAccounts();" ],
-                    [ "🗈 Show global status", "dialogBoxMenuGetStatus();" ],
-                    [ "🗈 Show status (each account)", "dialogBoxMenuGetStatuses();" ],
+                    [ "🗈 Show status", "dialogBoxMenuGetStatus();" ],
                     [ "🖦 Reset idle time", "dialogBoxMenuSetStatus('reset-idle');" ],
                     [ "🗪 Set status 'Available'", "dialogBoxMenuSetStatus('available');" ],
                     [ "⏳ Set status 'Away'", "dialogBoxMenuSetStatus('away');" ],
@@ -446,17 +445,9 @@ function dialogBoxMenuAccounts()
 
 function dialogBoxMenuGetStatus()
 {
-    var statusUrl = urlPrefixJson + "status/account-status";
+    var statusUrl = urlPrefixJson + "accounts/all/status";
     // :fixme: add another error function
-    $.get(statusUrl, function (data) { showStatus(data); }).fail(updateMessagesError);
-}
-
-
-function dialogBoxMenuGetStatuses()
-{
-    var statusUrl = urlPrefixJson + "status/accounts";
-    // :fixme: add another error function
-    $.get(statusUrl, function (data) { showStatuses(data); }).fail(updateMessagesError);
+    $.get(statusUrl, function (data) { showAccountsStatus(data); }).fail(updateMessagesError);
 }
 
 
@@ -482,7 +473,9 @@ function dialogBoxMenuSetStatus(newStatus)
 }
 
 
-function showStatus(data)
+// Display a message box containing the result of an operation (OK or something similar).
+// data should have a field named 'status', otherwise 'OK' is used.
+function showOperationResult(data)
 {
     // :fixme: check if data is an array and has that property
     var statusText = "";
@@ -496,7 +489,8 @@ function showStatus(data)
 }
 
 
-function showStatuses(data)
+// Display the active status for all the accounts
+function showAccountsStatus(data)
 {
     var statusText = "";
     if (data) {
@@ -506,7 +500,7 @@ function showStatuses(data)
             statusText += '<div class="account"><span class="account">'
                 + text + '</span></div><hr class="account"/>\n';
             $("#inner-content").html(dialogBoxMenuBackButtonStr() +
-                                     messageBoxText(statusText, "Status"));
+                                     messageBoxText(statusText, "Accounts status"));
         }
     } else {
         displayError("Error getting accounts status");
@@ -686,7 +680,7 @@ function convClose()
             type: 'delete',
             success: function(data) {
                 currentConversation.id = 0;
-                showStatus(data);
+                showOperationResult(data);
             },
             error: function(data) {
                 displayError("Error closing conversation");
