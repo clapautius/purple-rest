@@ -47,6 +47,17 @@ void collect_buddies(PurpleBlistNode *p, std::vector<p_rest::Buddy> &list,
 std::string buddy_get_group_name(PurpleBlistNode *p);
 
 /**
+ * @return The active status of the specified account.
+ **/
+std::string get_status_for_account(PurpleAccount *p_account);
+
+/**
+ * @return The active status of the specified account.
+ **/
+std::string get_status_for_account(const std::string &account_name,
+                                   bool only_active = true);
+
+/**
  * @param[in] debug_on : add debug info about statuses (active, exclusive, etc.)
  **/
 std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
@@ -59,9 +70,10 @@ std::vector<std::string> get_statuses_for_account(const std::string &account_nam
                                                   bool debug_on = false,
                                                   bool only_active = true);
 
-std::string get_account_status();
-
-std::map<std::string, std::string> get_accounts_status();
+/**
+ * @return a map containing the active status of all the active accounts.
+ */
+std::map<std::string, std::string> get_status_for_accounts();
 
 bool set_status_for_all_accounts(const std::string &status);
 

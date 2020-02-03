@@ -198,6 +198,41 @@ PurpleAccount* get_account_by_name(const std::string &account_name,
 }
 
 
+
+std::string get_status_for_account(PurpleAccount *p_account)
+{
+    string status;
+    if (p_account) {
+        PurpleStatus *p_status = purple_account_get_active_status(p_account);
+        const char *p_status_text = purple_primitive_get_name_from_type(
+          purple_status_type_get_primitive(purple_status_get_type(p_status)));
+        if (p_status_text) {
+            status = p_status_text;
+        } else {
+            status = "Unknown";
+        }
+    }
+    return status;
+}
+
+
+std::string get_status_for_account(const std::string &account_name,
+                                   bool only_active)
+{
+    string status;
+    PurpleAccount *p_account = get_account_by_name(account_name, only_active);
+    if (p_account) {
+        purple_debug_info(PLUGIN_ID, "Found matching account for %s\n",
+                          account_name.c_str());
+        status = get_status_for_account(p_account);
+    } else {
+        purple_debug_info(PLUGIN_ID, "Couldn't find matching account for %s\n",
+                          account_name.c_str());
+    }
+    return status;
+}
+
+
 std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
                                                   bool debug_on)
 {
@@ -254,67 +289,7 @@ std::vector<std::string> get_statuses_for_account(const std::string &account_nam
 }
 
 
-/**
- * @return a string containing status for all accounts. Format of the string is:
- * Status1 (accountX, accountY), status2 (accountZ) ...
- * E.g. Available (john@jabber, john@skype), invisible (john@fb).
- */
-std::string get_account_status()
-{
-    std::ostringstream result;
-    std::map<std::string, std::vector<std::string> > statuses;
-    GList *p_accounts = purple_accounts_get_all_active();
-    std::string status;
-    std::string acc_name;
-    while (p_accounts) {
-        PurpleAccount *p_acc =
-          reinterpret_cast<PurpleAccount*>(p_accounts->data);
-        PurpleStatus *p_status = purple_account_get_active_status(p_acc);
-        const char *p_status_text = purple_primitive_get_name_from_type(
-          purple_status_type_get_primitive(purple_status_get_type(p_status)));
-        if (p_status_text) {
-            status = p_status_text;
-        } else {
-            status = "Unknown";
-        }
-        acc_name = get_purple_account_name(p_acc);
-        statuses[status].push_back(acc_name);
-        p_accounts = g_list_next(p_accounts);
-    }
-    if (statuses.size() == 0) {
-        // no active accounts -> offline
-        result << "Offline (all accounts)";
-    } else if (statuses.size() == 1) {
-          result << statuses.begin()->first << " (all accounts)";
-    } else {
-        bool first_status = true;
-        for (auto e : statuses) {
-            if (first_status) {
-                first_status = false;
-            } else {
-                result << "; ";
-            }
-            result << e.first << " (";
-            bool first_acc = true;
-            for (auto acc : e.second) {
-                if (first_acc) {
-                    first_acc = false;
-                } else {
-                    result << ", ";
-                }
-                result << acc;
-            }
-            result << ")";
-        }
-    }
-    return result.str();
-}
-
-
-/**
- * @return a map containing the status of all the accounts.
- */
-std::map<std::string, std::string> get_accounts_status()
+std::map<std::string, std::string> get_status_for_accounts()
 {
     std::map<std::string, std::string > result;
     GList *p_accounts = purple_accounts_get_all_active();

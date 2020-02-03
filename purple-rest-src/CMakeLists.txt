@@ -4,7 +4,7 @@ project (PURPLE-REST)
 
 find_package(PkgConfig REQUIRED)
 
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall ")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wno-deprecated-declarations ")
 
 set (PURPLE_REST_SRC
   rest-api.cpp

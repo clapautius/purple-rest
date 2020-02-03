@@ -22,6 +22,7 @@
 
 using std::string;
 using std::vector;
+using std::map;
 using libpurple::purple_info;
 
 extern p_rest::History g_msg_history;
@@ -181,7 +182,6 @@ error:
  * Requests summary:
  * /v/<format>/status/max_msg_id
  * /v/<format>/status/max_my_msg_id
- * /v/<format>/status/account-status
  */
 static int get_status_request(const vector<string> &request, string &response_str,
                               string &content_type)
@@ -199,15 +199,6 @@ static int get_status_request(const vector<string> &request, string &response_st
         response->add_generic_param("max_msg_id", g_msg_history.get_max_id());
     } else if (request[param_idx] == "max_my_msg_id") {
         response->add_generic_param("max_my_msg_id", g_msg_history.get_max_my_msg_id());
-    } else if (request[param_idx] == "account-status") {
-        // :fixme: - rename this to all-accouns-status or something
-        response->add_generic_param("status", libpurple::get_account_status().c_str());
-    } else if (request[param_idx] == "accounts") {
-        // :fixme: - rename this to all-accouns-status or something
-        std::map<std::string, std::string> statuses = libpurple::get_accounts_status();
-        for (auto &elt : statuses) {
-            response->add_generic_param(elt.first.c_str(), elt.second.c_str());
-        }
     } else {
         goto error;
     }
@@ -481,6 +472,8 @@ error:
  *
  * Requests summary:
  * /v/<format>/accounts/all
+ * /v/<format>/accounts/ACC_NAME/status - ACC_NAME can be 'all'
+ * /v/<format>/accounts/ACC_NAME/statuses
  */
 static int get_accounts_request(const vector<string> &request, string &response_str,
                                 string &content_type)
@@ -501,18 +494,40 @@ static int get_accounts_request(const vector<string> &request, string &response_
             return 400;
         }
         if (request[kFilterIdx] == "all") {
-            GList *accounts = purple_accounts_get_all();
-            GList *ptr = g_list_first(accounts);
-            while (ptr) {
-                response->add_account(reinterpret_cast<PurpleAccount*>(ptr->data));
-                ptr = g_list_next(ptr);
+            if (request.size() == 4) {
+                GList *accounts = purple_accounts_get_all();
+                GList *ptr = g_list_first(accounts);
+                while (ptr) {
+                    response->add_account(reinterpret_cast<PurpleAccount*>(ptr->data));
+                    ptr = g_list_next(ptr);
+                }
+            } else {
+                // v/<format>/accounts/all/status
+                if (request.size() > 4 && request[4] == "status") {
+                    map<string, string> statuses = libpurple::get_status_for_accounts();
+                    for (auto &elt : statuses) {
+                        response->add_generic_param(elt.first.c_str(), elt.second.c_str());
+                    }
+                } else {
+                    http_response_info("Invalid parameters", response_str, content_type);
+                    goto error;
+                }
             }
         } else if (!request[kFilterIdx].empty()) {
-            if (request.size() > 4) {
-                if (request[4] == "statuses") {
-                    libpurple::get_statuses_for_account(request[3], true, false);
+            if (request.size() > 4 && request[4] == "statuses") {
+                vector<string> statuses =
+                  libpurple::get_statuses_for_account(request[3], true, false);
+                for (auto &elt : statuses) {
+                    response->add_generic_param("Status", elt.c_str());
                 }
-            } // :fixme: do something
+            } else if (request.size() > 4 && request[4] == "status") {
+                string status =
+                  libpurple::get_status_for_account(request[3], false);
+                response->add_generic_param("Status", status.c_str());
+            } else {
+                http_response_info("Invalid parameters", response_str, content_type);
+                goto error;
+            }
         } else {
             http_response_info("Invalid parameters", response_str, content_type);
             goto error;
@@ -661,58 +676,6 @@ error:
 
 /**
  * Requests summary:
- * PUT /v/<format>/accounts-status/STATUS
- */
-static int put_acc_status_request(const vector<string> &request,
-                                  const char *upload_data, size_t upload_data_size,
-                                  string &response_str, string &content_type)
-{
-    std::ostringstream dbg;
-    int err = 400;
-    dbg << "PUT request: new accounts status request";
-    purple_info(dbg.str());
-    if (request.size() > 3) {
-        const string &status = request[3];
-        std::unique_ptr<p_rest::RestResponse> response;
-        if (request[kFormatIdx] == "json") {
-            response.reset(new p_rest::JsonResponse);
-            content_type = "application/json";
-        }
-        else if (request[kFormatIdx] == "html") {
-            response.reset(new p_rest::HtmlResponse);
-            content_type = "text/html";
-        }
-        else {
-            http_response_info("Invalid format", response_str, content_type);
-            goto error;
-        }
-        if (libpurple::set_status_for_all_accounts(status)) {
-            std::map<string, string> statuses = libpurple::get_accounts_status();
-            for (auto &elt : statuses) {
-                response->add_generic_param(elt.first.c_str(), elt.second.c_str());
-            }
-            response_str = response->get_text();
-            goto ok;
-        } else {
-            http_response_info("Error setting status", response_str, content_type);
-        }
-        err = 500;
-        goto error;
-    } else {
-        goto error;
-    }
-
-ok:
-    return 200;
-
-error:
-    return err;
-}
-
-
-
-/**
- * Requests summary:
  * PUT /v/<format>/accounts/ACC_NAME/status/STATUS
  */
 static int put_accounts_request(const vector<string> &request,
@@ -739,8 +702,14 @@ static int put_accounts_request(const vector<string> &request,
             http_response_info("Invalid format", response_str, content_type);
             goto error;
         }
-        if (libpurple::set_status_for_account(request[3], status, false)) {
-            std::map<string, string> statuses = libpurple::get_accounts_status();
+        bool cc = false;
+        if (request[3] == "all") {
+            cc = libpurple::set_status_for_all_accounts(status);
+        } else {
+            cc = libpurple::set_status_for_account(request[3], status, false);
+        }
+        if (cc) {
+            map<string, string> statuses = libpurple::get_status_for_accounts();
             for (auto &elt : statuses) {
                 response->add_generic_param(elt.first.c_str(), elt.second.c_str());
             }
@@ -773,7 +742,7 @@ static int put_reset_idle_request(const vector<string> &request,
 {
     std::ostringstream dbg;
     int err = 400;
-    std::string current_status;
+    map<string, string> statuses;
     dbg << "PUT request: reset-idle request";
     purple_info(dbg.str());
     std::unique_ptr<p_rest::RestResponse> response;
@@ -790,8 +759,10 @@ static int put_reset_idle_request(const vector<string> &request,
         goto error;
     }
     libpurple::reset_idle();
-    current_status = libpurple::get_account_status();
-    response->add_generic_param("status", current_status.c_str());
+    statuses = libpurple::get_status_for_accounts();
+    for (auto &elt : statuses) {
+        response->add_generic_param(elt.first.c_str(), elt.second.c_str());
+    }
     response_str = response->get_text();
 
     return 200;
@@ -902,7 +873,6 @@ void perform_rest_request(const char *url, HttpMethod method,
 
     RequestWithDataMap put_actions = { { "conversations", put_conv_request },
                                        { "accounts", put_accounts_request },
-                                       { "accounts-status", put_acc_status_request },
                                        { "reset-idle", put_reset_idle_request }
     };
 
