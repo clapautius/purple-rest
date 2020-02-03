@@ -457,14 +457,14 @@ function dialogBoxMenuSetStatus(newStatus)
     if (newStatus == "reset-idle") {
         putStatusUrl += "reset-idle/";
     } else {
-        putStatusUrl += "accounts-status/" + newStatus;
+        putStatusUrl += "accounts/all/status/" + newStatus;
     }
     $.ajax({
         url: putStatusUrl,
         type: 'put',
         dataType: 'json',
         success: function(data) {
-            showStatuses(data);
+            showAccountsStatus(data);
         },
         error: function(data) {
             displayError("Error changing status");
