@@ -351,12 +351,20 @@ div#status-bar-2 {
     font-size: 1rem;
 }
 
+span.buddy-name {
+    font-size: 105%;
+    font-weight: bold;
+}
+
 .buddy-online {
-    color: green;
+    color: #447f95;
+    /*color: green;*/
+    margin-right: 2rem;
 }
 
 .buddy-offline {
-    color: #333;
+    color: #626262;
+    margin-right: 6px;
 }
 
 span.info-msg {
@@ -383,14 +391,10 @@ span.error-msg {
 
 hr.buddy {
     height: 1px;
-    color: #eee;
-    background-color: #eee;
+    color: #aaa;
+    background-color: #aaa;
     border: 0;
     width: 80%;
-}
-
-span.buddy-name {
-    margin-right: 6px;
 }
 
 

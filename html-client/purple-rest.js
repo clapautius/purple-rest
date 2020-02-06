@@ -524,6 +524,7 @@ function dialogBoxMenuBuddiesDisplay(buddies)
     for (var i = 0; i < buddies.length; i++) {
         htmlStr += buddyHtmlStr(buddies[i]);
     }
+    htmlStr += '</br>';
     $("#inner-content").html(htmlStr);
 }
 
