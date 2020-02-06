@@ -326,22 +326,22 @@ bool set_status_for_account(const std::string &account_name, const std::string &
                             bool only_active)
 {
     bool rc = true;
-    const char *status_id = nullptr;
+    PurpleStatusPrimitive new_status_primitive = PURPLE_STATUS_UNSET;
     if (status == "available") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AVAILABLE);
+        new_status_primitive = PURPLE_STATUS_AVAILABLE;
     } else if (status == "away") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AWAY);
+        new_status_primitive = PURPLE_STATUS_AWAY;
     } else if (status == "invisible") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_INVISIBLE);
+        new_status_primitive = PURPLE_STATUS_INVISIBLE;
     } else if (status == "offline") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_OFFLINE);
+        new_status_primitive = PURPLE_STATUS_OFFLINE;
     } else {
         rc = false;
         purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
     }
-    purple_debug_info(PLUGIN_ID, "Status id: %s\n", status_id ? status_id : "nullptr");
 
     if (rc) {
+        purple_debug_info(PLUGIN_ID, "Status primitive is : %d\n", new_status_primitive);
         PurpleAccount *p_acc = get_account_by_name(account_name, only_active);
         if (p_acc) {
             purple_debug_info(PLUGIN_ID, "Setting status for %s\n", account_name.c_str());
@@ -349,7 +349,25 @@ bool set_status_for_account(const std::string &account_name, const std::string &
             get_statuses_for_account(p_acc, true);
             // get the presence of the account
             PurplePresence *p_presence = purple_account_get_presence(p_acc);
-            purple_presence_switch_status(p_presence, status_id);
+            GList *p_statuses = purple_presence_get_statuses(p_presence);
+            bool found = false;
+            while (p_statuses) {
+                PurpleStatus *p_stat = reinterpret_cast<PurpleStatus*>(p_statuses->data);
+                PurpleStatusType *p_type = purple_status_get_type(p_stat);
+                PurpleStatusPrimitive primitive = purple_status_type_get_primitive(p_type);
+                if (primitive == new_status_primitive) {
+                    purple_presence_switch_status(p_presence,
+                                                  purple_status_get_id(p_stat));
+                    found = true;
+                    break;
+                }
+                p_statuses = g_list_next(p_statuses);
+            }
+            if (found) {
+                purple_debug_info(PLUGIN_ID, "Status changed");
+            } else {
+                purple_debug_info(PLUGIN_ID, "Cannot change status, not found");
+            }
         } else {
             purple_debug_info(PLUGIN_ID, "No such account: %s\n", account_name.c_str());
             rc = false;

@@ -78,6 +78,48 @@ https://developer.pidgin.im/doxygen/2.10.5/html/eventloop_8h.html
 
 ## status, presence
 
+###  PurpleStatusType
+
+`typedef struct _PurpleStatusType PurpleStatusType`
+
+PurpleStatusType's are created by each PRPL (protocol).
+
+They outline the available statuses of the protocol. AIM, for example, supports an
+available state with an optional available message, an away state with a mandatory
+message, and an invisible state (which is technically "independent" of the other two, but
+we'll get into that later). PurpleStatusTypes are very permanent. They are hardcoded in
+each PRPL and will not change often. And because they are hardcoded, they do not need to
+be saved to any XML file.
+
+#### PurpleStatusType example for skypeweb
+
+```
+GList *
+skypeweb_status_types(PurpleAccount *account)
+{
+	GList *types = NULL;
+	PurpleStatusType *status;
+
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, NULL, NULL, FALSE, FALSE, FALSE);
+	types = g_list_append(types, status);
+
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AVAILABLE, SKYPEWEB_STATUS_ONLINE, _("Online"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	types = g_list_append(types, status);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AWAY, SKYPEWEB_STATUS_AWAY, _("Away"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	types = g_list_append(types, status);
+//	status = purple_status_type_new_with_attrs(PURPLE_STATUS_EXTENDED_AWAY, SKYPEWEB_STATUS_AWAY, _("Not Available"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+//	types = g_list_append(types, status);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_UNAVAILABLE, SKYPEWEB_STATUS_BUSY, _("Do Not Disturb"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	types = g_list_append(types, status);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_INVISIBLE, SKYPEWEB_STATUS_HIDDEN, _("Invisible"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	types = g_list_append(types, status);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_OFFLINE, SKYPEWEB_STATUS_OFFLINE, _("Offline"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	types = g_list_append(types, status);
+
+	return types;
+}
+```
+
 ### libpurple 3.0
 
 **A PurpleStatus can be thought of as an "instance" of a PurpleStatusType.**
@@ -100,6 +142,7 @@ status per PurplePresence. If you activate one exclusive status, then the previo
 exclusive status is automatically deactivated.**
 
 **A PurplePresence is like a collection of PurpleStatuses (plus some other random info).**
+
 
 # libmicrohttpd
 
