@@ -327,6 +327,10 @@ div.send-msg {
     background-color: #e9e9e9;
 }
 
+div#send-msg {
+    border-bottom: 0 solid transparent;
+}
+
 input#send-msg-text {
     margin-bottom: 4px;
 }
