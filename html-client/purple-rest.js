@@ -508,6 +508,23 @@ function showAccountsStatus(data)
 }
 
 
+// Display all statuses (with details) for an account
+function showAccountStatuses(data)
+{
+    var statusText = "";
+    if (data) {
+        var statuses = data[0]["Statuses"];
+        for (var i = 0; i < statuses.length; i++) {
+            statusText += statuses[i] + '</br>\n';
+        }
+        $("#inner-content").html(dialogBoxMenuBackButtonStr() +
+                                 messageBoxText(statusText, "Account statuses"));
+    } else {
+        displayError("Error getting accounts status");
+    }
+}
+
+
 function showError(errMsg)
 {
     $("#inner-content").html(dialogBoxMenuBackButtonStr() +
@@ -722,13 +739,21 @@ function buddyHtmlStr(buddy)
 function accountHtmlStr(account)
 {
     var htmlStr;
+    var accountName;
     if (account.alias != 'None') {
-        htmlStr = '<div class="account"><span class="account">'
-            + account.alias + '</span></div><hr class="account"/>\n';
+        accountName = account.alias;
     } else {
-        htmlStr = '<div class="account"><span class="account">'
-            + account.username + '</span></div><hr class="account"/>\n';
+        accountName = account.username;
     }
+    // :fixme: escape accountName
+    if (accountName.charAt(accountName.length-1) == '/') {
+        accountName = accountName.substring(0, accountName.length-1);
+    }
+    var funcStatuses = 'onAccountStatusesClick(\'' + accountName + '\');';
+    htmlStr = '<div class="account"><span class="account-name">'
+        + accountName + '</span> ';
+    htmlStr += smallButtonHtmlStr('All statuses', funcStatuses);
+    htmlStr += '</div><hr class="account"/>\n';
     return htmlStr;
 }
 
@@ -750,6 +775,15 @@ function onBuddyClick(name)
             displayError("Error creating conversation");
         }
     });
+}
+
+
+function onAccountStatusesClick(name)
+{
+    console.log("Getting statuses for " + name);
+    var getStatusesUrl = urlPrefixJson + "accounts/" + name + "/statuses";
+    $.get(getStatusesUrl,
+          function (data) { showAccountStatuses(data); }).fail( function() { displayError("Error getting statuses"); });
 }
 
 

@@ -430,6 +430,18 @@ div.message-box-title {
     font-weight: bold;
 }
 
+span.account-name {
+    color: #447f95;
+    /*color: green;*/
+    margin-right: 2rem;
+    font-size: 105%;
+    font-weight: bold;
+}
+
 hr.account {
-    width: 70%;
+    height: 1px;
+    color: #aaa;
+    background-color: #aaa;
+    border: 0;
+    width: 80%;
 }
