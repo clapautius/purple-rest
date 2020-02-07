@@ -18,6 +18,8 @@ var autoRefreshInterval = 10000;
 var windowIsVisible = false;
 var windowWasVisible = false;
 
+var textAreaIsSmall = true;
+
 function displayError(errorMsg)
 {
     console.log("Some error happened");
@@ -325,6 +327,38 @@ function displayConversations(oldMaxId)
 }
 
 
+function textAreaClicked()
+{
+    textAreaToggleSize();
+}
+
+
+function textAreaToggleSize()
+{
+    if (textAreaIsSmall) {
+        textAreaMakeBig();
+    } else {
+        textAreaMakeSmall();
+    }
+}
+
+
+function textAreaMakeBig()
+{
+    $("#send-msg-text").css("height", "6rem");
+    $("#send-msg-text").css("margin-bottom", "2rem");
+    textAreaIsSmall = false;
+}
+
+
+function textAreaMakeSmall()
+{
+    $("#send-msg-text").css("height", "2rem");
+    $("#send-msg-text").css("margin-bottom", "4px");
+    textAreaIsSmall = true;
+}
+
+
 function sendMessageResult(data)
 {
     $("#send-msg-text").val("");
@@ -338,6 +372,7 @@ function sendMessageToPurple()
     var postUrl = urlPrefixHtml + "conv-messages/" + currentConversation.id;
     message = $("#send-msg-text").val();
     console.log("Sending message " + message + " to address " + postUrl);
+    textAreaMakeSmall();
     $.post(postUrl, message, function(data, textStatus) {
         console.log(textStatus);
         sendMessageResult(data);

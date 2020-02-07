@@ -18,8 +18,8 @@
           <div id="messages" class="messages">
           </div>
           <div id="send-msg" class="send-msg">
-            <input type="text" name="message" id="send-msg-text" class="send-msg">
-            <input type="submit" value="Send" onclick="sendMessageToPurple();" class="send-msg" id="send-msg-button">
+            <textarea name="message" id="send-msg-text" class="send-msg" onclick="textAreaClicked();"></textarea>
+            <span class="purple-button" onclick="sendMessageToPurple();" class="send-msg" id="send-msg-button">Send</span>
           </div>
         </div> <!-- end inner content -->
         <div id="status-bar" class="status-bar">
