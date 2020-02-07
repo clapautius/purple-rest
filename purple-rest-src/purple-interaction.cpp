@@ -27,6 +27,7 @@
 
 using std::shared_ptr;
 using std::string;
+using std::vector;
 using p_rest::ImMessage;
 using p_rest::History;
 using p_rest::g_conv_list;
@@ -233,8 +234,8 @@ std::string get_status_for_account(const std::string &account_name,
 }
 
 
-std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
-                                                  bool debug_on)
+vector<string> get_statuses_for_account(const PurpleAccount *p_account,
+                                        bool debug_on)
 {
     std::vector<string> result;
     std::string status;
@@ -314,6 +315,37 @@ std::map<std::string, std::string> get_status_for_accounts()
 }
 
 
+bool set_status_for_all_accounts(const std::string &status)
+{
+    bool rc = true;
+    PurpleStatusPrimitive new_status_primitive = get_primitive_from_status_string(status);
+    if (new_status_primitive == PURPLE_STATUS_UNSET) {
+        rc = false;
+        purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
+    }
+
+    if (rc) {
+        purple_debug_info(PLUGIN_ID, "Status primitive is : %d\n", new_status_primitive);
+        GList *p_accounts = purple_accounts_get_all_active();
+        PurpleAccount *p_acc = nullptr;
+        while (p_accounts) {
+            p_acc = reinterpret_cast<PurpleAccount*>(p_accounts->data);
+            purple_debug_info(PLUGIN_ID, "Setting status for %s\n",
+                              get_purple_account_name(p_acc).c_str());
+            if (set_status_for_account(p_acc, new_status_primitive)) {
+                purple_debug_info(PLUGIN_ID, "Status changed");
+            } else {
+                purple_debug_info(PLUGIN_ID, "Could not change status");
+                // don't set rc; just continue with the rest of the accounts.
+            }
+            p_accounts = g_list_next(p_accounts);
+        }
+    }
+    return rc;
+}
+
+
+
 /**
  * Set status for the specified account.
  *
@@ -326,16 +358,8 @@ bool set_status_for_account(const std::string &account_name, const std::string &
                             bool only_active)
 {
     bool rc = true;
-    PurpleStatusPrimitive new_status_primitive = PURPLE_STATUS_UNSET;
-    if (status == "available") {
-        new_status_primitive = PURPLE_STATUS_AVAILABLE;
-    } else if (status == "away") {
-        new_status_primitive = PURPLE_STATUS_AWAY;
-    } else if (status == "invisible") {
-        new_status_primitive = PURPLE_STATUS_INVISIBLE;
-    } else if (status == "offline") {
-        new_status_primitive = PURPLE_STATUS_OFFLINE;
-    } else {
+    PurpleStatusPrimitive new_status_primitive = get_primitive_from_status_string(status);
+    if (new_status_primitive == PURPLE_STATUS_UNSET) {
         rc = false;
         purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
     }
@@ -344,30 +368,7 @@ bool set_status_for_account(const std::string &account_name, const std::string &
         purple_debug_info(PLUGIN_ID, "Status primitive is : %d\n", new_status_primitive);
         PurpleAccount *p_acc = get_account_by_name(account_name, only_active);
         if (p_acc) {
-            purple_debug_info(PLUGIN_ID, "Setting status for %s\n", account_name.c_str());
-            // :fixme: atm it's just for debug, ignore result
-            get_statuses_for_account(p_acc, true);
-            // get the presence of the account
-            PurplePresence *p_presence = purple_account_get_presence(p_acc);
-            GList *p_statuses = purple_presence_get_statuses(p_presence);
-            bool found = false;
-            while (p_statuses) {
-                PurpleStatus *p_stat = reinterpret_cast<PurpleStatus*>(p_statuses->data);
-                PurpleStatusType *p_type = purple_status_get_type(p_stat);
-                PurpleStatusPrimitive primitive = purple_status_type_get_primitive(p_type);
-                if (primitive == new_status_primitive) {
-                    purple_presence_switch_status(p_presence,
-                                                  purple_status_get_id(p_stat));
-                    found = true;
-                    break;
-                }
-                p_statuses = g_list_next(p_statuses);
-            }
-            if (found) {
-                purple_debug_info(PLUGIN_ID, "Status changed");
-            } else {
-                purple_debug_info(PLUGIN_ID, "Cannot change status, not found");
-            }
+            rc = set_status_for_account(p_acc, new_status_primitive);
         } else {
             purple_debug_info(PLUGIN_ID, "No such account: %s\n", account_name.c_str());
             rc = false;
@@ -378,44 +379,45 @@ bool set_status_for_account(const std::string &account_name, const std::string &
 
 
 /**
- * Set status for all active accounts.
+ * Set status for the specified account.
  *
- * @param[in] status: one of: 'available', 'away', 'invisible'. (WIP)
+ * @param[in] account_name: account name (without trailing '/')
+ * @param[in] status: one of: 'available', 'away', 'invisible', 'offline'. (WIP)
  *
  * @return true if ok, false on error.
  */
-bool set_status_for_all_accounts(const std::string &status)
+bool set_status_for_account(const PurpleAccount *p_acc,
+                            PurpleStatusPrimitive new_status_primitive)
 {
     bool rc = true;
-    const char *status_id = nullptr;
-    if (status == "available") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AVAILABLE);
-    } else if (status == "away") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_AWAY);
-    } else if (status == "invisible") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_INVISIBLE);
-    } else if (status == "offline") {
-        status_id = purple_primitive_get_id_from_type(PURPLE_STATUS_OFFLINE);
-    } else {
-        rc = false;
-        purple_debug_info(PLUGIN_ID, "Invalid status string: %s\n", status.c_str());
-    }
-    purple_debug_info(PLUGIN_ID, "Status id: %s\n", status_id ? status_id : "nullptr");
-
-    if (rc) {
-        GList *p_accounts = purple_accounts_get_all_active();
-        PurpleAccount *p_acc = nullptr;
-        while (p_accounts) {
-            p_acc = reinterpret_cast<PurpleAccount*>(p_accounts->data);
-            purple_debug_info(PLUGIN_ID, "Setting status for %s\n",
-                              get_purple_account_name(p_acc).c_str());
-            // :fixme: atm it's just for debug, ignore result
-            get_statuses_for_account(p_acc, true);
-            // get the presence of the account
-            PurplePresence *p_presence = purple_account_get_presence(p_acc);
-            purple_presence_switch_status(p_presence, status_id);
-            p_accounts = g_list_next(p_accounts);
+    if (p_acc) {
+        // :fixme: atm it's just for debug, ignore result
+        get_statuses_for_account(p_acc, true);
+        // get the presence of the account
+        PurplePresence *p_presence = purple_account_get_presence(p_acc);
+        bool found = statuses_iterate_till_true(
+          p_acc, [&] (const PurpleStatus *p_stat) {
+                     PurpleStatusType *p_type = purple_status_get_type(p_stat);
+                     PurpleStatusPrimitive primitive = purple_status_type_get_primitive(p_type);
+                     if (primitive == new_status_primitive) {
+                         purple_presence_switch_status(
+                           p_presence,
+                           purple_status_get_id(p_stat));
+                         return true;
+                     } else {
+                         return false;
+                     }
+                 });
+        if (found) {
+            purple_debug_info(PLUGIN_ID, "Status changed");
+            rc = true;
+        } else {
+            purple_debug_info(PLUGIN_ID, "Cannot change status, not found");
+            rc = false;
         }
+    } else {
+        purple_debug_info(PLUGIN_ID, "Account is NULL\n");
+        rc = false;
     }
     return rc;
 }
@@ -450,6 +452,54 @@ std::string get_purple_account_name(const PurpleAccount *p_account)
     } else {
         return "Unknown_account";
     }
+}
+
+
+PurpleStatusPrimitive get_primitive_from_status_string(const string &status)
+{
+    PurpleStatusPrimitive new_status_primitive = PURPLE_STATUS_UNSET;
+    if (status == "available") {
+        new_status_primitive = PURPLE_STATUS_AVAILABLE;
+    } else if (status == "away") {
+        new_status_primitive = PURPLE_STATUS_AWAY;
+    } else if (status == "invisible") {
+        new_status_primitive = PURPLE_STATUS_INVISIBLE;
+    } else if (status == "offline") {
+        new_status_primitive = PURPLE_STATUS_OFFLINE;
+    }
+    return new_status_primitive;
+}
+
+
+vector<string> accounts_iterate(std::function<string (PurpleAccount*)> func,
+                                bool only_active)
+{
+    vector<string> result;
+    GList *p_accounts = (only_active ? purple_accounts_get_all_active() :
+                         p_accounts = purple_accounts_get_all());
+    PurpleAccount *p_acc = nullptr;
+    while (p_accounts) {
+        p_acc = reinterpret_cast<PurpleAccount*>(p_accounts->data);
+        result.push_back(func(p_acc));
+        p_accounts = g_list_next(p_accounts);
+    }
+    return result;
+}
+
+
+bool statuses_iterate_till_true(const PurpleAccount *p_acc,
+                                std::function<bool (const PurpleStatus*)> func)
+{
+    PurplePresence *p_presence = purple_account_get_presence(p_acc);
+    GList *p_statuses = purple_presence_get_statuses(p_presence);
+    while (p_statuses) {
+        PurpleStatus *p_stat = reinterpret_cast<PurpleStatus*>(p_statuses->data);
+        if (func(p_stat)) {
+            return true;
+        }
+        p_statuses = g_list_next(p_statuses);
+    }
+    return false;
 }
 
 }

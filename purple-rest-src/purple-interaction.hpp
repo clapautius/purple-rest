@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <functional>
 
 #include "imbuddy.hpp"
 
@@ -60,7 +61,7 @@ std::string get_status_for_account(const std::string &account_name,
 /**
  * @param[in] debug_on : add debug info about statuses (active, exclusive, etc.)
  **/
-std::vector<std::string> get_statuses_for_account(PurpleAccount *p_account,
+std::vector<std::string> get_statuses_for_account(const PurpleAccount *p_account,
                                                   bool debug_on = false);
 
 /**
@@ -75,10 +76,28 @@ std::vector<std::string> get_statuses_for_account(const std::string &account_nam
  */
 std::map<std::string, std::string> get_status_for_accounts();
 
+/**
+ * Set status for all active accounts.
+ *
+ * @param[in] status: one of: 'available', 'away', 'invisible'. (WIP)
+ *
+ * @return true if the status is correct, false otherwise. In order to see if the status
+ * has been changed for all the accounts, you'll have to use 'get_status_for_accounts'.
+ */
 bool set_status_for_all_accounts(const std::string &status);
 
+/**
+ * @return true if the status has been changed, false otherwise.
+ */
 bool set_status_for_account(const std::string &account_name, const std::string &status,
                             bool only_active = true);
+
+/**
+ * Low-level function for setting status for an account.
+ *
+ * @return true if the status has been changed, false otherwise.
+ */
+bool set_status_for_account(const PurpleAccount *p_acc, PurpleStatusPrimitive status);
 
 void reset_idle();
 
@@ -92,6 +111,26 @@ PurpleAccount* get_account_by_name(const std::string &account_name,
  * 'Unknown_account' if none is available.
  */
 std::string get_purple_account_name(const PurpleAccount*);
+
+/**
+ * @return PURPLE_STATUS_UNSET if no such status.
+ */
+PurpleStatusPrimitive get_primitive_from_status_string(const std::string &status);
+
+/**
+ * Iterate through the accounts and call the FUNC specified for each account.
+ * Collect the results in a vector of strings that is returned.
+ */
+std::vector<std::string> accounts_iterate(std::function<std::string (PurpleAccount*)> func,
+                                          bool only_active = true);
+
+
+/**
+ * Iterate through the statuses of an account and call the FUNC specified for each status.
+ * Stop when a function return true.
+ */
+bool statuses_iterate_till_true(const PurpleAccount*,
+                                std::function<bool (const PurpleStatus*)> func);
 
 }
 
