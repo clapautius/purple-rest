@@ -345,8 +345,7 @@ function textAreaToggleSize()
 
 function textAreaMakeBig()
 {
-    $("#send-msg-text").css("height", "6rem");
-    $("#send-msg").css("border-bottom-width", "2rem");
+    $("#send-msg-text").css("height", "4rem");
     textAreaIsSmall = false;
 }
 
@@ -354,7 +353,6 @@ function textAreaMakeBig()
 function textAreaMakeSmall()
 {
     $("#send-msg-text").css("height", "2rem");
-    $("#send-msg").css("border-bottom-width", "0");
     textAreaIsSmall = true;
 }
 
