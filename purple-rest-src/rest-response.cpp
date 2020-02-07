@@ -11,6 +11,7 @@
 #include "purple-interaction.hpp"
 
 using std::string;
+using std::vector;
 
 namespace p_rest
 {
@@ -81,6 +82,18 @@ void HtmlResponse::add_generic_param(const std::string &param_name, const char* 
 {
     m_ostr << "<span>" << param_name << " = " <<
       (p_str ? p_str : "NULL") << "</span>\n";
+}
+
+
+void HtmlResponse::add_generic_param_list(const string &param_name,
+                                          const vector<string> &param_list)
+{
+    // :fixme: this is just a stub
+    m_ostr << "<div><b>" << param_name << "</b>\n<ul>\n";
+    for (auto &e : param_list) {
+        m_ostr << "<li>" << e << "\n";
+    }
+    m_ostr << "</ul></div>\n";
 }
 
 
@@ -166,6 +179,16 @@ void JsonResponse::add_generic_param(const std::string &param_name, const char* 
     add_generic_param_generic_value(param_name, (p_str ? p_str : "NULL"));
 }
 
+void JsonResponse::add_generic_param_list(const string &param_name,
+                                          const vector<string> &param_list)
+{
+    Json::Value new_param(Json::objectValue);
+    new_param[param_name.c_str()] = Json::arrayValue;
+    for (auto &e : param_list) {
+        new_param[param_name.c_str()].append(e);
+    }
+    m_response.append(new_param);
+}
 
 void JsonResponse::add_buddy(const Buddy &buddy)
 {

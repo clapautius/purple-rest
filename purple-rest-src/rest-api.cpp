@@ -517,9 +517,7 @@ static int get_accounts_request(const vector<string> &request, string &response_
             if (request.size() > 4 && request[4] == "statuses") {
                 vector<string> statuses =
                   libpurple::get_statuses_for_account(request[3], true, false);
-                for (auto &elt : statuses) {
-                    response->add_generic_param("Status", elt.c_str());
-                }
+                response->add_generic_param_list("Statuses", statuses);
             } else if (request.size() > 4 && request[4] == "status") {
                 string status =
                   libpurple::get_status_for_account(request[3], false);

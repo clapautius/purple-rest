@@ -43,6 +43,9 @@ public:
     virtual void add_generic_param(const std::string &param_name,
                                    const char* p_str) = 0;
 
+    virtual void add_generic_param_list(const std::string &param_name,
+                                        const std::vector<std::string> &param_list) = 0;
+
     virtual void add_buddy(const Buddy &buddy) = 0;
 
     virtual void add_account(const PurpleAccount *account) = 0;
@@ -65,6 +68,8 @@ public:
 
     virtual void add_generic_param(const std::string &param_name, unsigned value);
     virtual void add_generic_param(const std::string &param_name, const char* p_str);
+    virtual void add_generic_param_list(const std::string &param_name,
+                                        const std::vector<std::string> &param_list);
 
     virtual void add_buddy(const Buddy &buddy);
 
@@ -93,6 +98,8 @@ public:
 
     virtual void add_generic_param(const std::string &param_name, unsigned value);
     virtual void add_generic_param(const std::string &param_name, const char* p_str);
+    virtual void add_generic_param_list(const std::string &param_name,
+                                        const std::vector<std::string> &param_list);
 
     virtual void add_buddy(const Buddy &buddy);
 
