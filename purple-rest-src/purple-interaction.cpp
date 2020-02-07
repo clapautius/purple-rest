@@ -475,8 +475,8 @@ vector<string> accounts_iterate(std::function<string (PurpleAccount*)> func,
                                 bool only_active)
 {
     vector<string> result;
-    GList *p_accounts = (only_active ? purple_accounts_get_all_active() :
-                         p_accounts = purple_accounts_get_all());
+    GList *p_accounts = (only_active ?
+                         purple_accounts_get_all_active() : purple_accounts_get_all());
     PurpleAccount *p_acc = nullptr;
     while (p_accounts) {
         p_acc = reinterpret_cast<PurpleAccount*>(p_accounts->data);
