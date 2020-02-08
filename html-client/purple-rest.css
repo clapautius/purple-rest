@@ -16,11 +16,12 @@ textarea#send-msg-text {
     width: 40rem;
 }
 
-/*
-div.conversations {
-    padding-top: 0.1rem;
+div.message-box {
+	margin-left: 8rem;
+	margin-right: 8rem;
+        margin-bottom: 1em;
 }
-*/
+
 
 @media (max-width: 1000px) {
     html
@@ -40,6 +41,11 @@ div.conversations {
     }
     textarea#send-msg-text {
         width: 20rem;
+    }
+    div.message-box {
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+        margin-bottom: 1em;
     }
 }
 
@@ -428,9 +434,6 @@ div.message-box {
         border-width: 1px;
         border-style: solid;
         border-color: #356273;
-	margin-left: 8rem;
-	margin-right: 8rem;
-        margin-bottom: 1em;
 }
 
 div.message-box-text {
@@ -448,7 +451,7 @@ div.message-box-title {
 span.account-name {
     color: #447f95;
     /*color: green;*/
-    margin-right: 2rem;
+    /*margin-right: 1rem;*/
     font-size: 105%;
     font-weight: bold;
 }

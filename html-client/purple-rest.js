@@ -18,7 +18,9 @@ var autoRefreshInterval = 10000;
 var windowIsVisible = false;
 var windowWasVisible = false;
 
-var textAreaIsSmall = true;
+var textAreaOrigSize = "";
+
+$('document').ready(function() { textAreaOrigSize = $("#send-msg-text").css("height"); } );
 
 function displayError(errorMsg)
 {
@@ -329,16 +331,8 @@ function displayConversations(oldMaxId)
 
 function textAreaClicked()
 {
-    textAreaToggleSize();
-}
-
-
-function textAreaToggleSize()
-{
-    if (textAreaIsSmall) {
+    if ($("#send-msg-text").css("height") == textAreaOrigSize) {
         textAreaMakeBig();
-    } else {
-        textAreaMakeSmall();
     }
 }
 
@@ -352,7 +346,7 @@ function textAreaMakeBig()
 
 function textAreaMakeSmall()
 {
-    $("#send-msg-text").css("height", "2rem");
+    $("#send-msg-text").css("height", textAreaOrigSize);
     textAreaIsSmall = true;
 }
 
@@ -784,7 +778,7 @@ function accountHtmlStr(account)
     }
     var funcStatuses = 'onAccountStatusesClick(\'' + accountName + '\');';
     htmlStr = '<div class="account"><span class="account-name">'
-        + accountName + '</span> ';
+        + accountName + '&nbsp;:&nbsp;</span> ';
     htmlStr += smallButtonHtmlStr('All statuses', funcStatuses);
     htmlStr += '</div><hr class="account"/>\n';
     return htmlStr;
